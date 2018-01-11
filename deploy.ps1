@@ -9,7 +9,7 @@ docker run `
     --workdir="/srv/jekyll" `
     -it `
     jekyll/jekyll:3.6.2 `
-    jekyll build
+    jekyll build --destination /publish
 
 if ($LASTEXITCODE -ne 0) {
     throw 'Error when building the Jekyll site in Docker'
