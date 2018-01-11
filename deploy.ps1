@@ -1,6 +1,13 @@
+[CmdletBinding()]
+Param(
+    [switch]$DeployOnGitHub
+)
+
 $ErrorActionPreference = "Stop"
 
 $tmpPath = [io.path]::combine([System.IO.Path]::GetTempPath(), "jekyll-$([System.Guid]::NewGuid())")
+
+Write-Verbose "Deployment path is: $tmpPath"
 
 docker run `
     --rm `
@@ -15,12 +22,24 @@ if ($LASTEXITCODE -ne 0) {
     throw 'Error when building the Jekyll site in Docker'
 }
 
-git checkout master
-git pull --rebase origin master
+Write-Output "Deployed static site to: $tmpPath"
 
-Copy-Item "$($tmpPath)/*" $PWD -Recurse
+if (!($DeployOnGitHub)) {
+    Write-Output 'Skipping deploy on GitHub'
+    Exit;
+}
 
-git add .
+try {
+    git checkout master
+    git pull --rebase origin master
 
-git commit -m "Release"
-git push origin master
+    Copy-Item "$($tmpPath)/*" $PWD -Recurse
+
+    git add .
+
+    git commit -m "Release"
+    git push origin master
+}
+finally {
+    Remove-Item -Recurse $tmpPath
+}
