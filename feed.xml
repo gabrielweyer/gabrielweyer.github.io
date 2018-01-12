@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Your awesome title</title>
-    <description>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.</description>
-    <link>/</link>
-    <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
+    <title>A somewhat technical blog</title>
+    <description>My name is Gabriel Weyer. I’m a software developer and currently based in Melbourne, Australia. I blog about technology.</description>
+    <link>https://gabrielweyer.github.io//</link>
+    <atom:link href="https://gabrielweyer.github.io//feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
         <title>Welcome to Jekyll!</title>
@@ -24,8 +24,8 @@
 
 </description>
         <pubDate>Wed, 10 Jan 2018 15:50:19 -0600</pubDate>
-        <link>/jekyll/update/2018/01/10/welcome-to-jekyll/</link>
-        <guid isPermaLink="true">/jekyll/update/2018/01/10/welcome-to-jekyll/</guid>
+        <link>https://gabrielweyer.github.io//jekyll/update/2018/01/10/welcome-to-jekyll/</link>
+        <guid isPermaLink="true">https://gabrielweyer.github.io//jekyll/update/2018/01/10/welcome-to-jekyll/</guid>
       </item>
     
       <item>
@@ -42,8 +42,8 @@
 &lt;/ul&gt;
 </description>
         <pubDate>Sat, 11 Jul 2015 00:00:00 -0500</pubDate>
-        <link>/jekyll/pixyll/2015/07/11/announcing-pixyll-version-2/</link>
-        <guid isPermaLink="true">/jekyll/pixyll/2015/07/11/announcing-pixyll-version-2/</guid>
+        <link>https://gabrielweyer.github.io//jekyll/pixyll/2015/07/11/announcing-pixyll-version-2/</link>
+        <guid isPermaLink="true">https://gabrielweyer.github.io//jekyll/pixyll/2015/07/11/announcing-pixyll-version-2/</guid>
       </item>
     
       <item>
@@ -68,8 +68,8 @@
 &lt;p&gt;It’s free, and open source (&lt;a href=&quot;http://opensource.org/licenses/MIT&quot;&gt;MIT&lt;/a&gt;).&lt;/p&gt;
 </description>
         <pubDate>Wed, 11 Jun 2014 15:31:19 +0000</pubDate>
-        <link>/jekyll/pixyll/2014/06/11/welcome-to-pixyll/</link>
-        <guid isPermaLink="true">/jekyll/pixyll/2014/06/11/welcome-to-pixyll/</guid>
+        <link>https://gabrielweyer.github.io//jekyll/pixyll/2014/06/11/welcome-to-pixyll/</link>
+        <guid isPermaLink="true">https://gabrielweyer.github.io//jekyll/pixyll/2014/06/11/welcome-to-pixyll/</guid>
       </item>
     
       <item>
@@ -206,8 +206,8 @@ or add, features.&lt;/p&gt;
 &lt;/div&gt;
 </description>
         <pubDate>Tue, 10 Jun 2014 12:31:19 +0000</pubDate>
-        <link>/jekyll/pixyll/2014/06/10/see-pixyll-in-action/</link>
-        <guid isPermaLink="true">/jekyll/pixyll/2014/06/10/see-pixyll-in-action/</guid>
+        <link>https://gabrielweyer.github.io//jekyll/pixyll/2014/06/10/see-pixyll-in-action/</link>
+        <guid isPermaLink="true">https://gabrielweyer.github.io//jekyll/pixyll/2014/06/10/see-pixyll-in-action/</guid>
       </item>
     
       <item>
@@ -223,8 +223,8 @@ and &lt;a href=&quot;http://en.wikipedia.org/wiki/Textile_(markup_language)&quot
 &lt;p&gt;Learn more about Jekyll on their &lt;a href=&quot;http://jekyllrb.com/&quot;&gt;website&lt;/a&gt;.&lt;/p&gt;
 </description>
         <pubDate>Mon, 09 Jun 2014 12:32:18 +0000</pubDate>
-        <link>/jekyll/pixyll/2014/06/09/so-what-is-jekyll/</link>
-        <guid isPermaLink="true">/jekyll/pixyll/2014/06/09/so-what-is-jekyll/</guid>
+        <link>https://gabrielweyer.github.io//jekyll/pixyll/2014/06/09/so-what-is-jekyll/</link>
+        <guid isPermaLink="true">https://gabrielweyer.github.io//jekyll/pixyll/2014/06/09/so-what-is-jekyll/</guid>
       </item>
     
       <item>
@@ -232,8 +232,8 @@ and &lt;a href=&quot;http://en.wikipedia.org/wiki/Textile_(markup_language)&quot
         <description>&lt;p&gt;This is an empty post to illustrate the pagination component with Pixyll.&lt;/p&gt;
 </description>
         <pubDate>Sun, 08 Jun 2014 11:21:29 +0000</pubDate>
-        <link>/jekyll/pixyll/2014/06/08/pixyll-has-pagination/</link>
-        <guid isPermaLink="true">/jekyll/pixyll/2014/06/08/pixyll-has-pagination/</guid>
+        <link>https://gabrielweyer.github.io//jekyll/pixyll/2014/06/08/pixyll-has-pagination/</link>
+        <guid isPermaLink="true">https://gabrielweyer.github.io//jekyll/pixyll/2014/06/08/pixyll-has-pagination/</guid>
       </item>
     
   </channel>

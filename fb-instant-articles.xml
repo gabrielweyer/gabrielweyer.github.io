@@ -2,15 +2,15 @@
 <rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title></title>
-    <link></link>
+    <link>https://gabrielweyer.github.io/</link>
     <description>
-      Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.
+      My name is Gabriel Weyer. I’m a software developer and currently based in Melbourne, Australia. I blog about technology.
     </description>
     
         
             <item>
                 <title>Welcome to Jekyll!</title>
-                <link>/jekyll/update/2018/01/10/welcome-to-jekyll/</link>
+                <link>https://gabrielweyer.github.io//jekyll/update/2018/01/10/welcome-to-jekyll/</link>
                 <content:encoded>
                     <![CDATA[
                     <p>You’ll find this post in your <code class="highlighter-rouge">_posts</code> directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run <code class="highlighter-rouge">jekyll serve</code>, which launches a web server and auto-regenerates your site when a file is updated.</p>
@@ -42,7 +42,7 @@
         
             <item>
                 <title>Announcing Version 2.0</title>
-                <link>/jekyll/pixyll/2015/07/11/announcing-pixyll-version-2/</link>
+                <link>https://gabrielweyer.github.io//jekyll/pixyll/2015/07/11/announcing-pixyll-version-2/</link>
                 <content:encoded>
                     <![CDATA[
                     <p>In an effort to make Pixyll easier to customize and more aesthetically pleasing, we’ve released version <code class="highlighter-rouge">2.0</code>.</p>
@@ -72,7 +72,7 @@
         
             <item>
                 <title>Hello, Pixyll</title>
-                <link>/jekyll/pixyll/2014/06/11/welcome-to-pixyll/</link>
+                <link>https://gabrielweyer.github.io//jekyll/pixyll/2014/06/11/welcome-to-pixyll/</link>
                 <content:encoded>
                     <![CDATA[
                     <p>Hello.</p>
@@ -110,7 +110,7 @@
         
             <item>
                 <title>Pixyll in Action</title>
-                <link>/jekyll/pixyll/2014/06/10/see-pixyll-in-action/</link>
+                <link>https://gabrielweyer.github.io//jekyll/pixyll/2014/06/10/see-pixyll-in-action/</link>
                 <content:encoded>
                     <![CDATA[
                     <p>There is a significant amount of subtle, yet precisely calibrated, styling to ensure
@@ -260,7 +260,7 @@ or add, features.</p>
         
             <item>
                 <title>So, What is Jekyll?</title>
-                <link>/jekyll/pixyll/2014/06/09/so-what-is-jekyll/</link>
+                <link>https://gabrielweyer.github.io//jekyll/pixyll/2014/06/09/so-what-is-jekyll/</link>
                 <content:encoded>
                     <![CDATA[
                     <p>Jekyll is a tool for transforming your plain text into static websites and 
@@ -289,7 +289,7 @@ and <a href="http://en.wikipedia.org/wiki/Textile_(markup_language)">Textile</a>
         
             <item>
                 <title>Pixyll has Pagination</title>
-                <link>/jekyll/pixyll/2014/06/08/pixyll-has-pagination/</link>
+                <link>https://gabrielweyer.github.io//jekyll/pixyll/2014/06/08/pixyll-has-pagination/</link>
                 <content:encoded>
                     <![CDATA[
                     <p>This is an empty post to illustrate the pagination component with Pixyll.</p>
