@@ -9,300 +9,730 @@
     
         
             <item>
-                <title>Welcome to Jekyll!</title>
-                <link>https://gabrielweyer.github.io//jekyll/update/2018/01/10/welcome-to-jekyll/</link>
+                <title>Capture network packets with netsh</title>
+                <link>https://gabrielweyer.github.io//2016/07/16/capture-network-packets-with-netsh/</link>
                 <content:encoded>
                     <![CDATA[
-                    <p>You’ll find this post in your <code class="highlighter-rouge">_posts</code> directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run <code class="highlighter-rouge">jekyll serve</code>, which launches a web server and auto-regenerates your site when a file is updated.</p>
+                    <p>Another day, another “interesting” issue at a customer. After deploying our product we were left with a partially working web application. The product has been developed over many years and is a mix of ASP Classic, Web Forms, MVC and Web API. In this case ASP Classic pages were broken and would throw an error.</p>
 
-<p>To add new posts, simply add a file in the <code class="highlighter-rouge">_posts</code> directory that follows the convention <code class="highlighter-rouge">YYYY-MM-DD-name-of-post.ext</code> and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.</p>
+<h2 id="ensuring-asp-classic-is-configured-properly">Ensuring ASP Classic is configured properly</h2>
 
-<p>Jekyll also offers powerful support for code snippets:</p>
+<p>The first step is to ensure that IIS has been configured to execute ASP Classic and this is done easily by adding a dummy ASP page to the web application. After deploying this page I was able to confirm that it was working as expected.</p>
 
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">print_hi</span><span class="p">(</span><span class="nb">name</span><span class="p">)</span>
-  <span class="nb">puts</span> <span class="s2">"Hi, </span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">"</span>
-<span class="k">end</span>
-<span class="n">print_hi</span><span class="p">(</span><span class="s1">'Tom'</span><span class="p">)</span>
-<span class="c1">#=&gt; prints 'Hi, Tom' to STDOUT.</span></code></pre></figure>
+<noscript><pre>400: Invalid request
+</pre></noscript>
+<script src="https://gist.github.com/5eb3198119bead02649c0fe11d733055.js"> </script>
 
-<p>Check out the <a href="https://jekyllrb.com/docs/home">Jekyll docs</a> for more info on how to get the most out of Jekyll. File all bugs/feature requests at <a href="https://github.com/jekyll/jekyll">Jekyll’s GitHub repo</a>. If you have questions, you can ask them on <a href="https://talk.jekyllrb.com/">Jekyll Talk</a>.</p>
+<p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/dummy-asp.png" alt="dummy-asp" /></p>
 
+<h2 id="enabling-failed-request-tracing">Enabling failed request tracing</h2>
 
-                    ]]>
-                </content:encoded>
-                <guid isPermaLink="false">/jekyll/update/2018/01/10/welcome-to-jekyll/</guid>
-                <description>
-                    
-                </description>
-                <pubDate>Wed, 10 Jan 2018 15:50:19 -0600</pubDate>
-                <author></author>
-            </item>
-        
-    
-        
-            <item>
-                <title>Announcing Version 2.0</title>
-                <link>https://gabrielweyer.github.io//jekyll/pixyll/2015/07/11/announcing-pixyll-version-2/</link>
-                <content:encoded>
-                    <![CDATA[
-                    <p>In an effort to make Pixyll easier to customize and more aesthetically pleasing, we’ve released version <code class="highlighter-rouge">2.0</code>.</p>
+<p>The features written in ASP Classic have been written many years ago and the developers didn’t consider logging as a key part of the development process. The end result being that when something goes wrong no logs get written by the application or to the event viewer.</p>
 
-<p>Pixyll now features:</p>
+<p>The second step is to turn on the “<strong>Failed Request Tracing Rules</strong>“ and reload the failing page. Internet has a lot of tutorials around this but they’re all missing key steps, I’ll focus on those as you can find everything else easily.</p>
 
-<ul>
-  <li>Line anchors in code blocks and new syntax highlighting</li>
-  <li>A customizable variables file</li>
-  <li>Modular, and lighter weight CSS</li>
-  <li>No more <code class="highlighter-rouge">max-width</code> media queries</li>
-</ul>
+<p>“Failed Request Tracing Rules” will not be available in the IIS Manager if you didn’t turn on the <strong>Tracing</strong> feature in Windows Features:</p>
 
-                    ]]>
-                </content:encoded>
-                <guid isPermaLink="false">/jekyll/pixyll/2015/07/11/announcing-pixyll-version-2/</guid>
-                <description>
-                    
-                    Now, Pixyll is lighter weight and more customizable than before.
-                    
-                </description>
-                <pubDate>Sat, 11 Jul 2015 00:00:00 -0500</pubDate>
-                <author></author>
-            </item>
-        
-    
-        
-            <item>
-                <title>Hello, Pixyll</title>
-                <link>https://gabrielweyer.github.io//jekyll/pixyll/2014/06/11/welcome-to-pixyll/</link>
-                <content:encoded>
-                    <![CDATA[
-                    <p>Hello.</p>
+<p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/tracing.png" alt="tracing" /></p>
 
-<p>Pixyll is a simple, beautiful theme for Jekyll that emphasizes content rather than aesthetic fluff. It’s mobile <em>first</em>, fluidly responsive, and delightfully lightweight.</p>
+<p>Another thing is that multiple sites could be writing traces at the same time. Each site will be writing to a different sub folder suffixed with the site ID:</p>
 
-<p>It’s pretty minimal, but leverages large type and drastic contrast to make a statement, on all devices.</p>
+<p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/site-id.gif" alt="site-id" /></p>
+
+<p>Finally you can copy the log files back to your machine, don’t forget to copy the freb.xsl file too, you’ll then be able to open the XML files in Internet Explorer and look at a human readable representation of the log.</p>
+
+<p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/invalid-authority.png" alt="invalid-authority" /></p>
+
+<p>All ASP Classic pages are calling an API endpoint in order to get a token (long story short: don’t ask - the user is signing-in in an AngularJS app backed by Web API and is then able to use seamlessly the pages hosted on MVC, Web Forms and Classic ASP). What is strange in this situation is that Internet Explorer is marking the TLS certificate as valid, so does Chrome. Even worse: the same ASP Classic page hosted on my machine calling the token endpoint on the remote server is successful! The Windows Certificate Manager is displaying the same message for the root CA, intermediate CA and certificate: ”This certificate is OK.”.</p>
+
+<p>I then suspected the certificate might be using unsupported ciphers but it turned out that it wasn’t the case. I quickly wrote a C# Console application calling the same token endpoint - the HttpClient class is throwing meaningful errors - but to my dismay the C# code was able to call the endpoint successfully!</p>
+
+<p>Armed with the ErrorCode “80072f0d” and the Description “The certificate authority is invalid or incorrect” I scoured Internet for some potential solutions. Everything I could find was related to invalid and self-signed certificates.</p>
+
+<h2 id="capturing-packets-on-a-windows-server">Capturing packets on a Windows Server</h2>
+
+<p>When people think “packet capture” they always assume they need to install <a href="https://www.wireshark.org/">Wireshark</a> (or another similar tool) whereas Windows Server is shipping with the ability to capture network packets with <a href="https://technet.microsoft.com/en-us/library/dd878517(v=ws.10).aspx">netsh</a> since Windows Server 2008 R2. The advantage of this solution is that you don’t need to install anything on the machine. To see if it’s available, all you need to do is open a command prompt and type:</p>
+
+<figure class="highlight"><pre><code class="language-posh" data-lang="posh">netsh trace</code></pre></figure>
+
+<p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/netsh-trace.gif" alt="netsh-trace" /></p>
+
+<p>Now that we know that <strong>trace</strong> is available we need to start capturing the packets and reproduce the problem. Launch an <strong>elevated</strong> command prompt and type:</p>
+
+<figure class="highlight"><pre><code class="language-posh" data-lang="posh">netsh trace <span class="nb">start </span><span class="nv">tracefile</span><span class="o">=</span><span class="s2">"C:\tmp\traces\classic.etl"</span> <span class="nv">scenario</span><span class="o">=</span>internetclient <span class="nv">capture</span><span class="o">=</span>yes <span class="nv">maxsize</span><span class="o">=</span>200 <span class="nv">filemode</span><span class="o">=</span>circular <span class="nv">overwrite</span><span class="o">=</span>yes</code></pre></figure>
+
+<p><strong>Note</strong>: the path needs to exist beforehand.</p>
+
+<p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/start-stop.gif" alt="start-stop" /></p>
+
+<p>Starting and stopping the trace is actually slower that what is demonstrated above but I didn’t want lo lose your attention! And of course you would need to reproduce the issue before issuing:</p>
+
+<figure class="highlight"><pre><code class="language-posh" data-lang="posh">netsh stop</code></pre></figure>
+
+<h2 id="microsoft-message-analyzer">Microsoft Message Analyzer</h2>
+
+<p>We now need to analyze this trace and this is done with the <a href="https://technet.microsoft.com/en-us/library/jj649776.aspx">Microsoft Message</a> <a href="https://blogs.technet.microsoft.com/messageanalyzer/">Analyzer</a> (can be downloaded <a href="https://www.microsoft.com/en-au/download/details.aspx?id=44226">here</a>). The Analyzer takes a long time to open the smallest trace but once the trace is loaded you can search quickly.</p>
+
+<p>We’ll first look for an HTTP CONNECT, use this filter:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(HTTP.Method == "CONNECT") And
+(HTTP.Uri.Host == "domain.name") And
+(HTTP.Uri.Port == "port")
+</code></pre></div></div>
+
+<p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/connect.png" alt="connect.png" /></p>
+
+<p>As we can see the CONNECT was successful. Let’s investigate the TLS handshake now, this is handled by the TLS module so all we need to do is filter on this module only:</p>
 
 <blockquote>
-  <p>
-    Perfection is achieved, not when there is nothing more to add, but when there is nothing left to take away.
-  </p>
-  <footer><cite title="Antoine de Saint-Exupéry">Antoine de Saint-Exupéry</cite></footer>
+  <p>TLS</p>
 </blockquote>
 
-<h2 id="where-is-it">Where is it?</h2>
+<p>This is what was captured when the C# application connected to the token endpoint:</p>
 
-<p>Checkout the <a href="https://github.com/johnotander/pixyll">Github repository</a> to download it, request a feature, or report a bug.</p>
+<p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/c-sharp-tls.png" alt="c-sharp-tls" /></p>
 
-<p>It’s free, and open source (<a href="http://opensource.org/licenses/MIT">MIT</a>).</p>
+<p>This is matching closely what is described in the <a href="https://tools.ietf.org/html/rfc5246#page-36">RFC 5246</a> (TLS 1.2).</p>
+
+<p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/full-handshake.png" alt="full-handshake" /></p>
+
+<p>Let’s now capture the traffic when the VB code is trying to call the token endpoint.</p>
+
+<p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/vb-tls.png" alt="vb-tls.png" /></p>
+
+<p>Great Scott! The server is sending <code class="highlighter-rouge">ServerHello</code> as expected but the client doesn’t reply with <code class="highlighter-rouge">ClientKeyExchange</code>. I then removed the filter and started to look at the messages below. My reasoning was that I should be finding some kind of error message soon after and here it was:</p>
+
+<p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/browsing-messages.png" alt="browsing-messages" /></p>
+
+<p>The error message was:</p>
+
+<blockquote>
+  <p>A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider. (0x800B0109)</p>
+</blockquote>
+
+<p>As it turned out someone had messed up with the certificate store and removed the intermediate CA from the “Intermediate Certification Authorities”. As the root CA was still present in the “Trusted Root Certification Authorities” it was good enough for Internet Explorer and C# but it wasn’t for VB! I added the intermediate CA to the store and things started to work again.</p>
+
 
                     ]]>
                 </content:encoded>
-                <guid isPermaLink="false">/jekyll/pixyll/2014/06/11/welcome-to-pixyll/</guid>
+                <guid isPermaLink="false">/2016/07/16/capture-network-packets-with-netsh/</guid>
                 <description>
                     
-                    Pixyll is a simple, beautiful theme for Jekyll that emphasizes content rather than aesthetic fluff.
-                    
                 </description>
-                <pubDate>Wed, 11 Jun 2014 15:31:19 +0000</pubDate>
+                <pubDate>Sat, 16 Jul 2016 09:20:07 +0000</pubDate>
                 <author></author>
             </item>
         
     
         
             <item>
-                <title>Pixyll in Action</title>
-                <link>https://gabrielweyer.github.io//jekyll/pixyll/2014/06/10/see-pixyll-in-action/</link>
+                <title>beIN SPORTS CONNECT</title>
+                <link>https://gabrielweyer.github.io//2016/06/13/bein-sports-connect/</link>
                 <content:encoded>
                     <![CDATA[
-                    <p>There is a significant amount of subtle, yet precisely calibrated, styling to ensure
-that your content is emphasized while still looking aesthetically pleasing.</p>
+                    <p>I like football, even with the time difference I try to watch at least the World Cup and the European Championship. I watched the last World Cup on <a href="http://www.sbs.com.au/">SBS</a> but this time around they only managed to secure a handful of games. As they’re a public service it makes sense after all that they wouldn’t buy the rights for all the games. A quick search on Google indicated that <a href="http://www.beinsportsconnect.com.au/home">beIN SPORTS CONNECT</a> is the way to go in Australia - I will refer to this service as beIN for the rest of this post.</p>
 
-<p>All links are easy to <a href="#">locate and discern</a>, yet don’t detract from the <a href="#">harmony
-of a paragraph</a>. The <em>same</em> goes for italics and <strong>bold</strong> elements. Even the the strikeout
-works if <del>for some reason you need to update your post</del>. For consistency’s sake,
-<ins>The same goes for insertions</ins>, of course.</p>
+<h1 id="subscribing">Subscribing</h1>
 
-<h3 id="code-with-syntax-highlighting">Code, with syntax highlighting</h3>
+<p>As the pricing seems reasonable I decided to go ahead. The page is loaded over HTTPS so we start well but to my surprise the form contains a <strong>password remainder</strong> field. Password remainders are a bad practice as users tend to fill them with their password (when allowed) or with a hint that is an obvious give away.</p>
 
-<p>Here’s an example of some ruby code with line anchors.</p>
+<p>As I don’t know any of my password, a password reminder is useless to me so I always generate a strong unique random password for this field. After trying to submit the form I got the following error:</p>
 
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="c1"># The most awesome of classes</span>
-<span class="k">class</span> <span class="nc">Awesome</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
-  <span class="kp">include</span> <span class="no">EvenMoreAwesome</span>
+<p><img src="/assets/2016-06-13-bein-sports-connect/password-remainder.png" alt="password-remainder" /></p>
 
-  <span class="n">validates_presence_of</span> <span class="ss">:something</span>
-  <span class="n">validates</span> <span class="ss">:email</span><span class="p">,</span> <span class="ss">email_format: </span><span class="kp">true</span>
+<p>I don’t understand the benefits of restricting the characters I can use. On the contrary it seems to indicate this site is potentially vulnerable to <a href="https://www.troyhunt.com/understanding-xss-input-sanitisation/">XSS</a>. I generate another reminder without “special” characters and get presented with another error:</p>
 
-  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">email</span><span class="p">,</span> <span class="nb">name</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">)</span>
-    <span class="nb">self</span><span class="p">.</span><span class="nf">email</span> <span class="o">=</span> <span class="n">email</span>
-    <span class="nb">self</span><span class="p">.</span><span class="nf">name</span> <span class="o">=</span> <span class="nb">name</span>
-    <span class="nb">self</span><span class="p">.</span><span class="nf">favorite_number</span> <span class="o">=</span> <span class="mi">12</span>
-    <span class="nb">puts</span> <span class="s1">'created awesomeness'</span>
-  <span class="k">end</span>
+<p><img src="/assets/2016-06-13-bein-sports-connect/invalid-format.png" alt="invalid-format" /></p>
 
-  <span class="k">def</span> <span class="nf">email_format</span>
-    <span class="n">email</span> <span class="o">=~</span> <span class="sr">/\S+@\S+\.\S+/</span>
-  <span class="k">end</span>
-<span class="k">end</span></code></pre></figure>
+<p>So my valid email address is in an “Incorrect format”. How convenient should they ever decide to sell my data to a third party without me being able to track it back to them.</p>
 
-<p>Here’s some CSS:</p>
+<p>I start to have a bad feeling about the password requirements. After all the only one that is stated is that my password should be at least 6 characters. I decide to use “123456” and also use it as the password reminder. <strong>&lt;clickbait&gt;</strong>You won’t believe what happens next!<strong>&lt;/clickbait&gt;</strong>. Actually I’m sure you knew what would happen: the form happily accepted my password and let me reuse it in the reminder field. Well at least I “<em>can access the site</em> <strong>securely</strong>” (emphasis is mine).</p>
 
-<figure class="highlight"><pre><code class="language-css" data-lang="css"><span class="nc">.foobar</span> <span class="p">{</span>
-  <span class="c">/* Named colors rule */</span>
-  <span class="nl">color</span><span class="p">:</span> <span class="no">tomato</span><span class="p">;</span>
-<span class="p">}</span></code></pre></figure>
+<p><img src="/assets/2016-06-13-bein-sports-connect/123456.png" alt="123456" /></p>
 
-<p>Here’s some JavaScript:</p>
+<p>One last thing before we move on to the dessert. Does it seem normal to be loading so many third party JavaScript files on a registration page? They’re even loading ads and we know what malicious ads do to your browser and it’s not kind (malware installation, credentials theft…).</p>
 
-<figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">isPresent</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'is-present'</span><span class="p">)</span>
+<p><img src="/assets/2016-06-13-bein-sports-connect/do-you-need-ads-on-signup.png" alt="do-you-need-ads-on-signup.png" /></p>
 
-<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">doStuff</span><span class="p">(</span><span class="nx">things</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">isPresent</span><span class="p">(</span><span class="nx">things</span><span class="p">))</span> <span class="p">{</span>
-    <span class="nx">doOtherStuff</span><span class="p">(</span><span class="nx">things</span><span class="p">)</span>
-  <span class="p">}</span>
-<span class="p">}</span></code></pre></figure>
+<h1 id="sign-inform-loaded-over-http">Sign-in form loaded over HTTP</h1>
 
-<p>Here’s some HTML:</p>
+<p>Yes you read that right. Even though the form is POSTing to HTTPS by then it is <a href="https://www.troyhunt.com/your-login-form-posts-to-https-but-you/">too late</a>. An attacker could have already intercepted the initial HTTP response and pointed the form to the URL of his choosing.</p>
 
-<figure class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"m0 p0 bg-blue white"</span><span class="nt">&gt;</span>
-  <span class="nt">&lt;h3</span> <span class="na">class=</span><span class="s">"h1"</span><span class="nt">&gt;</span>Hello, world!<span class="nt">&lt;/h3&gt;</span>
-<span class="nt">&lt;/div&gt;</span></code></pre></figure>
+<p>Sometimes websites still offer sign-in over HTTPS when you look for it but it doesn’t seem to be the case here.  <a href="https://secure.beinsportsconnect.com.au/">https://secure.beinsportsconnect.com.au/</a> redirects to <a href="http://www.beinsportsconnect.com.au/">http://www.beinsportsconnect.com.au/</a> and trying to access <a href="https://www.beinsportsconnect.com.au/">https://www.beinsportsconnect.com.au/</a> results in something you should never see:</p>
 
-<h1 id="headings">Headings!</h1>
+<p><img src="/assets/2016-06-13-bein-sports-connect/bein-loaded-over-https.png" alt="bein-loaded-over-https.png" /></p>
 
-<p>They’re responsive, and well-proportioned (in <code class="highlighter-rouge">padding</code>, <code class="highlighter-rouge">line-height</code>, <code class="highlighter-rouge">margin</code>, and <code class="highlighter-rouge">font-size</code>).
-They also heavily rely on the awesome utility, <a href="http://www.basscss.com/">BASSCSS</a>.</p>
+<h1 id="conclusion">Conclusion</h1>
 
-<h5 id="they-draw-the-perfect-amount-of-attention">They draw the perfect amount of attention</h5>
+<p>If you’re already using beIN or are planning on starting to use it at least generate a unique password so that when they get compromised attackers will not gain access to your account on other services.</p>
 
-<p>This allows your content to have the proper informational and contextual hierarchy. Yay.</p>
-
-<h3 id="there-are-lists-too">There are lists, too</h3>
+<p>I understand going all HTTPS would require a tremendous amount of work but beIN could first take some other steps that would make a big difference:</p>
 
 <ul>
-  <li>Apples</li>
-  <li>Oranges</li>
-  <li>Potatoes</li>
-  <li>Milk</li>
+  <li>Remove the password reminder altogether</li>
+  <li>Provide a dedicated HTTPS only sign-in page</li>
+  <li>Stop loading third-party ads on the sign-in page</li>
 </ul>
+
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2016/06/13/bein-sports-connect/</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Mon, 13 Jun 2016 10:46:32 +0000</pubDate>
+                <author></author>
+            </item>
+        
+    
+        
+            <item>
+                <title>CodeCleanser</title>
+                <link>https://gabrielweyer.github.io//2016/06/04/codecleanser/</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>Recently I came up with an interesting issue at a customer. A governmental agency contacted us and informed us that due to a Windows update we could experience intermittent issue when trying to communicate with them. All I knew at this stage was that the issue would manifest itself when trying to upload a document and that the integration is done via DLLs that are wrapping a few web services.</p>
+
+<p>After <a href="https://www.jetbrains.com/help/decompiler/2016.1/Generating_PDB_Files.html">generating PDBs</a> via <a href="https://www.jetbrains.com/decompiler/">dotPeek</a> and adding them to the Visual Studio symbol cache directory I was able to debug through those third party DLLs and confirm that the issue was indeed located in one of them.</p>
+
+<p>Knowing the DLL is redistributed with the product, is in multiple production versions and that the source control’s history is pretty patchy, the question then become: <strong>if we were to get a new DLL could we use it for all the versions?</strong></p>
+
+<p>To answer this question we will have to assess the differences between the DLL in each version.</p>
+
+<h1 id="first-naive-attempt-checksum">First naive attempt: checksum</h1>
+
+<p>Windows ships with a few ways to compute a checksum, <a href="http://superuser.com/a/898377/128002">CertUtil</a> is one of them, PowerShell has a <a href="https://technet.microsoft.com/en-us/library/dn520872.aspx">Get-FileHash</a> cmdlet and this is what I’ll use:</p>
+
+<figure class="highlight"><pre><code class="language-posh" data-lang="posh"><span class="nb">Get-FileHash</span> &lt;filepath&gt; -Algorithm MD5</code></pre></figure>
+
+<p>For our purpose MD5 is good enough, if you want to ensure that a file hasn’t been tampered with you should be using SHA256 at least.</p>
+
+<p>Sadly the three checksums for the three versions were different. But it doesn’t mean the DLLs are semantically different. It could have been metadata, different .NET Framework versions…</p>
+
+<p>At this stage I could have used <a href="https://msdn.microsoft.com/en-us/library/f7dy01k1(v=vs.110).aspx">Ildasm</a> to try to diff the full source code in one file but according to my previous tries the output end up being different. For sake of completeness I tried again before writing this blog post.</p>
+
+<figure class="highlight"><pre><code class="language-posh" data-lang="posh">ildasm &lt;dll-filepath&gt; /text /out<span class="o">=</span>&lt;output-filepath&gt;</code></pre></figure>
+
+<p>This time is no exception, WinMerge indicates 348 differences! Some of them can be explained away:</p>
+
+<p><a href="/assets/2016-06-04-codecleanser/different-dot-net-version.png"><img src="/assets/2016-06-04-codecleanser/different-dot-net-version.png" alt="different-dot-net-version" /></a></p>
+
+<p>The assemblies have been compiled using different version of the .NET Framework, which makes sense as many years separate those two versions.</p>
+
+<p>Next comes an interesting piece of information that explains why two builds of the same source code always result in two different DLLs:</p>
+
+<p><a href="/assets/2016-06-04-codecleanser/mvid-image-base.png"><img src="/assets/2016-06-04-codecleanser/mvid-image-base.png" alt="mvid-image-base.png" /></a></p>
+
+<p>The <a href="https://msdn.microsoft.com/en-us/library/system.reflection.module.moduleversionid(v=vs.110).aspx">MVID</a> changes at every single build, for our purpose we can safely ignore this difference, same goes for the Image base. The other differences are more worrying:</p>
+
+<p><a href="/assets/2016-06-04-codecleanser/different-attributes.png"><img src="/assets/2016-06-04-codecleanser/different-attributes.png" alt="different-attributes.png" /></a></p>
+
+<p>It looks like the Attributes are the same but in a different order. There are hundreds of such instances and as IL is harder to read than C# it’s time to move on to another strategy.</p>
+
+<h1 id="plan-b-generate-a-project-via-dotpeek">Plan B: generate a project via dotPeek</h1>
+
+<p>dotPeek can not only decompile IL to C#, it also can <a href="https://www.jetbrains.com/help/decompiler/2016.1/Exporting_Assembly_to_Project.html">generate a project from a DLL</a>. Let’s give it a spin and close this case!</p>
+
+<p>According to WinMerge, every single file is different! Now I’m a sad panda :(, how could the C# differ even more than the IL? This is due to the fact that as a <em>convenience</em>, dotPeek kindly outputs the MVID and the assembly location at the top of each file:</p>
+
+<p><a href="/assets/2016-06-04-codecleanser/dotpeek-mvid-assembly-location.png"><img src="/assets/2016-06-04-codecleanser/dotpeek-mvid-assembly-location.png" alt="dotpeek-mvid-assembly-location" /></a></p>
+
+<p>In our use case, this is rather inconvenient. Luckily WinMerge has a feature called <a href="http://stackoverflow.com/a/22178182/57369">LineFilters</a> which allows to ignore lines based on Regular Expressions. Two filters later a lot of files are still different:</p>
+
+<p><a href="/assets/2016-06-04-codecleanser/win-merge.png"><img src="/assets/2016-06-04-codecleanser/win-merge.png" alt="win-merge.png" /></a></p>
+
+<p>It’s now confirmed, some attributes are in a different order! dotPeek has an <a href="https://youtrack.jetbrains.com/issue/DOTP-7063">opened bug</a> regarding this but it hasn’t been updated since October 2015 so we can assume it won’t be fixed anytime soon. By then I already spent 30 minutes on this task and being a consultant I can’t justify spending more time trying to find a (mostly) automated solution. I might be able to pull it off with a Regex but it might also turn to be a rabbit hole. According to the number of different files and hoping it would only be about attributes ordering it should take me less than an hour to go through the difference. It actually only took me 30 minutes and confirmed the assumption that only the order of the attributes was differing.</p>
+
+<h1 id="enter-codecleanser">Enter CodeCleanser</h1>
+
+<p>Fast forward two days, it’s Saturday morning and I’m wondering if I can use <a href="https://github.com/dotnet/roslyn">Roslyn</a> to solve this problem.</p>
+
+<p>I had 3 objectives:</p>
 
 <ol>
-  <li>Mow the lawn</li>
-  <li>Feed the dog</li>
-  <li>Dance</li>
+  <li>Get rid of the comments at the top of the file</li>
+  <li>Sort Attributes by alphabetical order</li>
+  <li>Wrap up before training</li>
 </ol>
 
-<h3 id="images-look-great-too">Images look great, too</h3>
+<p>The source code is available <a href="https://github.com/gabrielweyer/CodeCleanser">here</a>, feel free to use it and adapt it to your own needs.</p>
 
-<p><img src="https://cloud.githubusercontent.com/assets/1424573/3378137/abac6d7c-fbe6-11e3-8e09-55745b6a8176.png" alt="desk" /></p>
+<h2 id="get-rid-of-the-comments-at-the-top-of-the-file">Get rid of the comments at the top of the file</h2>
 
-<p><em><img src="https://cloud.githubusercontent.com/assets/1424573/3378137/abac6d7c-fbe6-11e3-8e09-55745b6a8176.png" alt="desk" /></em></p>
+<p>Let’s start by what seems the easiest: removing the comments at the top of the files. What’s very nice with Roslyn is that you don’t need an actual file, you can pass a string as an argument which makes unit testing very easy. As I’m only planning on doing cosmetic changes and I only care about comparing the two DLLs I don’t need to operate at a project or solution level.</p>
 
-<h3 id="there-are-also-pretty-colors">There are also pretty colors</h3>
+<p>Following the TDD principles I’ll first write a <a href="https://github.com/gabrielweyer/CodeCleanser/blob/4b7b769bdf104461decc7db0f6ce46a890de4351/Tests/RemoveLeadingTriviaTests.cs#L8-L55">test</a>:</p>
 
-<p>Also the result of <a href="http://www.basscss.com/">BASSCSS</a>, you can <span class="bg-dark-gray white">highlight</span> certain components
-of a <span class="red">post</span> <span class="mid-gray">with</span> <span class="green">CSS</span> <span class="orange">classes</span>.</p>
+<noscript><pre>400: Invalid request
+</pre></noscript>
+<script src="https://gist.github.com/b6aaa2c60ba20f8340d32edd4ff87265.js"> </script>
 
-<p>I don’t recommend using blue, though. It looks like a <span class="blue">link</span>.</p>
+<p>This test ensures that everything before the first using statement is removed. Let’s now look at the <a href="https://github.com/gabrielweyer/CodeCleanser/blob/4b7b769bdf104461decc7db0f6ce46a890de4351/Logic/CodeCleaner.cs#L39-L47">implementation</a>:</p>
 
-<h3 id="footnotes">Footnotes!</h3>
+<noscript><pre>400: Invalid request
+</pre></noscript>
+<script src="https://gist.github.com/ac0976203a5315f16e1bac81963a6a8b.js"> </script>
 
-<p>Markdown footnotes are supported, and they look great! Simply put e.g. <code class="highlighter-rouge">[^1]</code> where you want the footnote to appear,<sup id="fnref:1"><a href="#fn:1" class="footnote">1</a></sup> and then add
-the reference at the end of your markdown.</p>
-
-<h3 id="stylish-blockquotes-included">Stylish blockquotes included</h3>
-
-<p>You can use the markdown quote syntax, <code class="highlighter-rouge">&gt;</code> for simple quotes.</p>
+<p>The Roslyn documentation defines a <a href="https://github.com/dotnet/roslyn/wiki/Roslyn%20Overview#syntax-trivia">trivia</a> as:</p>
 
 <blockquote>
-  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse quis porta mauris.</p>
+  <p>Syntax trivia represent the parts of the source text that are largely insignificant for normal understanding of the code, such as whitespace, comments, and preprocessor directives.</p>
 </blockquote>
 
-<p>However, you need to inject html if you’d like a citation footer. I will be working on a way to
-hopefully sidestep this inconvenience.</p>
+<p>All the code is doing is replace each leading trivia with an empty trivia. I’m sure there is a better way of doing this but this works well enough for my purpose.</p>
 
-<blockquote>
-  <p>
-    Perfection is achieved, not when there is nothing more to add, but when there is nothing left to take away.
-  </p>
-  <footer><cite title="Antoine de Saint-Exupéry">Antoine de Saint-Exupéry</cite></footer>
-</blockquote>
+<h2 id="sort-attributes-by-alphabetical-order">Sort Attributes by alphabetical order</h2>
 
-<h3 id="theres-more-being-added-all-the-time">There’s more being added all the time</h3>
+<p>Again we’ll start with a <a href="https://github.com/gabrielweyer/CodeCleanser/blob/4b7b769bdf104461decc7db0f6ce46a890de4351/Tests/SortAttributesAlphabeticallyTests.cs#L8-L51">test</a>:</p>
 
-<p>Checkout the <a href="https://github.com/johnotander/pixyll">Github repository</a> to request,
-or add, features.</p>
+<noscript><pre>400: Invalid request
+</pre></noscript>
+<script src="https://gist.github.com/786db1ecb44c689ce18532cda794f0f7.js"> </script>
 
-<p>Happy writing.</p>
+<p>We’ll need to pack a bit more power this time. In my case the issue only happened on class, enum and property declarations, CSharpSyntaxRewriter seems to be a good candidate for what I want to achieve. The implementation can be found <a href="https://github.com/gabrielweyer/CodeCleanser/blob/4b7b769bdf104461decc7db0f6ce46a890de4351/Logic/AttributesSorter.cs#L46-L66">here</a>:</p>
 
-<hr />
+<noscript><pre>400: Invalid request
+</pre></noscript>
+<script src="https://gist.github.com/2daec819f25eca2679174c08985b599e.js"> </script>
 
-<div class="footnotes">
-  <ol>
-    <li id="fn:1">
-      <p>Important information that may distract from the main text can go in footnotes. <a href="#fnref:1" class="reversefootnote">&#8617;</a></p>
-    </li>
-  </ol>
-</div>
+<p>I had to make sure the blank line preceding the first attribute didn’t get moved down and that’s why there is some logic around leading trivia (prompted by this <a href="https://github.com/gabrielweyer/CodeCleanser/blob/4b7b769bdf104461decc7db0f6ce46a890de4351/Tests/SortAttributesAlphabeticallyTests.cs#L180-L219">test</a>). Initially I was storing the AttributeListSyntax in a dictionary using the first attribute name as a key, of course I forgot that you could have the same attribute multiple time on a single declaration. It prompted me to write this <a href="https://github.com/gabrielweyer/CodeCleanser/blob/4b7b769bdf104461decc7db0f6ce46a890de4351/Tests/SortAttributesAlphabeticallyTests.cs#L53-L9">test</a>) and adapt my implementation. It took me a few tries to get it right and rather than having to replace the files after each attempt I created a local Git repository, committed the unmodified files and issued a git reset after each attempt.</p>
+
+<p>After running CodeCleanser on the three DLLs I was able to confirm they were identical.</p>
+
+<h1 id="plot-twist">Plot twist</h1>
+
+<p>I contacted the governmental agency and asked them if they could provide us with the new version of their DLL. To my surprise they told me that they’re distributing source code only. Sure enough after a few Git commands I discovered we had the code under source control all along! Funnily enough nobody knew about it and it wouldn’t have helped anyway as history only go two years back.</p>
+
+<h1 id="takeaways">Takeaways</h1>
+
+<p>The main takeaway is that everything is immutable in Roslyn. I kept forgetting that Add and AddRange would return a new AttributeListSyntax instead of performing an in place Add. As those methods have not been marked as Pure, ReSharper would not warm me that I didn’t use the return type and I would end up with an empty AttributeListSyntax. After 10 seconds of debugging I would exclaim “I’m an idiot” every single time, never gets old! Roslyn has changed a lot between the different Release Candidates and many code sample from Internet won’t compile.</p>
+
+<p>During my research I found <a href="https://roslynquoter.azurewebsites.net/">https://roslynquoter.azurewebsites.net/</a>, it takes C# as an input and writes out the Roslyn code that will generate it.</p>
+
+<p>I realize CodeCleanser doesn’t do much and the whole comparing process still requires some manual steps but I hope it can help someone else.</p>
+
 
                     ]]>
                 </content:encoded>
-                <guid isPermaLink="false">/jekyll/pixyll/2014/06/10/see-pixyll-in-action/</guid>
+                <guid isPermaLink="false">/2016/06/04/codecleanser/</guid>
                 <description>
                     
-                    See what the different elements looks like. Your markdown has never looked better. I promise.
-                    
                 </description>
-                <pubDate>Tue, 10 Jun 2014 12:31:19 +0000</pubDate>
+                <pubDate>Sat, 04 Jun 2016 00:41:48 +0000</pubDate>
                 <author></author>
             </item>
         
     
         
             <item>
-                <title>So, What is Jekyll?</title>
-                <link>https://gabrielweyer.github.io//jekyll/pixyll/2014/06/09/so-what-is-jekyll/</link>
+                <title>Barnes and Noble: a tale of poor security practices</title>
+                <link>https://gabrielweyer.github.io//2014/12/07/barnes-and-noble-a-tale-of-poor-security-practices/</link>
                 <content:encoded>
                     <![CDATA[
-                    <p>Jekyll is a tool for transforming your plain text into static websites and 
-blogs. It is simple, static, and blog-aware. Jekyll uses the 
-<a href="http://docs.shopify.com/themes/liquid-basics">Liquid</a> templating
-language and has builtin <a href="http://daringfireball.net/projects/markdown/">Markdown</a>
-and <a href="http://en.wikipedia.org/wiki/Textile_(markup_language)">Textile</a> support.</p>
+                    <p>Being the happy owner of a Kindle I usually buy my ebooks on Amazon. They have a very large selection to choose from and normally sell all the latest releases. To my surprise they only had “<a href="(http://us.macmillan.com/enigmaofchina/qiuxiaolong)">Enigma of China</a>” from Qiu Xialong in paperback and hardcover formats. <a href="http://store.kobobooks.com/en-US/Search/Query?query=Enigma%20of%20China&amp;dontModifyQuery=True">Kobo</a> didn’t have it at all but after searching for a while I found out that Barnes &amp; Noble sold it as a <a href="http://www.barnesandnoble.com/w/enigma-of-china-qiu-xiaolong/1114701902?ean=9781250025814">NOOK Book</a> for $10.</p>
 
-<p>It also ties in nicely to <a href="https://pages.github.com/">Github Pages</a>.</p>
+<p>So far, so good or so it seemed. It turned out that Barnes &amp; Noble has such a lax approach of security that at the end I decided not to purchase from them. You’ll find below the reasons that motivated my decision.</p>
 
-<p>Learn more about Jekyll on their <a href="http://jekyllrb.com/">website</a>.</p>
+<h2 id="i-sign-in-and-registration-in-a-new-window">I Sign in and registration in a new window</h2>
+
+<p>The first issue made itself apparent very quickly: when clicking on the “Sign in” link the browser will open a new window. This new window does not contain a toolbar, which means that users won’t be able to use some password managers (such as 1Password, the Chrome extension being accessible through a button in the toolbar).</p>
+
+<p>I know that you can work around it as the <a href="https://www.barnesandnoble.com/signin">Sign in</a> page is also available directly on the website. You can also use the shortcut “Ctrl + " within the new window in order to enter your credentials via 1Password but I don’t think that everybody is a power user. Basically opening a new window instead of loading a page creates extra-friction when using a password manager.</p>
+
+<p>Of course the registration page is also located in a new window and within this page things got even more interesting!</p>
+
+<h2 id="ii-mixed-content-warning">II Mixed content warning</h2>
+
+<p>As they’re loading a dedicated sign in page, you would expect Barnes &amp; Noble to use SSL properly. As it turned out the source code contains a link to an HTTP iframe. Chrome (rightly so) blocks the content and displays a warning:</p>
+
+<p><a href="/assets/2014-12-07-barnes-and-noble-a-tale-of-poor-security-practices/barnes-and-noble-sign-in-mixed-content-warning.png"><img src="/assets/2014-12-07-barnes-and-noble-a-tale-of-poor-security-practices/barnes-and-noble-sign-in-mixed-content-warning.png" alt="Sign in: mixed content warning" /></a></p>
+
+<p>The most interesting part is that the tracking page is also available via <a href="https://4476037.fls.doubleclick.net/activityi;cat=signi0;ord=1641192771;src=4476037;type=signi0?">SSL</a>. The sign in page being loaded only over SSL, the link could have been hardcoded as SSL too.</p>
+
+<h2 id="iii-weak-password-policy">III Weak password policy</h2>
+
+<p>So Barnes and Noble decided to limit the number of characters I can use in my password to 15. Not only this but they’re also preventing me from using any special characters. I’m not sure what “<em>numeric symbol</em>” means, some special characters might be allowed but as a user I’ve no idea which one I can use.</p>
+
+<p><a href="/assets/2014-12-07-barnes-and-noble-a-tale-of-poor-security-practices/barnes-and-noble-password-policy.png"><img src="/assets/2014-12-07-barnes-and-noble-a-tale-of-poor-security-practices/barnes-and-noble-password-policy.png" alt="Barnes &amp; noble: password policy" /></a></p>
+
+<p>It’s quite strange that the security answer is limited to 15 characters, what if my favorite movie is “<a href="http://www.imdb.com/title/tt0111161/">The Shawshank Redemption</a>)”? Security questions are a terrible practice anyway as people tend to use easily guessable answers (as you can see in the screenshot I get my password manager to generate one for me).</p>
+
+<h2 id="iv-mixed-content-warning-on-payment-page">IV Mixed content warning on payment page</h2>
+
+<p>Even the payment page comes with a shiny warning:</p>
+
+<p><a href="/assets/2014-12-07-barnes-and-noble-a-tale-of-poor-security-practices/barnes-and-noble-payment-mixed-content-warning.png"><img src="/assets/2014-12-07-barnes-and-noble-a-tale-of-poor-security-practices/barnes-and-noble-payment-mixed-content-warning.png" alt="Barnes &amp; Noble: payment mixed content warning" /></a></p>
+
+<p>This is due to the fact that the search form is posting to an <a href="http://www.barnesandnoble.com/s/Enigma-of-China?store=allproducts&amp;keyword=Enigma+of+China">HTTP endpoint</a> even when the page is loaded over SSL.</p>
+
+<p>At this stage I decided to give up, buying this book is not worth taking the risk of exposing my credit card data.</p>
+
+<h2 id="special-bonus-credit-card-number-used-in-the-drm">Special bonus: credit card number used in the DRM</h2>
+
+<p>Barnes and Noble decided to protect its content via the highly controversial use of a <a href="http://en.wikipedia.org/wiki/Digital_rights_management">DRM</a> system (Amazon has made the same choice). The goal is to prevent the consumer from sharing it’s purchase with any other user. Of course DRM don’t work and they’re only being a major annoyance to the people actually paying for content.</p>
+
+<p>What is unusual is that Barnes and Noble decided that it would use your <strong>credit card number</strong> in order to sign the DRM. This means that this data is included with your ebooks and could potentially be extracted.</p>
+
+<h2 id="how-could-barnes--noble-address-those-issues">How could Barnes &amp; Noble address those issues?</h2>
+
+<p>Instead of opening a new window for sign in and registration the site should merely link to a new page. As a matter of fact they already have them in place: <a href="https://www.barnesandnoble.com/signin">sign in</a> and <a href="https://www.barnesandnoble.com/register">registration</a>.</p>
+
+<p>They should also link to the SSL URL of the DoubleClick script on their sign in and registration page.</p>
+
+<p>Passwords should not be restricted in terms of character set or length. If you really want to have an upper limit it should be set to something ridiculously high (such as 100 characters). In fact they should instead enforce stronger passwords (combination of letters, numbers and symbols).</p>
+
+<p>The payment should be on a page of its own and not use the same layout (I don’t think that users need to be able to look for a book while entering their credit card details).</p>
+
+<p>And please stop encoding my credit card number into the books I’m buying from you. If you’re afraid I’ll remove your precious DRM and share the book on Internet there is nothing preventing you to use a unique string linked to my account.</p>
+
+<p>Some of those points are extremely easy to address (new page for sign in and registration, SSL URL for the tracking script), others will certainly be more challenging but are nevertheless necessary.</p>
+
 
                     ]]>
                 </content:encoded>
-                <guid isPermaLink="false">/jekyll/pixyll/2014/06/09/so-what-is-jekyll/</guid>
+                <guid isPermaLink="false">/2014/12/07/barnes-and-noble-a-tale-of-poor-security-practices/</guid>
                 <description>
                     
-                    Transform your plain text into static websites and blogs. Simple, static, and blog-aware.
-                    
                 </description>
-                <pubDate>Mon, 09 Jun 2014 12:32:18 +0000</pubDate>
+                <pubDate>Sun, 07 Dec 2014 06:16:14 +0000</pubDate>
                 <author></author>
             </item>
         
     
         
             <item>
-                <title>Pixyll has Pagination</title>
-                <link>https://gabrielweyer.github.io//jekyll/pixyll/2014/06/08/pixyll-has-pagination/</link>
+                <title>The Good, the Bad and the Ugly of password practices</title>
+                <link>https://gabrielweyer.github.io//2014/04/27/the-good-the-bad-and-the-ugly-of-password-practices/</link>
                 <content:encoded>
                     <![CDATA[
-                    <p>This is an empty post to illustrate the pagination component with Pixyll.</p>
+                    <p>Internet has taken a preponderant place in our lives and most of us regularly purchase goods on Internet or use Internet banking. The access to the services we use is protected by a password and humans are not good at managing passwords:</p>
+
+<ul>
+  <li>Most of us will reuse the same password on many services (combine this with the fact that people also use the same email address to log in into said services and you get an explosive mix when security is breached on one <a href="http://www.geekosystem.com/gawker-hack-acai-spam-twitter/">service</a>).</li>
+  <li>Most of us will use weak passwords, basically as weak as the service will allow. Not only our passwords are weak they’re also extremely <a href="https://www.duosecurity.com/blog/brief-analysis-of-the-gawker-password-dump">predictable</a>.</li>
+</ul>
+
+<p>To address those issues you need to use <strong>strong unique</strong> passwords. By <strong>strong</strong> I mean that your passwords should be:</p>
+
+<ul>
+  <li>long (let’s say at least 25 characters)</li>
+  <li>a mix of lower / upper case letters, digits and symbols</li>
+  <li>randomly generated (by a random generator not by you typing random keys on your keyboard)</li>
+</ul>
+
+<p>By <strong>unique</strong> I mean that you should <em>never</em> reuse a password. You should set a different password on each service. As we tend to use many services and tend to log in from multiple devices (home and work computers, smartphones, tablets..) it makes it impossible to remember all those strong passwords.</p>
+
+<p>Google has <a href="https://www.youtube.com/watch?v=0RCsHJfHL_4">recommended</a> the use of sentence and substitution, something even stronger has been advocated by <a href="http://xkcd.com/936/">xkcd</a>. But this doesn’t work. I use over a hundred different services, how could I remember a hundred different sentences? Common substitutions (the one you will use) are also well documented and will be attempted by the attackers to guess your password. Other experts have advised to <a href="https://medium.com/cyber-security/9ed56d483eb">get rid of passwords</a> altogether, but this opinion is unconventional to say the least.</p>
+
+<p>Want it or not we’re stuck with passwords for the  predictable future. Luckily there is a solution: it’s called a password manager. With a password manager you’ll only need to remember one password (the master password), all the other ones will be entered automatically for you in the login forms. I use <a href="https://agilebits.com/onepassword">1Password</a>, but there are other products on the market: <a href="https://lastpass.com/">LastPass</a>, <a href="http://keepass.info/">KeePass</a>, <a href="http://www.roboform.com/">RoboForm</a>… Most of those products are not free but I’m sure you’ll prefer to drop a few dozens dollars every few years instead of seeing your online (and sometimes offline) life ruined.</p>
+
+<p>Now that I’ve addressed password best practices on the users’ side it’s time to mention the other side. The services that you use should do everything they can in order to protect your password. There is a <a href="http://www.troyhunt.com/2011/06/owasp-top-10-for-net-developers-part-7.html">lot</a> to say in this area but I decided to address the features that are easily observable:</p>
+
+<ul>
+  <li>passwords requirements: services shouldn’t restrict the length of our passwords (at least not smaller than a few dozens characters) or the characters’ set that we can use (this would reduce the entropy)</li>
+  <li><a href="http://www.troyhunt.com/2013/05/your-login-form-posts-to-https-but-you.html">proper use of HTTPS</a></li>
+  <li><a href="http://www.troyhunt.com/2012/05/everything-you-ever-wanted-to-know.html">reset password feature</a></li>
+</ul>
+
+<p>Due to the <a href="http://heartbleed.com/">Heartbleed</a> vulnerability I decided to change some of my passwords recently. To my surprise many well known services impose some strong restrictions on the passwords users can set. Shall we get started? The offenders are ordered from worst ones to the most benign ones.</p>
+
+<h2 id="the-ugly">The ugly</h2>
+
+<blockquote>
+  <p>Use at your own risk. Most of those services do not use HTTPS properly or force you to choose passwords that are easily guessable.</p>
+</blockquote>
+
+<ul>
+  <li><a href="http://www.airfrance.fr/cgi-bin/AF/FR/en/common/home/home/HomePageAction.do">Air France</a></li>
+</ul>
+
+<p>Not only Air France is loading the login form over HTTP, the password policy they enforce is a 4 digits PIN!</p>
+
+<ul>
+  <li><a href="https://www.caisse-epargne.fr/particuliers/ile-de-france/accueil.aspx">Caisse d’Epargne</a></li>
+</ul>
+
+<p>One of the biggest French bank, forcing its users to use a 5 digits PIN as a password (and the login is the account number which is a semi-public information).</p>
+
+<ul>
+  <li><a href="http://weibo.com/">Weibo</a></li>
+</ul>
+
+<p>The service logs users in over HTTP and limiting the password length to 16 characters.</p>
+
+<ul>
+  <li><a href="http://doodle.com/en/">Doodle</a></li>
+</ul>
+
+<p>The service logs users in over HTTP! According to <a href="http://en.blog.doodle.com/2014/04/10/important-security-news-from-doodle/">them</a>, they updated their system to patch the vulnerability. Of course as they don’t use HTTPS they were never vulnerable to this specific vulnerability in the first place.</p>
+
+<h2 id="the-bad">The bad</h2>
+
+<blockquote>
+  <p>Use with caution. Those services are not getting security, they’re exposing your passwords in clear via email.</p>
+</blockquote>
+
+<ul>
+  <li><a href="https://uberstrike.com/">UberStrike</a></li>
+</ul>
+
+<p>The service is currently using an expired certificate. When changing your password you’ll receive an email containing your new password in clear (and stating “We’ve reset your UberStrike password” [<em>sic</em>]).</p>
+
+<p><a href="/assets/2014-04-27-the-good-the-bad-and-the-ugly-of-password-practices/uberstrike-change-password.png"><img src="/assets/2014-04-27-the-good-the-bad-and-the-ugly-of-password-practices/uberstrike-change-password.png" alt="uberstrike-change-password" /></a></p>
+
+<ul>
+  <li><a href="https://ielts.britishcouncil.org/CandidateLogin.aspx">IELTS</a></li>
+</ul>
+
+<p>The service does not allow you to change your password. This password is in fact your reference number that you need to use in every communication with IELTS’ staff.</p>
+
+<ul>
+  <li><a href="https://www.astrill.com/">Astrill</a></li>
+</ul>
+
+<p>Astrill provide VPN services and allow (among other things) to access blocked websites from Mainland China. A VPN also prevents attackers from listening to your traffic. This service is mainly about security and so you would expect them to have pretty good practices in terms of passwords. It turns out that if you’re not currently a paying customer you can’t change your password. Even worse the support staff does not have the ability to delete your account and will instead send you a new password in clear via email (you can read the full conversation <a href="/assets/2014-04-27-the-good-the-bad-and-the-ugly-of-password-practices/astrill-change-password.png">here</a>)!</p>
+
+<p><a href="/assets/2014-04-27-the-good-the-bad-and-the-ugly-of-password-practices/astrill-reset-password1.png"><img src="/assets/2014-04-27-the-good-the-bad-and-the-ugly-of-password-practices/astrill-reset-password1.png" alt="astrill-reset-password" /></a></p>
+
+<ul>
+  <li><a href="https://depot-marque.inpi.fr/index.html">INPI</a></li>
+</ul>
+
+<p>This is the French department in charge of registering patents and trademarks. When creating an account they’re kind enough to send you your password via email in clear. At least they’re deleting inactive accounts after three months.</p>
+
+<p><a href="/assets/2014-04-27-the-good-the-bad-and-the-ugly-of-password-practices/inpi-create-account.png"><img src="/assets/2014-04-27-the-good-the-bad-and-the-ugly-of-password-practices/inpi-create-account.png" alt="inpi-create-account" /></a></p>
+
+<h2 id="the-almost-good">The (almost) good</h2>
+
+<blockquote>
+  <p>In this category you’ll find the offenders that almost got it right. But their policies are not good enough to get them off the hook. It’s all related to the maximal length of passwords and the allowed symbols.</p>
+</blockquote>
+
+<ul>
+  <li><a href="http://us.battle.net/en/">Battle.net</a></li>
+</ul>
+
+<blockquote>
+  <p>Your password must be between 8–16 characters in length. Your password may only contain alphabetic characters (A–Z), numeric characters (0–9), and punctuation.</p>
+</blockquote>
+
+<p>Blizzard has been battling accounts hijacking for years. A better password policy would certainly help protect the accounts of their users.</p>
+
+<ul>
+  <li><a href="http://www.free.fr/adsl/index.html">Free</a></li>
+</ul>
+
+<blockquote>
+  <p>Your password can’t be longer than 16 characters. Characters are restricted to a-z, A-Z, 0-9, #$,;.:*@[]()?+=-_%</p>
+</blockquote>
+
+<ul>
+  <li><a href="https://www.mymyki.com.au/NTSWebPortal/Common/getmyki/GetMykiOption.aspx?menu=Get%20myki">Myki</a></li>
+</ul>
+
+<blockquote>
+  <p>Your password can’t be longer than 15 characters.</p>
+</blockquote>
+
+<ul>
+  <li><a href="http://www.optus.com.au/">Optus</a></li>
+</ul>
+
+<blockquote>
+  <p>Your password can’t be longer than 15 characters.</p>
+</blockquote>
+
+<ul>
+  <li><a href="https://www.commbank.com.au/">Commonwealth Bank</a></li>
+</ul>
+
+<blockquote>
+  <p>8 and 16 characters long. can contain most characters except &lt;&gt;^`{}~=</p>
+</blockquote>
+
+<p>The 16 characters limit is completely unacceptable coming from a bank!</p>
+
+<ul>
+  <li><a href="http://www.microsoft.com/en-au/default.aspx">Microsoft</a></li>
+</ul>
+
+<blockquote>
+  <p>Your password can’t be longer than 16 characters.</p>
+</blockquote>
+
+<p>This is the biggest company present in this list and it’s quite disappointing coming from an enterprise software company. Microsoft accounts are also used by businesses to access Azure, MSDN…</p>
+
+<ul>
+  <li><a href="http://www.originenergy.com.au/">Origin</a></li>
+</ul>
+
+<p>The energy company in Australia (not the gaming service operated by EA).</p>
+
+<p>Not only you can’t use symbols but also the password length is limited to 20 characters. Origin only allows you to change your password once per 24 hours, I’ve no idea why this is the case on how it can make the service more secure.</p>
+
+<ul>
+  <li><a href="http://en.voyages-sncf.com/en/">SNCF</a></li>
+</ul>
+
+<blockquote>
+  <p>Password must only contain numbers and/or letters. The length should not be bigger than 25 characters.</p>
+</blockquote>
+
+<ul>
+  <li><a href="http://www.renren.com/">RenRen</a></li>
+</ul>
+
+<p>RenRen is limiting the password length to 20 characters.</p>
+
+<ul>
+  <li><a href="http://www.viadeo.com/">Viadeo</a></li>
+</ul>
+
+<blockquote>
+  <p>Your password can’t be longer than 20 characters.</p>
+</blockquote>
+
+<ul>
+  <li><a href="https://btguard.com/">BTGuard</a></li>
+</ul>
+
+<p>The service prevents you from using symbols altogether:</p>
+
+<blockquote>
+  <p>Password must only contain numbers and/or letters.</p>
+</blockquote>
+
+<ul>
+  <li><a href="https://my.gov.au/">myGov</a></li>
+</ul>
+
+<p>This website allows Australians to manage their social benefits (medicare, Centrelink, child support…). The service has a pretty good policy but restricts you from using certain symbols:</p>
+
+<blockquote>
+  <p>You can strengthen your password by including a mixture of upper and lower case letters, numbers, and the following special characters: !, @, #, $, %, ^, &amp;, *.</p>
+</blockquote>
+
+<ul>
+  <li><a href="http://wordpress.com/">WordPress</a></li>
+</ul>
+
+<blockquote>
+  <p>ERROR: Passwords may not contain the character “\”.</p>
+</blockquote>
+
+<p>This is a minor violation as WordPress is only preventing us from using a single symbol and this is why the service sits at the last position of this list.</p>
+
 
                     ]]>
                 </content:encoded>
-                <guid isPermaLink="false">/jekyll/pixyll/2014/06/08/pixyll-has-pagination/</guid>
+                <guid isPermaLink="false">/2014/04/27/the-good-the-bad-and-the-ugly-of-password-practices/</guid>
                 <description>
                     
-                    This is an empty post to illustrate the pagination component with Pixyll.
+                </description>
+                <pubDate>Sun, 27 Apr 2014 09:17:31 +0000</pubDate>
+                <author></author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Why You Should Not Use Chrome Extensions</title>
+                <link>https://gabrielweyer.github.io//2014/01/07/why-you-should-not-use-chrome-extensions/</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>Google Chrome Extensions have been <a href="http://en.wikipedia.org/wiki/Google_Chrome#Extensions">launched</a> officially in January 2010. Their goal is to extend the browser by providing additional features, for example you could add a weather extension and then be able to see the weather’s forecast in your city in one click. Extensions have become widely popular and you’re now wondering what could be the issue with them.</p>
+
+<h1 id="much-more-power-than-expected">Much more power than expected</h1>
+
+<p>Google <a href="/assets/2014-01-07-why-you-should-not-use-chrome-extensions/ads-13.png">uses</a> a system of <a href="https://support.google.com/chrome_webstore/answer/186213?hl=en&amp;rd=1">permissions</a> to determine what an extension will be able to do once installed. Those permissions are divided into three alert levels: high, medium and low. So far, so good? Not really, even the low level allows an extension to harvest your browsing history and the content of your clipboard.</p>
+
+<p>Extensions are built using JavaScript and HTML. Those are the exact same technologies used on websites. I’m sure you’re aware how modern websites refresh part of their content without reloading the whole page. Extensions can do this too: nothing is preventing a low level alert extension to detect that you’re pasting your email and password on Facebook in order to login. Then the extension can send the collected information to a remote server.</p>
+
+<p>In this case the exploit is fairly limited, you need the user to be copying / pasting the email and password for this to work (the extension would also collect everything that the user is copying and pasting). Whats about the medium and high level alert? This is where the real fun start, at this level of trust extensions can do whatever they want!</p>
+
+<p>A medium alert level extension can generate HTML elements on a page. It could perfectly hide a login form, replace it by it’s own, harvest your credentials and submit the hidden login form. A high alert level extension can do similar things but on your computer! This means that it could take your picture via your webcam, browse your hard drive looking for interesting files…</p>
+
+<p>You would think that all of this is hypothetical and Google would certainly remove any malicious extension, but in this case you would be wrong.</p>
+
+<h1 id="technical-breakdown-of-a-malicious-extension">Technical breakdown of a malicious extension</h1>
+
+<p><strong>Warning</strong>: this part is somehow technical.</p>
+
+<p>On the 5th of December 2013 I noticed that ads started to appear on top of Google Image Search. I’ve never seen ads there before. It also had this strange sentence “Ads not from this site”. I was intrigued and it didn’t take me long to find the culprit: <a href="https://chrome.google.com/webstore/detail/awesome-screenshot-captur/alelhddbbhepgpmgidjdcjakblofbmce/details">Awesome Screenshot: Capture &amp; Annotate</a>.</p>
+
+<p>Turns out a new version was published on the 5th of December and this is when it started to display ads. I wasn’t the only user to notice:</p>
+
+<p><a href="/assets/2014-01-07-why-you-should-not-use-chrome-extensions/ads-13.png"><img src="/assets/2014-01-07-why-you-should-not-use-chrome-extensions/ads-13.png" alt="ads-1" /></a> <a href="/assets/2014-01-07-why-you-should-not-use-chrome-extensions/ads-23.png"><img src="/assets/2014-01-07-why-you-should-not-use-chrome-extensions/ads-23.png" alt="ads-2" /></a> <a href="/assets/2014-01-07-why-you-should-not-use-chrome-extensions/ads-32.png"><img src="/assets/2014-01-07-why-you-should-not-use-chrome-extensions/ads-32.png" alt="ads-3" /></a></p>
+
+<p>After a couple of hours everything went back to normal: I enabled the extension again and noticed that it wasn’t displaying ads anymore. I decided to dig deeper and downloaded the source code of the extension.</p>
+
+<p>Everything starts here: <code class="highlighter-rouge">\javascripts\content_script.js</code> [<a href="https://github.com/gabrielweyer/code-sample/blob/master/technical-blog/chrome-ext/src/3.5.7/javascripts/content_script.js#L763-L781">line:763-781</a>]</p>
+
+<noscript><pre>400: Invalid request
+</pre></noscript>
+<script src="https://gist.github.com/8248634.js"> </script>
+
+<p>This code is commented. I suspect this is because they pushed a second version the same day (this file was the only one modified on the 5th of December). It’s very easy to understand what’s going on here: if the user is browsing a site owned by Google the code should call <code class="highlighter-rouge">addAD</code> (the function name in itself is rather explicit). The script will also reload the ads 1.5 seconds after the user has finished typing in the search bar.</p>
+
+<p>The function <code class="highlighter-rouge">addAD</code> is located in the same file `\javascripts\content_script.js [<a href="https://github.com/gabrielweyer/code-sample/blob/master/technical-blog/chrome-ext/src/3.5.7/javascripts/content_script.js#L631-L668">line:631-668</a>]. The code is a bit too long to past here but it’s calling another function [<a href="https://github.com/gabrielweyer/code-sample/blob/master/technical-blog/chrome-ext/src/3.5.7/javascripts/content_script.js#L635">line:635</a>]</p>
+
+<noscript><pre>400: Invalid request
+</pre></noscript>
+<script src="https://gist.github.com/8248711.js"> </script>
+
+<p>This function will retrieve the ads and create the markup [<a href="https://github.com/gabrielweyer/code-sample/blob/master/technical-blog/chrome-ext/src/3.5.7/javascripts/content_script.js#L644-L646">line:644-646</a>]</p>
+
+<noscript><pre>400: Invalid request
+</pre></noscript>
+<script src="https://gist.github.com/8248593.js"> </script>
+
+<p>The best part is located here: <code class="highlighter-rouge">\javascripts\bg.js</code> [<a href="https://github.com/gabrielweyer/code-sample/blob/master/technical-blog/chrome-ext/src/3.5.7/javascripts/bg.js#L154-L184">line:154-184</a>]</p>
+
+<p>First they’re doing a HTTP GET at: <a href="http://api.hostip.info/get_json.php">http://api.hostip.info/get_json.php</a> and getting JSON as a reply</p>
+
+<noscript><pre>400: Invalid request
+</pre></noscript>
+<script src="https://gist.github.com/8248818.js"> </script>
+
+<p>The funny part is that I’m located in Melbourne and I was not using a proxy or a VPN at this time!</p>
+
+<p>Then this line says it all [<a href="https://github.com/gabrielweyer/code-sample/blob/master/technical-blog/chrome-ext/src/3.5.7/javascripts/bg.js#L162">line:162</a>]</p>
+
+<noscript><pre>400: Invalid request
+</pre></noscript>
+<script src="https://gist.github.com/8248849.js"> </script>
+
+<p>I find it really scary. These guys are obviously not very smart, they could just have replaced Google Ads by their own and keep exactly the same design. This way they could have stayed unnoticed for much longer. This also means (most likely) that there is nothing preventing extensions from harvesting passwords (either directly via JavaScript or by inserting DOM elements in the page). This extension has over a million users, the fact that they were not taken down indicates that Google needs to improve its security practices for extensions.</p>
+
+<h1 id="why-hasnt-this-been-exploited-more">Why hasn’t this been exploited more?</h1>
+
+<p>I suspect it has been used widely already. Recipe: create a popular extension (emulate a paying service for free, launch a football world cup tracker…), push an update that will sometimes be malicious. If the number of reports does not reach a certain threshold Google won’t investigate. Rinse and repeat.</p>
+
+<p>In fact this same extension was used again but for a different attack on the 17th of December:</p>
+
+<p><a href="/assets/2014-01-07-why-you-should-not-use-chrome-extensions/data-collection-1.png"><img src="/assets/2014-01-07-why-you-should-not-use-chrome-extensions/data-collection-1.png" alt="data-collection-1" /></a> <a href="/assets/2014-01-07-why-you-should-not-use-chrome-extensions/data-collection-2.png"><img src="/assets/2014-01-07-why-you-should-not-use-chrome-extensions/data-collection-2.png" alt="data-collection-2" /></a></p>
+
+<p>There is no accountability: most of the companies publishing extensions are completely unknown. Even if Google was to act they could just create new extensions under another name.</p>
+
+<h1 id="take-away">Take Away</h1>
+
+<p>I stopped using Chrome extensions and I think you should too. The risks vastly overshadow the benefits. In fact I think it is safe to use Chrome Extensions in a couple of cases:</p>
+
+<ul>
+  <li>When they come from a reputable source (Google, Evernote, Dropbox…)</li>
+  <li>When they’re part of a service you’re paying for (1Password for example)</li>
+  <li>When they’re open source</li>
+</ul>
+
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2014/01/07/why-you-should-not-use-chrome-extensions/</guid>
+                <description>
                     
                 </description>
-                <pubDate>Sun, 08 Jun 2014 11:21:29 +0000</pubDate>
+                <pubDate>Tue, 07 Jan 2014 09:13:53 +0000</pubDate>
                 <author></author>
             </item>
         

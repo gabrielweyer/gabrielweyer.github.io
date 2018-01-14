@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>CodeCleanser &#8211; A somewhat technical blog</title>
+    <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="My name is Gabriel Weyer. I’m a software developer and currently based in Melbourne, Australia. I blog about technology.">
+    <meta name="robots" content="all">
+    <meta name="author" content="">
+    
+    <meta name="keywords" content="C#">
+    <link rel="canonical" href="https://gabrielweyer.github.io//2016/06/04/codecleanser/">
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for A somewhat technical blog" href="/feed.xml" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/pixyll.css?201801141620" type="text/css">
+
+    <!-- Fonts -->
+    
+    <link href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Lato:900,300' rel='stylesheet' type='text/css'>
+    
+    
+
+    <!-- MathJax -->
+    
+
+    <!-- Verifications -->
+    
+    
+
+    <!-- Open Graph -->
+    <!-- From: https://github.com/mmistakes/hpstr-jekyll-theme/blob/master/_includes/head.html -->
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="CodeCleanser">
+    <meta property="og:description" content="My name is Gabriel Weyer. I’m a software developer and currently based in Melbourne, Australia. I blog about technology.">
+    <meta property="og:url" content="https://gabrielweyer.github.io//2016/06/04/codecleanser/">
+    <meta property="og:site_name" content="A somewhat technical blog">
+    
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    
+        <meta name="twitter:site" content="@gabrielweyer" />
+        <meta name="twitter:creator" content="@gabrielweyer" />
+    
+    <meta name="twitter:title" content="CodeCleanser" />
+    <meta name="twitter:description" content="My name is Gabriel Weyer. I’m a software developer and currently based in Melbourne, Australia. I blog about technology." />
+    <meta name="twitter:url" content="https://gabrielweyer.github.io//2016/06/04/codecleanser/" />
+    
+
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="/favicon-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+
+    
+</head>
+
+<body class="site">
+  
+	
+
+  <div class="site-wrap">
+    <header class="site-header px2 px-responsive">
+  <div class="mt2 wrap">
+    <div class="measure">
+      <a href="https://gabrielweyer.github.io/" class="site-title">A somewhat technical blog</a>
+      <nav class="site-nav">
+        
+
+
+
+    
+    
+    
+    
+        <a href="/about/">About</a>
+    
+
+    
+
+
+      </nav>
+      <div class="clearfix"></div>
+      
+    </div>
+  </div>
+</header>
+
+
+    <div class="post p2 p-responsive wrap" role="main">
+      <div class="measure">
+        
+
+
+<div class="post-header mb2">
+  <h1>CodeCleanser</h1>
+  <span class="post-meta">Jun 4, 2016</span><br>
+  
+  <span class="post-meta small">
+  
+    7 minute read
+  
+  </span>
+</div>
+
+<article class="post-content">
+  <p>Recently I came up with an interesting issue at a customer. A governmental agency contacted us and informed us that due to a Windows update we could experience intermittent issue when trying to communicate with them. All I knew at this stage was that the issue would manifest itself when trying to upload a document and that the integration is done via DLLs that are wrapping a few web services.</p>
+
+<p>After <a href="https://www.jetbrains.com/help/decompiler/2016.1/Generating_PDB_Files.html">generating PDBs</a> via <a href="https://www.jetbrains.com/decompiler/">dotPeek</a> and adding them to the Visual Studio symbol cache directory I was able to debug through those third party DLLs and confirm that the issue was indeed located in one of them.</p>
+
+<p>Knowing the DLL is redistributed with the product, is in multiple production versions and that the source control’s history is pretty patchy, the question then become: <strong>if we were to get a new DLL could we use it for all the versions?</strong></p>
+
+<p>To answer this question we will have to assess the differences between the DLL in each version.</p>
+
+<h1 id="first-naive-attempt-checksum">First naive attempt: checksum</h1>
+
+<p>Windows ships with a few ways to compute a checksum, <a href="http://superuser.com/a/898377/128002">CertUtil</a> is one of them, PowerShell has a <a href="https://technet.microsoft.com/en-us/library/dn520872.aspx">Get-FileHash</a> cmdlet and this is what I’ll use:</p>
+
+<figure class="highlight"><pre><code class="language-posh" data-lang="posh"><span class="nb">Get-FileHash</span> &lt;filepath&gt; -Algorithm MD5</code></pre></figure>
+
+<p>For our purpose MD5 is good enough, if you want to ensure that a file hasn’t been tampered with you should be using SHA256 at least.</p>
+
+<p>Sadly the three checksums for the three versions were different. But it doesn’t mean the DLLs are semantically different. It could have been metadata, different .NET Framework versions…</p>
+
+<p>At this stage I could have used <a href="https://msdn.microsoft.com/en-us/library/f7dy01k1(v=vs.110).aspx">Ildasm</a> to try to diff the full source code in one file but according to my previous tries the output end up being different. For sake of completeness I tried again before writing this blog post.</p>
+
+<figure class="highlight"><pre><code class="language-posh" data-lang="posh">ildasm &lt;dll-filepath&gt; /text /out<span class="o">=</span>&lt;output-filepath&gt;</code></pre></figure>
+
+<p>This time is no exception, WinMerge indicates 348 differences! Some of them can be explained away:</p>
+
+<p><a href="/assets/2016-06-04-codecleanser/different-dot-net-version.png"><img src="/assets/2016-06-04-codecleanser/different-dot-net-version.png" alt="different-dot-net-version" /></a></p>
+
+<p>The assemblies have been compiled using different version of the .NET Framework, which makes sense as many years separate those two versions.</p>
+
+<p>Next comes an interesting piece of information that explains why two builds of the same source code always result in two different DLLs:</p>
+
+<p><a href="/assets/2016-06-04-codecleanser/mvid-image-base.png"><img src="/assets/2016-06-04-codecleanser/mvid-image-base.png" alt="mvid-image-base.png" /></a></p>
+
+<p>The <a href="https://msdn.microsoft.com/en-us/library/system.reflection.module.moduleversionid(v=vs.110).aspx">MVID</a> changes at every single build, for our purpose we can safely ignore this difference, same goes for the Image base. The other differences are more worrying:</p>
+
+<p><a href="/assets/2016-06-04-codecleanser/different-attributes.png"><img src="/assets/2016-06-04-codecleanser/different-attributes.png" alt="different-attributes.png" /></a></p>
+
+<p>It looks like the Attributes are the same but in a different order. There are hundreds of such instances and as IL is harder to read than C# it’s time to move on to another strategy.</p>
+
+<h1 id="plan-b-generate-a-project-via-dotpeek">Plan B: generate a project via dotPeek</h1>
+
+<p>dotPeek can not only decompile IL to C#, it also can <a href="https://www.jetbrains.com/help/decompiler/2016.1/Exporting_Assembly_to_Project.html">generate a project from a DLL</a>. Let’s give it a spin and close this case!</p>
+
+<p>According to WinMerge, every single file is different! Now I’m a sad panda :(, how could the C# differ even more than the IL? This is due to the fact that as a <em>convenience</em>, dotPeek kindly outputs the MVID and the assembly location at the top of each file:</p>
+
+<p><a href="/assets/2016-06-04-codecleanser/dotpeek-mvid-assembly-location.png"><img src="/assets/2016-06-04-codecleanser/dotpeek-mvid-assembly-location.png" alt="dotpeek-mvid-assembly-location" /></a></p>
+
+<p>In our use case, this is rather inconvenient. Luckily WinMerge has a feature called <a href="http://stackoverflow.com/a/22178182/57369">LineFilters</a> which allows to ignore lines based on Regular Expressions. Two filters later a lot of files are still different:</p>
+
+<p><a href="/assets/2016-06-04-codecleanser/win-merge.png"><img src="/assets/2016-06-04-codecleanser/win-merge.png" alt="win-merge.png" /></a></p>
+
+<p>It’s now confirmed, some attributes are in a different order! dotPeek has an <a href="https://youtrack.jetbrains.com/issue/DOTP-7063">opened bug</a> regarding this but it hasn’t been updated since October 2015 so we can assume it won’t be fixed anytime soon. By then I already spent 30 minutes on this task and being a consultant I can’t justify spending more time trying to find a (mostly) automated solution. I might be able to pull it off with a Regex but it might also turn to be a rabbit hole. According to the number of different files and hoping it would only be about attributes ordering it should take me less than an hour to go through the difference. It actually only took me 30 minutes and confirmed the assumption that only the order of the attributes was differing.</p>
+
+<h1 id="enter-codecleanser">Enter CodeCleanser</h1>
+
+<p>Fast forward two days, it’s Saturday morning and I’m wondering if I can use <a href="https://github.com/dotnet/roslyn">Roslyn</a> to solve this problem.</p>
+
+<p>I had 3 objectives:</p>
+
+<ol>
+  <li>Get rid of the comments at the top of the file</li>
+  <li>Sort Attributes by alphabetical order</li>
+  <li>Wrap up before training</li>
+</ol>
+
+<p>The source code is available <a href="https://github.com/gabrielweyer/CodeCleanser">here</a>, feel free to use it and adapt it to your own needs.</p>
+
+<h2 id="get-rid-of-the-comments-at-the-top-of-the-file">Get rid of the comments at the top of the file</h2>
+
+<p>Let’s start by what seems the easiest: removing the comments at the top of the files. What’s very nice with Roslyn is that you don’t need an actual file, you can pass a string as an argument which makes unit testing very easy. As I’m only planning on doing cosmetic changes and I only care about comparing the two DLLs I don’t need to operate at a project or solution level.</p>
+
+<p>Following the TDD principles I’ll first write a <a href="https://github.com/gabrielweyer/CodeCleanser/blob/4b7b769bdf104461decc7db0f6ce46a890de4351/Tests/RemoveLeadingTriviaTests.cs#L8-L55">test</a>:</p>
+
+<noscript><pre>400: Invalid request
+</pre></noscript>
+<script src="https://gist.github.com/b6aaa2c60ba20f8340d32edd4ff87265.js"> </script>
+
+<p>This test ensures that everything before the first using statement is removed. Let’s now look at the <a href="https://github.com/gabrielweyer/CodeCleanser/blob/4b7b769bdf104461decc7db0f6ce46a890de4351/Logic/CodeCleaner.cs#L39-L47">implementation</a>:</p>
+
+<noscript><pre>400: Invalid request
+</pre></noscript>
+<script src="https://gist.github.com/ac0976203a5315f16e1bac81963a6a8b.js"> </script>
+
+<p>The Roslyn documentation defines a <a href="https://github.com/dotnet/roslyn/wiki/Roslyn%20Overview#syntax-trivia">trivia</a> as:</p>
+
+<blockquote>
+  <p>Syntax trivia represent the parts of the source text that are largely insignificant for normal understanding of the code, such as whitespace, comments, and preprocessor directives.</p>
+</blockquote>
+
+<p>All the code is doing is replace each leading trivia with an empty trivia. I’m sure there is a better way of doing this but this works well enough for my purpose.</p>
+
+<h2 id="sort-attributes-by-alphabetical-order">Sort Attributes by alphabetical order</h2>
+
+<p>Again we’ll start with a <a href="https://github.com/gabrielweyer/CodeCleanser/blob/4b7b769bdf104461decc7db0f6ce46a890de4351/Tests/SortAttributesAlphabeticallyTests.cs#L8-L51">test</a>:</p>
+
+<noscript><pre>400: Invalid request
+</pre></noscript>
+<script src="https://gist.github.com/786db1ecb44c689ce18532cda794f0f7.js"> </script>
+
+<p>We’ll need to pack a bit more power this time. In my case the issue only happened on class, enum and property declarations, CSharpSyntaxRewriter seems to be a good candidate for what I want to achieve. The implementation can be found <a href="https://github.com/gabrielweyer/CodeCleanser/blob/4b7b769bdf104461decc7db0f6ce46a890de4351/Logic/AttributesSorter.cs#L46-L66">here</a>:</p>
+
+<noscript><pre>400: Invalid request
+</pre></noscript>
+<script src="https://gist.github.com/2daec819f25eca2679174c08985b599e.js"> </script>
+
+<p>I had to make sure the blank line preceding the first attribute didn’t get moved down and that’s why there is some logic around leading trivia (prompted by this <a href="https://github.com/gabrielweyer/CodeCleanser/blob/4b7b769bdf104461decc7db0f6ce46a890de4351/Tests/SortAttributesAlphabeticallyTests.cs#L180-L219">test</a>). Initially I was storing the AttributeListSyntax in a dictionary using the first attribute name as a key, of course I forgot that you could have the same attribute multiple time on a single declaration. It prompted me to write this <a href="https://github.com/gabrielweyer/CodeCleanser/blob/4b7b769bdf104461decc7db0f6ce46a890de4351/Tests/SortAttributesAlphabeticallyTests.cs#L53-L9">test</a>) and adapt my implementation. It took me a few tries to get it right and rather than having to replace the files after each attempt I created a local Git repository, committed the unmodified files and issued a git reset after each attempt.</p>
+
+<p>After running CodeCleanser on the three DLLs I was able to confirm they were identical.</p>
+
+<h1 id="plot-twist">Plot twist</h1>
+
+<p>I contacted the governmental agency and asked them if they could provide us with the new version of their DLL. To my surprise they told me that they’re distributing source code only. Sure enough after a few Git commands I discovered we had the code under source control all along! Funnily enough nobody knew about it and it wouldn’t have helped anyway as history only go two years back.</p>
+
+<h1 id="takeaways">Takeaways</h1>
+
+<p>The main takeaway is that everything is immutable in Roslyn. I kept forgetting that Add and AddRange would return a new AttributeListSyntax instead of performing an in place Add. As those methods have not been marked as Pure, ReSharper would not warm me that I didn’t use the return type and I would end up with an empty AttributeListSyntax. After 10 seconds of debugging I would exclaim “I’m an idiot” every single time, never gets old! Roslyn has changed a lot between the different Release Candidates and many code sample from Internet won’t compile.</p>
+
+<p>During my research I found <a href="https://roslynquoter.azurewebsites.net/">https://roslynquoter.azurewebsites.net/</a>, it takes C# as an input and writes out the Roslyn code that will generate it.</p>
+
+<p>I realize CodeCleanser doesn’t do much and the whole comparing process still requires some manual steps but I hope it can help someone else.</p>
+
+
+</article>
+
+
+
+
+
+
+
+
+
+
+
+
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="center">
+  <div class="measure">
+    <small>
+      Theme crafted with &lt;3 by <a href="http://johnotander.com">John Otander</a> (<a href="https://twitter.com/4lpine">@4lpine</a>).<br>
+      &lt;/&gt; available on <a href="https://github.com/johnotander/pixyll">GitHub</a>.
+    </small>
+  </div>
+</footer>
+
+
+</body>
+</html>

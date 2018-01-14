@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Capture network packets with netsh &#8211; A somewhat technical blog</title>
+    <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="My name is Gabriel Weyer. I’m a software developer and currently based in Melbourne, Australia. I blog about technology.">
+    <meta name="robots" content="all">
+    <meta name="author" content="">
+    
+    <meta name="keywords" content="">
+    <link rel="canonical" href="https://gabrielweyer.github.io//2016/07/16/capture-network-packets-with-netsh/">
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for A somewhat technical blog" href="/feed.xml" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/pixyll.css?201801141620" type="text/css">
+
+    <!-- Fonts -->
+    
+    <link href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Lato:900,300' rel='stylesheet' type='text/css'>
+    
+    
+
+    <!-- MathJax -->
+    
+
+    <!-- Verifications -->
+    
+    
+
+    <!-- Open Graph -->
+    <!-- From: https://github.com/mmistakes/hpstr-jekyll-theme/blob/master/_includes/head.html -->
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Capture network packets with netsh">
+    <meta property="og:description" content="My name is Gabriel Weyer. I’m a software developer and currently based in Melbourne, Australia. I blog about technology.">
+    <meta property="og:url" content="https://gabrielweyer.github.io//2016/07/16/capture-network-packets-with-netsh/">
+    <meta property="og:site_name" content="A somewhat technical blog">
+    
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    
+        <meta name="twitter:site" content="@gabrielweyer" />
+        <meta name="twitter:creator" content="@gabrielweyer" />
+    
+    <meta name="twitter:title" content="Capture network packets with netsh" />
+    <meta name="twitter:description" content="My name is Gabriel Weyer. I’m a software developer and currently based in Melbourne, Australia. I blog about technology." />
+    <meta name="twitter:url" content="https://gabrielweyer.github.io//2016/07/16/capture-network-packets-with-netsh/" />
+    
+
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="/favicon-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+
+    
+</head>
+
+<body class="site">
+  
+	
+
+  <div class="site-wrap">
+    <header class="site-header px2 px-responsive">
+  <div class="mt2 wrap">
+    <div class="measure">
+      <a href="https://gabrielweyer.github.io/" class="site-title">A somewhat technical blog</a>
+      <nav class="site-nav">
+        
+
+
+
+    
+    
+    
+    
+        <a href="/about/">About</a>
+    
+
+    
+
+
+      </nav>
+      <div class="clearfix"></div>
+      
+    </div>
+  </div>
+</header>
+
+
+    <div class="post p2 p-responsive wrap" role="main">
+      <div class="measure">
+        
+
+
+<div class="post-header mb2">
+  <h1>Capture network packets with netsh</h1>
+  <span class="post-meta">Jul 16, 2016</span><br>
+  
+  <span class="post-meta small">
+  
+    5 minute read
+  
+  </span>
+</div>
+
+<article class="post-content">
+  <p>Another day, another “interesting” issue at a customer. After deploying our product we were left with a partially working web application. The product has been developed over many years and is a mix of ASP Classic, Web Forms, MVC and Web API. In this case ASP Classic pages were broken and would throw an error.</p>
+
+<h2 id="ensuring-asp-classic-is-configured-properly">Ensuring ASP Classic is configured properly</h2>
+
+<p>The first step is to ensure that IIS has been configured to execute ASP Classic and this is done easily by adding a dummy ASP page to the web application. After deploying this page I was able to confirm that it was working as expected.</p>
+
+<noscript><pre>400: Invalid request
+</pre></noscript>
+<script src="https://gist.github.com/5eb3198119bead02649c0fe11d733055.js"> </script>
+
+<p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/dummy-asp.png" alt="dummy-asp" /></p>
+
+<h2 id="enabling-failed-request-tracing">Enabling failed request tracing</h2>
+
+<p>The features written in ASP Classic have been written many years ago and the developers didn’t consider logging as a key part of the development process. The end result being that when something goes wrong no logs get written by the application or to the event viewer.</p>
+
+<p>The second step is to turn on the “<strong>Failed Request Tracing Rules</strong>“ and reload the failing page. Internet has a lot of tutorials around this but they’re all missing key steps, I’ll focus on those as you can find everything else easily.</p>
+
+<p>“Failed Request Tracing Rules” will not be available in the IIS Manager if you didn’t turn on the <strong>Tracing</strong> feature in Windows Features:</p>
+
+<p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/tracing.png" alt="tracing" /></p>
+
+<p>Another thing is that multiple sites could be writing traces at the same time. Each site will be writing to a different sub folder suffixed with the site ID:</p>
+
+<p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/site-id.gif" alt="site-id" /></p>
+
+<p>Finally you can copy the log files back to your machine, don’t forget to copy the freb.xsl file too, you’ll then be able to open the XML files in Internet Explorer and look at a human readable representation of the log.</p>
+
+<p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/invalid-authority.png" alt="invalid-authority" /></p>
+
+<p>All ASP Classic pages are calling an API endpoint in order to get a token (long story short: don’t ask - the user is signing-in in an AngularJS app backed by Web API and is then able to use seamlessly the pages hosted on MVC, Web Forms and Classic ASP). What is strange in this situation is that Internet Explorer is marking the TLS certificate as valid, so does Chrome. Even worse: the same ASP Classic page hosted on my machine calling the token endpoint on the remote server is successful! The Windows Certificate Manager is displaying the same message for the root CA, intermediate CA and certificate: ”This certificate is OK.”.</p>
+
+<p>I then suspected the certificate might be using unsupported ciphers but it turned out that it wasn’t the case. I quickly wrote a C# Console application calling the same token endpoint - the HttpClient class is throwing meaningful errors - but to my dismay the C# code was able to call the endpoint successfully!</p>
+
+<p>Armed with the ErrorCode “80072f0d” and the Description “The certificate authority is invalid or incorrect” I scoured Internet for some potential solutions. Everything I could find was related to invalid and self-signed certificates.</p>
+
+<h2 id="capturing-packets-on-a-windows-server">Capturing packets on a Windows Server</h2>
+
+<p>When people think “packet capture” they always assume they need to install <a href="https://www.wireshark.org/">Wireshark</a> (or another similar tool) whereas Windows Server is shipping with the ability to capture network packets with <a href="https://technet.microsoft.com/en-us/library/dd878517(v=ws.10).aspx">netsh</a> since Windows Server 2008 R2. The advantage of this solution is that you don’t need to install anything on the machine. To see if it’s available, all you need to do is open a command prompt and type:</p>
+
+<figure class="highlight"><pre><code class="language-posh" data-lang="posh">netsh trace</code></pre></figure>
+
+<p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/netsh-trace.gif" alt="netsh-trace" /></p>
+
+<p>Now that we know that <strong>trace</strong> is available we need to start capturing the packets and reproduce the problem. Launch an <strong>elevated</strong> command prompt and type:</p>
+
+<figure class="highlight"><pre><code class="language-posh" data-lang="posh">netsh trace <span class="nb">start </span><span class="nv">tracefile</span><span class="o">=</span><span class="s2">"C:\tmp\traces\classic.etl"</span> <span class="nv">scenario</span><span class="o">=</span>internetclient <span class="nv">capture</span><span class="o">=</span>yes <span class="nv">maxsize</span><span class="o">=</span>200 <span class="nv">filemode</span><span class="o">=</span>circular <span class="nv">overwrite</span><span class="o">=</span>yes</code></pre></figure>
+
+<p><strong>Note</strong>: the path needs to exist beforehand.</p>
+
+<p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/start-stop.gif" alt="start-stop" /></p>
+
+<p>Starting and stopping the trace is actually slower that what is demonstrated above but I didn’t want lo lose your attention! And of course you would need to reproduce the issue before issuing:</p>
+
+<figure class="highlight"><pre><code class="language-posh" data-lang="posh">netsh stop</code></pre></figure>
+
+<h2 id="microsoft-message-analyzer">Microsoft Message Analyzer</h2>
+
+<p>We now need to analyze this trace and this is done with the <a href="https://technet.microsoft.com/en-us/library/jj649776.aspx">Microsoft Message</a> <a href="https://blogs.technet.microsoft.com/messageanalyzer/">Analyzer</a> (can be downloaded <a href="https://www.microsoft.com/en-au/download/details.aspx?id=44226">here</a>). The Analyzer takes a long time to open the smallest trace but once the trace is loaded you can search quickly.</p>
+
+<p>We’ll first look for an HTTP CONNECT, use this filter:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(HTTP.Method == "CONNECT") And
+(HTTP.Uri.Host == "domain.name") And
+(HTTP.Uri.Port == "port")
+</code></pre></div></div>
+
+<p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/connect.png" alt="connect.png" /></p>
+
+<p>As we can see the CONNECT was successful. Let’s investigate the TLS handshake now, this is handled by the TLS module so all we need to do is filter on this module only:</p>
+
+<blockquote>
+  <p>TLS</p>
+</blockquote>
+
+<p>This is what was captured when the C# application connected to the token endpoint:</p>
+
+<p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/c-sharp-tls.png" alt="c-sharp-tls" /></p>
+
+<p>This is matching closely what is described in the <a href="https://tools.ietf.org/html/rfc5246#page-36">RFC 5246</a> (TLS 1.2).</p>
+
+<p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/full-handshake.png" alt="full-handshake" /></p>
+
+<p>Let’s now capture the traffic when the VB code is trying to call the token endpoint.</p>
+
+<p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/vb-tls.png" alt="vb-tls.png" /></p>
+
+<p>Great Scott! The server is sending <code class="highlighter-rouge">ServerHello</code> as expected but the client doesn’t reply with <code class="highlighter-rouge">ClientKeyExchange</code>. I then removed the filter and started to look at the messages below. My reasoning was that I should be finding some kind of error message soon after and here it was:</p>
+
+<p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/browsing-messages.png" alt="browsing-messages" /></p>
+
+<p>The error message was:</p>
+
+<blockquote>
+  <p>A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider. (0x800B0109)</p>
+</blockquote>
+
+<p>As it turned out someone had messed up with the certificate store and removed the intermediate CA from the “Intermediate Certification Authorities”. As the root CA was still present in the “Trusted Root Certification Authorities” it was good enough for Internet Explorer and C# but it wasn’t for VB! I added the intermediate CA to the store and things started to work again.</p>
+
+
+</article>
+
+
+
+
+
+
+
+
+
+
+
+
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="center">
+  <div class="measure">
+    <small>
+      Theme crafted with &lt;3 by <a href="http://johnotander.com">John Otander</a> (<a href="https://twitter.com/4lpine">@4lpine</a>).<br>
+      &lt;/&gt; available on <a href="https://github.com/johnotander/pixyll">GitHub</a>.
+    </small>
+  </div>
+</footer>
+
+
+</body>
+</html>

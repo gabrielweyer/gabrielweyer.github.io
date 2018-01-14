@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>beIN SPORTS CONNECT &#8211; A somewhat technical blog</title>
+    <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="My name is Gabriel Weyer. I’m a software developer and currently based in Melbourne, Australia. I blog about technology.">
+    <meta name="robots" content="all">
+    <meta name="author" content="">
+    
+    <meta name="keywords" content="Security">
+    <link rel="canonical" href="https://gabrielweyer.github.io//2016/06/13/bein-sports-connect/">
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for A somewhat technical blog" href="/feed.xml" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/pixyll.css?201801141620" type="text/css">
+
+    <!-- Fonts -->
+    
+    <link href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Lato:900,300' rel='stylesheet' type='text/css'>
+    
+    
+
+    <!-- MathJax -->
+    
+
+    <!-- Verifications -->
+    
+    
+
+    <!-- Open Graph -->
+    <!-- From: https://github.com/mmistakes/hpstr-jekyll-theme/blob/master/_includes/head.html -->
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="beIN SPORTS CONNECT">
+    <meta property="og:description" content="My name is Gabriel Weyer. I’m a software developer and currently based in Melbourne, Australia. I blog about technology.">
+    <meta property="og:url" content="https://gabrielweyer.github.io//2016/06/13/bein-sports-connect/">
+    <meta property="og:site_name" content="A somewhat technical blog">
+    
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    
+        <meta name="twitter:site" content="@gabrielweyer" />
+        <meta name="twitter:creator" content="@gabrielweyer" />
+    
+    <meta name="twitter:title" content="beIN SPORTS CONNECT" />
+    <meta name="twitter:description" content="My name is Gabriel Weyer. I’m a software developer and currently based in Melbourne, Australia. I blog about technology." />
+    <meta name="twitter:url" content="https://gabrielweyer.github.io//2016/06/13/bein-sports-connect/" />
+    
+
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="/favicon-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+
+    
+</head>
+
+<body class="site">
+  
+	
+
+  <div class="site-wrap">
+    <header class="site-header px2 px-responsive">
+  <div class="mt2 wrap">
+    <div class="measure">
+      <a href="https://gabrielweyer.github.io/" class="site-title">A somewhat technical blog</a>
+      <nav class="site-nav">
+        
+
+
+
+    
+    
+    
+    
+        <a href="/about/">About</a>
+    
+
+    
+
+
+      </nav>
+      <div class="clearfix"></div>
+      
+    </div>
+  </div>
+</header>
+
+
+    <div class="post p2 p-responsive wrap" role="main">
+      <div class="measure">
+        
+
+
+<div class="post-header mb2">
+  <h1>beIN SPORTS CONNECT</h1>
+  <span class="post-meta">Jun 13, 2016</span><br>
+  
+  <span class="post-meta small">
+  
+    3 minute read
+  
+  </span>
+</div>
+
+<article class="post-content">
+  <p>I like football, even with the time difference I try to watch at least the World Cup and the European Championship. I watched the last World Cup on <a href="http://www.sbs.com.au/">SBS</a> but this time around they only managed to secure a handful of games. As they’re a public service it makes sense after all that they wouldn’t buy the rights for all the games. A quick search on Google indicated that <a href="http://www.beinsportsconnect.com.au/home">beIN SPORTS CONNECT</a> is the way to go in Australia - I will refer to this service as beIN for the rest of this post.</p>
+
+<h1 id="subscribing">Subscribing</h1>
+
+<p>As the pricing seems reasonable I decided to go ahead. The page is loaded over HTTPS so we start well but to my surprise the form contains a <strong>password remainder</strong> field. Password remainders are a bad practice as users tend to fill them with their password (when allowed) or with a hint that is an obvious give away.</p>
+
+<p>As I don’t know any of my password, a password reminder is useless to me so I always generate a strong unique random password for this field. After trying to submit the form I got the following error:</p>
+
+<p><img src="/assets/2016-06-13-bein-sports-connect/password-remainder.png" alt="password-remainder" /></p>
+
+<p>I don’t understand the benefits of restricting the characters I can use. On the contrary it seems to indicate this site is potentially vulnerable to <a href="https://www.troyhunt.com/understanding-xss-input-sanitisation/">XSS</a>. I generate another reminder without “special” characters and get presented with another error:</p>
+
+<p><img src="/assets/2016-06-13-bein-sports-connect/invalid-format.png" alt="invalid-format" /></p>
+
+<p>So my valid email address is in an “Incorrect format”. How convenient should they ever decide to sell my data to a third party without me being able to track it back to them.</p>
+
+<p>I start to have a bad feeling about the password requirements. After all the only one that is stated is that my password should be at least 6 characters. I decide to use “123456” and also use it as the password reminder. <strong>&lt;clickbait&gt;</strong>You won’t believe what happens next!<strong>&lt;/clickbait&gt;</strong>. Actually I’m sure you knew what would happen: the form happily accepted my password and let me reuse it in the reminder field. Well at least I “<em>can access the site</em> <strong>securely</strong>” (emphasis is mine).</p>
+
+<p><img src="/assets/2016-06-13-bein-sports-connect/123456.png" alt="123456" /></p>
+
+<p>One last thing before we move on to the dessert. Does it seem normal to be loading so many third party JavaScript files on a registration page? They’re even loading ads and we know what malicious ads do to your browser and it’s not kind (malware installation, credentials theft…).</p>
+
+<p><img src="/assets/2016-06-13-bein-sports-connect/do-you-need-ads-on-signup.png" alt="do-you-need-ads-on-signup.png" /></p>
+
+<h1 id="sign-inform-loaded-over-http">Sign-in form loaded over HTTP</h1>
+
+<p>Yes you read that right. Even though the form is POSTing to HTTPS by then it is <a href="https://www.troyhunt.com/your-login-form-posts-to-https-but-you/">too late</a>. An attacker could have already intercepted the initial HTTP response and pointed the form to the URL of his choosing.</p>
+
+<p>Sometimes websites still offer sign-in over HTTPS when you look for it but it doesn’t seem to be the case here.  <a href="https://secure.beinsportsconnect.com.au/">https://secure.beinsportsconnect.com.au/</a> redirects to <a href="http://www.beinsportsconnect.com.au/">http://www.beinsportsconnect.com.au/</a> and trying to access <a href="https://www.beinsportsconnect.com.au/">https://www.beinsportsconnect.com.au/</a> results in something you should never see:</p>
+
+<p><img src="/assets/2016-06-13-bein-sports-connect/bein-loaded-over-https.png" alt="bein-loaded-over-https.png" /></p>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>If you’re already using beIN or are planning on starting to use it at least generate a unique password so that when they get compromised attackers will not gain access to your account on other services.</p>
+
+<p>I understand going all HTTPS would require a tremendous amount of work but beIN could first take some other steps that would make a big difference:</p>
+
+<ul>
+  <li>Remove the password reminder altogether</li>
+  <li>Provide a dedicated HTTPS only sign-in page</li>
+  <li>Stop loading third-party ads on the sign-in page</li>
+</ul>
+
+
+</article>
+
+
+
+
+
+
+
+
+
+
+
+
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="center">
+  <div class="measure">
+    <small>
+      Theme crafted with &lt;3 by <a href="http://johnotander.com">John Otander</a> (<a href="https://twitter.com/4lpine">@4lpine</a>).<br>
+      &lt;/&gt; available on <a href="https://github.com/johnotander/pixyll">GitHub</a>.
+    </small>
+  </div>
+</footer>
+
+
+</body>
+</html>

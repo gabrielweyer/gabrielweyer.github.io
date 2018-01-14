@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Why You Should Not Use Chrome Extensions &#8211; A somewhat technical blog</title>
+    <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="My name is Gabriel Weyer. I’m a software developer and currently based in Melbourne, Australia. I blog about technology.">
+    <meta name="robots" content="all">
+    <meta name="author" content="">
+    
+    <meta name="keywords" content="Security">
+    <link rel="canonical" href="https://gabrielweyer.github.io//2014/01/07/why-you-should-not-use-chrome-extensions/">
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for A somewhat technical blog" href="/feed.xml" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/pixyll.css?201801141620" type="text/css">
+
+    <!-- Fonts -->
+    
+    <link href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Lato:900,300' rel='stylesheet' type='text/css'>
+    
+    
+
+    <!-- MathJax -->
+    
+
+    <!-- Verifications -->
+    
+    
+
+    <!-- Open Graph -->
+    <!-- From: https://github.com/mmistakes/hpstr-jekyll-theme/blob/master/_includes/head.html -->
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Why You Should Not Use Chrome Extensions">
+    <meta property="og:description" content="My name is Gabriel Weyer. I’m a software developer and currently based in Melbourne, Australia. I blog about technology.">
+    <meta property="og:url" content="https://gabrielweyer.github.io//2014/01/07/why-you-should-not-use-chrome-extensions/">
+    <meta property="og:site_name" content="A somewhat technical blog">
+    
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    
+        <meta name="twitter:site" content="@gabrielweyer" />
+        <meta name="twitter:creator" content="@gabrielweyer" />
+    
+    <meta name="twitter:title" content="Why You Should Not Use Chrome Extensions" />
+    <meta name="twitter:description" content="My name is Gabriel Weyer. I’m a software developer and currently based in Melbourne, Australia. I blog about technology." />
+    <meta name="twitter:url" content="https://gabrielweyer.github.io//2014/01/07/why-you-should-not-use-chrome-extensions/" />
+    
+
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="/favicon-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+
+    
+</head>
+
+<body class="site">
+  
+	
+
+  <div class="site-wrap">
+    <header class="site-header px2 px-responsive">
+  <div class="mt2 wrap">
+    <div class="measure">
+      <a href="https://gabrielweyer.github.io/" class="site-title">A somewhat technical blog</a>
+      <nav class="site-nav">
+        
+
+
+
+    
+    
+    
+    
+        <a href="/about/">About</a>
+    
+
+    
+
+
+      </nav>
+      <div class="clearfix"></div>
+      
+    </div>
+  </div>
+</header>
+
+
+    <div class="post p2 p-responsive wrap" role="main">
+      <div class="measure">
+        
+
+
+<div class="post-header mb2">
+  <h1>Why You Should Not Use Chrome Extensions</h1>
+  <span class="post-meta">Jan 7, 2014</span><br>
+  
+  <span class="post-meta small">
+  
+    5 minute read
+  
+  </span>
+</div>
+
+<article class="post-content">
+  <p>Google Chrome Extensions have been <a href="http://en.wikipedia.org/wiki/Google_Chrome#Extensions">launched</a> officially in January 2010. Their goal is to extend the browser by providing additional features, for example you could add a weather extension and then be able to see the weather’s forecast in your city in one click. Extensions have become widely popular and you’re now wondering what could be the issue with them.</p>
+
+<h1 id="much-more-power-than-expected">Much more power than expected</h1>
+
+<p>Google <a href="/assets/2014-01-07-why-you-should-not-use-chrome-extensions/ads-13.png">uses</a> a system of <a href="https://support.google.com/chrome_webstore/answer/186213?hl=en&amp;rd=1">permissions</a> to determine what an extension will be able to do once installed. Those permissions are divided into three alert levels: high, medium and low. So far, so good? Not really, even the low level allows an extension to harvest your browsing history and the content of your clipboard.</p>
+
+<p>Extensions are built using JavaScript and HTML. Those are the exact same technologies used on websites. I’m sure you’re aware how modern websites refresh part of their content without reloading the whole page. Extensions can do this too: nothing is preventing a low level alert extension to detect that you’re pasting your email and password on Facebook in order to login. Then the extension can send the collected information to a remote server.</p>
+
+<p>In this case the exploit is fairly limited, you need the user to be copying / pasting the email and password for this to work (the extension would also collect everything that the user is copying and pasting). Whats about the medium and high level alert? This is where the real fun start, at this level of trust extensions can do whatever they want!</p>
+
+<p>A medium alert level extension can generate HTML elements on a page. It could perfectly hide a login form, replace it by it’s own, harvest your credentials and submit the hidden login form. A high alert level extension can do similar things but on your computer! This means that it could take your picture via your webcam, browse your hard drive looking for interesting files…</p>
+
+<p>You would think that all of this is hypothetical and Google would certainly remove any malicious extension, but in this case you would be wrong.</p>
+
+<h1 id="technical-breakdown-of-a-malicious-extension">Technical breakdown of a malicious extension</h1>
+
+<p><strong>Warning</strong>: this part is somehow technical.</p>
+
+<p>On the 5th of December 2013 I noticed that ads started to appear on top of Google Image Search. I’ve never seen ads there before. It also had this strange sentence “Ads not from this site”. I was intrigued and it didn’t take me long to find the culprit: <a href="https://chrome.google.com/webstore/detail/awesome-screenshot-captur/alelhddbbhepgpmgidjdcjakblofbmce/details">Awesome Screenshot: Capture &amp; Annotate</a>.</p>
+
+<p>Turns out a new version was published on the 5th of December and this is when it started to display ads. I wasn’t the only user to notice:</p>
+
+<p><a href="/assets/2014-01-07-why-you-should-not-use-chrome-extensions/ads-13.png"><img src="/assets/2014-01-07-why-you-should-not-use-chrome-extensions/ads-13.png" alt="ads-1" /></a> <a href="/assets/2014-01-07-why-you-should-not-use-chrome-extensions/ads-23.png"><img src="/assets/2014-01-07-why-you-should-not-use-chrome-extensions/ads-23.png" alt="ads-2" /></a> <a href="/assets/2014-01-07-why-you-should-not-use-chrome-extensions/ads-32.png"><img src="/assets/2014-01-07-why-you-should-not-use-chrome-extensions/ads-32.png" alt="ads-3" /></a></p>
+
+<p>After a couple of hours everything went back to normal: I enabled the extension again and noticed that it wasn’t displaying ads anymore. I decided to dig deeper and downloaded the source code of the extension.</p>
+
+<p>Everything starts here: <code class="highlighter-rouge">\javascripts\content_script.js</code> [<a href="https://github.com/gabrielweyer/code-sample/blob/master/technical-blog/chrome-ext/src/3.5.7/javascripts/content_script.js#L763-L781">line:763-781</a>]</p>
+
+<noscript><pre>400: Invalid request
+</pre></noscript>
+<script src="https://gist.github.com/8248634.js"> </script>
+
+<p>This code is commented. I suspect this is because they pushed a second version the same day (this file was the only one modified on the 5th of December). It’s very easy to understand what’s going on here: if the user is browsing a site owned by Google the code should call <code class="highlighter-rouge">addAD</code> (the function name in itself is rather explicit). The script will also reload the ads 1.5 seconds after the user has finished typing in the search bar.</p>
+
+<p>The function <code class="highlighter-rouge">addAD</code> is located in the same file `\javascripts\content_script.js [<a href="https://github.com/gabrielweyer/code-sample/blob/master/technical-blog/chrome-ext/src/3.5.7/javascripts/content_script.js#L631-L668">line:631-668</a>]. The code is a bit too long to past here but it’s calling another function [<a href="https://github.com/gabrielweyer/code-sample/blob/master/technical-blog/chrome-ext/src/3.5.7/javascripts/content_script.js#L635">line:635</a>]</p>
+
+<noscript><pre>400: Invalid request
+</pre></noscript>
+<script src="https://gist.github.com/8248711.js"> </script>
+
+<p>This function will retrieve the ads and create the markup [<a href="https://github.com/gabrielweyer/code-sample/blob/master/technical-blog/chrome-ext/src/3.5.7/javascripts/content_script.js#L644-L646">line:644-646</a>]</p>
+
+<noscript><pre>400: Invalid request
+</pre></noscript>
+<script src="https://gist.github.com/8248593.js"> </script>
+
+<p>The best part is located here: <code class="highlighter-rouge">\javascripts\bg.js</code> [<a href="https://github.com/gabrielweyer/code-sample/blob/master/technical-blog/chrome-ext/src/3.5.7/javascripts/bg.js#L154-L184">line:154-184</a>]</p>
+
+<p>First they’re doing a HTTP GET at: <a href="http://api.hostip.info/get_json.php">http://api.hostip.info/get_json.php</a> and getting JSON as a reply</p>
+
+<noscript><pre>400: Invalid request
+</pre></noscript>
+<script src="https://gist.github.com/8248818.js"> </script>
+
+<p>The funny part is that I’m located in Melbourne and I was not using a proxy or a VPN at this time!</p>
+
+<p>Then this line says it all [<a href="https://github.com/gabrielweyer/code-sample/blob/master/technical-blog/chrome-ext/src/3.5.7/javascripts/bg.js#L162">line:162</a>]</p>
+
+<noscript><pre>400: Invalid request
+</pre></noscript>
+<script src="https://gist.github.com/8248849.js"> </script>
+
+<p>I find it really scary. These guys are obviously not very smart, they could just have replaced Google Ads by their own and keep exactly the same design. This way they could have stayed unnoticed for much longer. This also means (most likely) that there is nothing preventing extensions from harvesting passwords (either directly via JavaScript or by inserting DOM elements in the page). This extension has over a million users, the fact that they were not taken down indicates that Google needs to improve its security practices for extensions.</p>
+
+<h1 id="why-hasnt-this-been-exploited-more">Why hasn’t this been exploited more?</h1>
+
+<p>I suspect it has been used widely already. Recipe: create a popular extension (emulate a paying service for free, launch a football world cup tracker…), push an update that will sometimes be malicious. If the number of reports does not reach a certain threshold Google won’t investigate. Rinse and repeat.</p>
+
+<p>In fact this same extension was used again but for a different attack on the 17th of December:</p>
+
+<p><a href="/assets/2014-01-07-why-you-should-not-use-chrome-extensions/data-collection-1.png"><img src="/assets/2014-01-07-why-you-should-not-use-chrome-extensions/data-collection-1.png" alt="data-collection-1" /></a> <a href="/assets/2014-01-07-why-you-should-not-use-chrome-extensions/data-collection-2.png"><img src="/assets/2014-01-07-why-you-should-not-use-chrome-extensions/data-collection-2.png" alt="data-collection-2" /></a></p>
+
+<p>There is no accountability: most of the companies publishing extensions are completely unknown. Even if Google was to act they could just create new extensions under another name.</p>
+
+<h1 id="take-away">Take Away</h1>
+
+<p>I stopped using Chrome extensions and I think you should too. The risks vastly overshadow the benefits. In fact I think it is safe to use Chrome Extensions in a couple of cases:</p>
+
+<ul>
+  <li>When they come from a reputable source (Google, Evernote, Dropbox…)</li>
+  <li>When they’re part of a service you’re paying for (1Password for example)</li>
+  <li>When they’re open source</li>
+</ul>
+
+
+</article>
+
+
+
+
+
+
+
+
+
+
+
+
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="center">
+  <div class="measure">
+    <small>
+      Theme crafted with &lt;3 by <a href="http://johnotander.com">John Otander</a> (<a href="https://twitter.com/4lpine">@4lpine</a>).<br>
+      &lt;/&gt; available on <a href="https://github.com/johnotander/pixyll">GitHub</a>.
+    </small>
+  </div>
+</footer>
+
+
+</body>
+</html>

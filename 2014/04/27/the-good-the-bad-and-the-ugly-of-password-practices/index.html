@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>The Good, the Bad and the Ugly of password practices &#8211; A somewhat technical blog</title>
+    <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="My name is Gabriel Weyer. I’m a software developer and currently based in Melbourne, Australia. I blog about technology.">
+    <meta name="robots" content="all">
+    <meta name="author" content="">
+    
+    <meta name="keywords" content="Security">
+    <link rel="canonical" href="https://gabrielweyer.github.io//2014/04/27/the-good-the-bad-and-the-ugly-of-password-practices/">
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for A somewhat technical blog" href="/feed.xml" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/pixyll.css?201801141620" type="text/css">
+
+    <!-- Fonts -->
+    
+    <link href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Lato:900,300' rel='stylesheet' type='text/css'>
+    
+    
+
+    <!-- MathJax -->
+    
+
+    <!-- Verifications -->
+    
+    
+
+    <!-- Open Graph -->
+    <!-- From: https://github.com/mmistakes/hpstr-jekyll-theme/blob/master/_includes/head.html -->
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="The Good, the Bad and the Ugly of password practices">
+    <meta property="og:description" content="My name is Gabriel Weyer. I’m a software developer and currently based in Melbourne, Australia. I blog about technology.">
+    <meta property="og:url" content="https://gabrielweyer.github.io//2014/04/27/the-good-the-bad-and-the-ugly-of-password-practices/">
+    <meta property="og:site_name" content="A somewhat technical blog">
+    
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    
+        <meta name="twitter:site" content="@gabrielweyer" />
+        <meta name="twitter:creator" content="@gabrielweyer" />
+    
+    <meta name="twitter:title" content="The Good, the Bad and the Ugly of password practices" />
+    <meta name="twitter:description" content="My name is Gabriel Weyer. I’m a software developer and currently based in Melbourne, Australia. I blog about technology." />
+    <meta name="twitter:url" content="https://gabrielweyer.github.io//2014/04/27/the-good-the-bad-and-the-ugly-of-password-practices/" />
+    
+
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="/favicon-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+
+    
+</head>
+
+<body class="site">
+  
+	
+
+  <div class="site-wrap">
+    <header class="site-header px2 px-responsive">
+  <div class="mt2 wrap">
+    <div class="measure">
+      <a href="https://gabrielweyer.github.io/" class="site-title">A somewhat technical blog</a>
+      <nav class="site-nav">
+        
+
+
+
+    
+    
+    
+    
+        <a href="/about/">About</a>
+    
+
+    
+
+
+      </nav>
+      <div class="clearfix"></div>
+      
+    </div>
+  </div>
+</header>
+
+
+    <div class="post p2 p-responsive wrap" role="main">
+      <div class="measure">
+        
+
+
+<div class="post-header mb2">
+  <h1>The Good, the Bad and the Ugly of password practices</h1>
+  <span class="post-meta">Apr 27, 2014</span><br>
+  
+  <span class="post-meta small">
+  
+    6 minute read
+  
+  </span>
+</div>
+
+<article class="post-content">
+  <p>Internet has taken a preponderant place in our lives and most of us regularly purchase goods on Internet or use Internet banking. The access to the services we use is protected by a password and humans are not good at managing passwords:</p>
+
+<ul>
+  <li>Most of us will reuse the same password on many services (combine this with the fact that people also use the same email address to log in into said services and you get an explosive mix when security is breached on one <a href="http://www.geekosystem.com/gawker-hack-acai-spam-twitter/">service</a>).</li>
+  <li>Most of us will use weak passwords, basically as weak as the service will allow. Not only our passwords are weak they’re also extremely <a href="https://www.duosecurity.com/blog/brief-analysis-of-the-gawker-password-dump">predictable</a>.</li>
+</ul>
+
+<p>To address those issues you need to use <strong>strong unique</strong> passwords. By <strong>strong</strong> I mean that your passwords should be:</p>
+
+<ul>
+  <li>long (let’s say at least 25 characters)</li>
+  <li>a mix of lower / upper case letters, digits and symbols</li>
+  <li>randomly generated (by a random generator not by you typing random keys on your keyboard)</li>
+</ul>
+
+<p>By <strong>unique</strong> I mean that you should <em>never</em> reuse a password. You should set a different password on each service. As we tend to use many services and tend to log in from multiple devices (home and work computers, smartphones, tablets..) it makes it impossible to remember all those strong passwords.</p>
+
+<p>Google has <a href="https://www.youtube.com/watch?v=0RCsHJfHL_4">recommended</a> the use of sentence and substitution, something even stronger has been advocated by <a href="http://xkcd.com/936/">xkcd</a>. But this doesn’t work. I use over a hundred different services, how could I remember a hundred different sentences? Common substitutions (the one you will use) are also well documented and will be attempted by the attackers to guess your password. Other experts have advised to <a href="https://medium.com/cyber-security/9ed56d483eb">get rid of passwords</a> altogether, but this opinion is unconventional to say the least.</p>
+
+<p>Want it or not we’re stuck with passwords for the  predictable future. Luckily there is a solution: it’s called a password manager. With a password manager you’ll only need to remember one password (the master password), all the other ones will be entered automatically for you in the login forms. I use <a href="https://agilebits.com/onepassword">1Password</a>, but there are other products on the market: <a href="https://lastpass.com/">LastPass</a>, <a href="http://keepass.info/">KeePass</a>, <a href="http://www.roboform.com/">RoboForm</a>… Most of those products are not free but I’m sure you’ll prefer to drop a few dozens dollars every few years instead of seeing your online (and sometimes offline) life ruined.</p>
+
+<p>Now that I’ve addressed password best practices on the users’ side it’s time to mention the other side. The services that you use should do everything they can in order to protect your password. There is a <a href="http://www.troyhunt.com/2011/06/owasp-top-10-for-net-developers-part-7.html">lot</a> to say in this area but I decided to address the features that are easily observable:</p>
+
+<ul>
+  <li>passwords requirements: services shouldn’t restrict the length of our passwords (at least not smaller than a few dozens characters) or the characters’ set that we can use (this would reduce the entropy)</li>
+  <li><a href="http://www.troyhunt.com/2013/05/your-login-form-posts-to-https-but-you.html">proper use of HTTPS</a></li>
+  <li><a href="http://www.troyhunt.com/2012/05/everything-you-ever-wanted-to-know.html">reset password feature</a></li>
+</ul>
+
+<p>Due to the <a href="http://heartbleed.com/">Heartbleed</a> vulnerability I decided to change some of my passwords recently. To my surprise many well known services impose some strong restrictions on the passwords users can set. Shall we get started? The offenders are ordered from worst ones to the most benign ones.</p>
+
+<h2 id="the-ugly">The ugly</h2>
+
+<blockquote>
+  <p>Use at your own risk. Most of those services do not use HTTPS properly or force you to choose passwords that are easily guessable.</p>
+</blockquote>
+
+<ul>
+  <li><a href="http://www.airfrance.fr/cgi-bin/AF/FR/en/common/home/home/HomePageAction.do">Air France</a></li>
+</ul>
+
+<p>Not only Air France is loading the login form over HTTP, the password policy they enforce is a 4 digits PIN!</p>
+
+<ul>
+  <li><a href="https://www.caisse-epargne.fr/particuliers/ile-de-france/accueil.aspx">Caisse d’Epargne</a></li>
+</ul>
+
+<p>One of the biggest French bank, forcing its users to use a 5 digits PIN as a password (and the login is the account number which is a semi-public information).</p>
+
+<ul>
+  <li><a href="http://weibo.com/">Weibo</a></li>
+</ul>
+
+<p>The service logs users in over HTTP and limiting the password length to 16 characters.</p>
+
+<ul>
+  <li><a href="http://doodle.com/en/">Doodle</a></li>
+</ul>
+
+<p>The service logs users in over HTTP! According to <a href="http://en.blog.doodle.com/2014/04/10/important-security-news-from-doodle/">them</a>, they updated their system to patch the vulnerability. Of course as they don’t use HTTPS they were never vulnerable to this specific vulnerability in the first place.</p>
+
+<h2 id="the-bad">The bad</h2>
+
+<blockquote>
+  <p>Use with caution. Those services are not getting security, they’re exposing your passwords in clear via email.</p>
+</blockquote>
+
+<ul>
+  <li><a href="https://uberstrike.com/">UberStrike</a></li>
+</ul>
+
+<p>The service is currently using an expired certificate. When changing your password you’ll receive an email containing your new password in clear (and stating “We’ve reset your UberStrike password” [<em>sic</em>]).</p>
+
+<p><a href="/assets/2014-04-27-the-good-the-bad-and-the-ugly-of-password-practices/uberstrike-change-password.png"><img src="/assets/2014-04-27-the-good-the-bad-and-the-ugly-of-password-practices/uberstrike-change-password.png" alt="uberstrike-change-password" /></a></p>
+
+<ul>
+  <li><a href="https://ielts.britishcouncil.org/CandidateLogin.aspx">IELTS</a></li>
+</ul>
+
+<p>The service does not allow you to change your password. This password is in fact your reference number that you need to use in every communication with IELTS’ staff.</p>
+
+<ul>
+  <li><a href="https://www.astrill.com/">Astrill</a></li>
+</ul>
+
+<p>Astrill provide VPN services and allow (among other things) to access blocked websites from Mainland China. A VPN also prevents attackers from listening to your traffic. This service is mainly about security and so you would expect them to have pretty good practices in terms of passwords. It turns out that if you’re not currently a paying customer you can’t change your password. Even worse the support staff does not have the ability to delete your account and will instead send you a new password in clear via email (you can read the full conversation <a href="/assets/2014-04-27-the-good-the-bad-and-the-ugly-of-password-practices/astrill-change-password.png">here</a>)!</p>
+
+<p><a href="/assets/2014-04-27-the-good-the-bad-and-the-ugly-of-password-practices/astrill-reset-password1.png"><img src="/assets/2014-04-27-the-good-the-bad-and-the-ugly-of-password-practices/astrill-reset-password1.png" alt="astrill-reset-password" /></a></p>
+
+<ul>
+  <li><a href="https://depot-marque.inpi.fr/index.html">INPI</a></li>
+</ul>
+
+<p>This is the French department in charge of registering patents and trademarks. When creating an account they’re kind enough to send you your password via email in clear. At least they’re deleting inactive accounts after three months.</p>
+
+<p><a href="/assets/2014-04-27-the-good-the-bad-and-the-ugly-of-password-practices/inpi-create-account.png"><img src="/assets/2014-04-27-the-good-the-bad-and-the-ugly-of-password-practices/inpi-create-account.png" alt="inpi-create-account" /></a></p>
+
+<h2 id="the-almost-good">The (almost) good</h2>
+
+<blockquote>
+  <p>In this category you’ll find the offenders that almost got it right. But their policies are not good enough to get them off the hook. It’s all related to the maximal length of passwords and the allowed symbols.</p>
+</blockquote>
+
+<ul>
+  <li><a href="http://us.battle.net/en/">Battle.net</a></li>
+</ul>
+
+<blockquote>
+  <p>Your password must be between 8–16 characters in length. Your password may only contain alphabetic characters (A–Z), numeric characters (0–9), and punctuation.</p>
+</blockquote>
+
+<p>Blizzard has been battling accounts hijacking for years. A better password policy would certainly help protect the accounts of their users.</p>
+
+<ul>
+  <li><a href="http://www.free.fr/adsl/index.html">Free</a></li>
+</ul>
+
+<blockquote>
+  <p>Your password can’t be longer than 16 characters. Characters are restricted to a-z, A-Z, 0-9, #$,;.:*@[]()?+=-_%</p>
+</blockquote>
+
+<ul>
+  <li><a href="https://www.mymyki.com.au/NTSWebPortal/Common/getmyki/GetMykiOption.aspx?menu=Get%20myki">Myki</a></li>
+</ul>
+
+<blockquote>
+  <p>Your password can’t be longer than 15 characters.</p>
+</blockquote>
+
+<ul>
+  <li><a href="http://www.optus.com.au/">Optus</a></li>
+</ul>
+
+<blockquote>
+  <p>Your password can’t be longer than 15 characters.</p>
+</blockquote>
+
+<ul>
+  <li><a href="https://www.commbank.com.au/">Commonwealth Bank</a></li>
+</ul>
+
+<blockquote>
+  <p>8 and 16 characters long. can contain most characters except &lt;&gt;^`{}~=</p>
+</blockquote>
+
+<p>The 16 characters limit is completely unacceptable coming from a bank!</p>
+
+<ul>
+  <li><a href="http://www.microsoft.com/en-au/default.aspx">Microsoft</a></li>
+</ul>
+
+<blockquote>
+  <p>Your password can’t be longer than 16 characters.</p>
+</blockquote>
+
+<p>This is the biggest company present in this list and it’s quite disappointing coming from an enterprise software company. Microsoft accounts are also used by businesses to access Azure, MSDN…</p>
+
+<ul>
+  <li><a href="http://www.originenergy.com.au/">Origin</a></li>
+</ul>
+
+<p>The energy company in Australia (not the gaming service operated by EA).</p>
+
+<p>Not only you can’t use symbols but also the password length is limited to 20 characters. Origin only allows you to change your password once per 24 hours, I’ve no idea why this is the case on how it can make the service more secure.</p>
+
+<ul>
+  <li><a href="http://en.voyages-sncf.com/en/">SNCF</a></li>
+</ul>
+
+<blockquote>
+  <p>Password must only contain numbers and/or letters. The length should not be bigger than 25 characters.</p>
+</blockquote>
+
+<ul>
+  <li><a href="http://www.renren.com/">RenRen</a></li>
+</ul>
+
+<p>RenRen is limiting the password length to 20 characters.</p>
+
+<ul>
+  <li><a href="http://www.viadeo.com/">Viadeo</a></li>
+</ul>
+
+<blockquote>
+  <p>Your password can’t be longer than 20 characters.</p>
+</blockquote>
+
+<ul>
+  <li><a href="https://btguard.com/">BTGuard</a></li>
+</ul>
+
+<p>The service prevents you from using symbols altogether:</p>
+
+<blockquote>
+  <p>Password must only contain numbers and/or letters.</p>
+</blockquote>
+
+<ul>
+  <li><a href="https://my.gov.au/">myGov</a></li>
+</ul>
+
+<p>This website allows Australians to manage their social benefits (medicare, Centrelink, child support…). The service has a pretty good policy but restricts you from using certain symbols:</p>
+
+<blockquote>
+  <p>You can strengthen your password by including a mixture of upper and lower case letters, numbers, and the following special characters: !, @, #, $, %, ^, &amp;, *.</p>
+</blockquote>
+
+<ul>
+  <li><a href="http://wordpress.com/">WordPress</a></li>
+</ul>
+
+<blockquote>
+  <p>ERROR: Passwords may not contain the character “\”.</p>
+</blockquote>
+
+<p>This is a minor violation as WordPress is only preventing us from using a single symbol and this is why the service sits at the last position of this list.</p>
+
+
+</article>
+
+
+
+
+
+
+
+
+
+
+
+
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="center">
+  <div class="measure">
+    <small>
+      Theme crafted with &lt;3 by <a href="http://johnotander.com">John Otander</a> (<a href="https://twitter.com/4lpine">@4lpine</a>).<br>
+      &lt;/&gt; available on <a href="https://github.com/johnotander/pixyll">GitHub</a>.
+    </small>
+  </div>
+</footer>
+
+
+</body>
+</html>
