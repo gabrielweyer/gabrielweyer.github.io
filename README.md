@@ -6,6 +6,12 @@ Source for my [blog][blog].
 | --- | --- |
 | [CircleCI][circle-ci] | [![Build Status][circle-ci-shield]][circle-ci] |
 
+## Development
+
+```posh
+docker run --rm --volume="$($PWD):/srv/jekyll" -p 4000:4000 -it jekyll/jekyll:3.6.2 jekyll serve
+```
+
 ## Release
 
 - Always work in the `develop` branch
