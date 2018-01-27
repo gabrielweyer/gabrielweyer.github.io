@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?201801141620" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?201801262022" type="text/css">
 
     <!-- Fonts -->
     
@@ -41,7 +41,6 @@
     <meta property="og:description" content="My name is Gabriel Weyer. I’m a software developer and currently based in Melbourne, Australia. I blog about technology.">
     <meta property="og:url" content="https://gabrielweyer.github.io//">
     <meta property="og:site_name" content="A somewhat technical blog">
-    
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary" />
@@ -52,7 +51,6 @@
     <meta name="twitter:title" content="A somewhat technical blog" />
     <meta name="twitter:description" content="My name is Gabriel Weyer. I’m a software developer and currently based in Melbourne, Australia. I blog about technology." />
     <meta name="twitter:url" content="https://gabrielweyer.github.io//" />
-    
 
     <!-- Icons -->
     <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
@@ -114,13 +112,47 @@
     <div class="posts">
       
         <div class="post py3">
+          <p class="post-meta">Jan 27, 2018</p>
+          <a href="/2018/01/27/links-insights-1/" class="post-link"><h3 class="h1 post-title">Links Insights #1</h3></a>
+          <span class="post-summary">
+            <p>Every now and then I stumble upon a brilliant post on Internet, I share some of those links on my <a href="https://www.diigo.com/user/gabrielweyer">Diigo profile</a> but the format is very succinct. I decided to start a new experiment and instead write full blog posts about those links. The first reason is quite selfish as I would like to keep a record of what I thought was interesting and why, I also hope to empower the reader so that she can decide if she wants to read the full post as some of them are lengthy.</p>
+
+<p>I’m considering limiting each of those post to up to three links as to not require too much time from the reader.</p>
+
+<p>This is inspired by the excellent work that Chris Alcock and Michael Wolfenden are doing with respectively <a href="http://blog.cwa.me.uk/">The Morning Brew</a> and <a href="https://michael-wolfenden.github.io/">The Wolf Report</a>. Don’t be surprised if I end up <del>stealing</del> borrowing some links from them.</p>
+
+<p>Without further ado let me get started with the first links.</p>
+
+
+             
+            
+            
+              <a href="/2018/01/27/links-insights-1/">Continue reading</a>
+            
+          </span>
+        </div>
+      
+        <div class="post py3">
           <p class="post-meta">Jul 16, 2016</p>
           <a href="/2016/07/16/capture-network-packets-with-netsh/" class="post-link"><h3 class="h1 post-title">Capture network packets with netsh</h3></a>
           <span class="post-summary">
+            <p>Another day, another “interesting” issue at a customer. After deploying our product we were left with a partially working web application. The product has been developed over many years and is a mix of ASP Classic, Web Forms, MVC and Web API. In this case ASP Classic pages were broken and would throw an error.</p>
+
+<h2 id="ensuring-asp-classic-is-configured-properly">Ensuring ASP Classic is configured properly</h2>
+
+<p>The first step is to ensure that IIS has been configured to execute ASP Classic and this is done easily by adding a dummy ASP page to the web application. After deploying this page I was able to confirm that it was working as expected.</p>
+
+<noscript><pre>400: Invalid request
+</pre></noscript>
+<script src="https://gist.github.com/5eb3198119bead02649c0fe11d733055.js"> </script>
+
+<p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/dummy-asp.png" alt="dummy-asp" /></p>
+
+
+             
             
-              <p>Another day, another “interesting” issue at a customer. After deploying our product we were left with a partially working web application. The product has been developed over many years and is a mix of ASP Classic, Web Forms, MVC and Web API. In this case ASP Classic pages were broken and would throw an error.</p>
-
-
+            
+              <a href="/2016/07/16/capture-network-packets-with-netsh/">Continue reading</a>
             
           </span>
         </div>
@@ -129,10 +161,17 @@
           <p class="post-meta">Jun 13, 2016</p>
           <a href="/2016/06/13/bein-sports-connect/" class="post-link"><h3 class="h1 post-title">beIN SPORTS CONNECT</h3></a>
           <span class="post-summary">
+            <p>I like football, even with the time difference I try to watch at least the World Cup and the European Championship. I watched the last World Cup on <a href="http://www.sbs.com.au/">SBS</a> but this time around they only managed to secure a handful of games. As they’re a public service it makes sense after all that they wouldn’t buy the rights for all the games. A quick search on Google indicated that <a href="http://www.beinsportsconnect.com.au/home">beIN SPORTS CONNECT</a> is the way to go in Australia - I will refer to this service as beIN for the rest of this post.</p>
+
+<h1 id="subscribing">Subscribing</h1>
+
+<p>As the pricing seems reasonable I decided to go ahead. The page is loaded over HTTPS so we start well but to my surprise the form contains a <strong>password remainder</strong> field. Password remainders are a bad practice as users tend to fill them with their password (when allowed) or with a hint that is an obvious give away.</p>
+
+
+             
             
-              <p>I like football, even with the time difference I try to watch at least the World Cup and the European Championship. I watched the last World Cup on <a href="http://www.sbs.com.au/">SBS</a> but this time around they only managed to secure a handful of games. As they’re a public service it makes sense after all that they wouldn’t buy the rights for all the games. A quick search on Google indicated that <a href="http://www.beinsportsconnect.com.au/home">beIN SPORTS CONNECT</a> is the way to go in Australia - I will refer to this service as beIN for the rest of this post.</p>
-
-
+            
+              <a href="/2016/06/13/bein-sports-connect/">Continue reading</a>
             
           </span>
         </div>
@@ -141,22 +180,19 @@
           <p class="post-meta">Jun 4, 2016</p>
           <a href="/2016/06/04/codecleanser/" class="post-link"><h3 class="h1 post-title">CodeCleanser</h3></a>
           <span class="post-summary">
+            <p>Recently I came up with an interesting issue at a customer. A governmental agency contacted us and informed us that due to a Windows update we could experience intermittent issue when trying to communicate with them. All I knew at this stage was that the issue would manifest itself when trying to upload a document and that the integration is done via DLLs that are wrapping a few web services.</p>
+
+<p>After <a href="https://www.jetbrains.com/help/decompiler/2016.1/Generating_PDB_Files.html">generating PDBs</a> via <a href="https://www.jetbrains.com/decompiler/">dotPeek</a> and adding them to the Visual Studio symbol cache directory I was able to debug through those third party DLLs and confirm that the issue was indeed located in one of them.</p>
+
+<p>Knowing the DLL is redistributed with the product, is in multiple production versions and that the source control’s history is pretty patchy, the question then become: <strong>if we were to get a new DLL could we use it for all the versions?</strong></p>
+
+<p>To answer this question we will have to assess the differences between the DLL in each version.</p>
+
+
+             
             
-              <p>Recently I came up with an interesting issue at a customer. A governmental agency contacted us and informed us that due to a Windows update we could experience intermittent issue when trying to communicate with them. All I knew at this stage was that the issue would manifest itself when trying to upload a document and that the integration is done via DLLs that are wrapping a few web services.</p>
-
-
             
-          </span>
-        </div>
-      
-        <div class="post py3">
-          <p class="post-meta">Dec 7, 2014</p>
-          <a href="/2014/12/07/barnes-and-noble-a-tale-of-poor-security-practices/" class="post-link"><h3 class="h1 post-title">Barnes and Noble: a tale of poor security practices</h3></a>
-          <span class="post-summary">
-            
-              <p>Being the happy owner of a Kindle I usually buy my ebooks on Amazon. They have a very large selection to choose from and normally sell all the latest releases. To my surprise they only had “<a href="(http://us.macmillan.com/enigmaofchina/qiuxiaolong)">Enigma of China</a>” from Qiu Xialong in paperback and hardcover formats. <a href="http://store.kobobooks.com/en-US/Search/Query?query=Enigma%20of%20China&amp;dontModifyQuery=True">Kobo</a> didn’t have it at all but after searching for a while I found out that Barnes &amp; Noble sold it as a <a href="http://www.barnesandnoble.com/w/enigma-of-china-qiu-xiaolong/1114701902?ean=9781250025814">NOOK Book</a> for $10.</p>
-
-
+              <a href="/2016/06/04/codecleanser/">Continue reading</a>
             
           </span>
         </div>

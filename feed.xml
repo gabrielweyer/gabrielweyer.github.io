@@ -7,6 +7,102 @@
     <atom:link href="https://gabrielweyer.github.io//feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
+        <title>Links Insights #1</title>
+        <description>&lt;p&gt;Every now and then I stumble upon a brilliant post on Internet, I share some of those links on my &lt;a href=&quot;https://www.diigo.com/user/gabrielweyer&quot;&gt;Diigo profile&lt;/a&gt; but the format is very succinct. I decided to start a new experiment and instead write full blog posts about those links. The first reason is quite selfish as I would like to keep a record of what I thought was interesting and why, I also hope to empower the reader so that she can decide if she wants to read the full post as some of them are lengthy.&lt;/p&gt;
+
+&lt;p&gt;I’m considering limiting each of those post to up to three links as to not require too much time from the reader.&lt;/p&gt;
+
+&lt;p&gt;This is inspired by the excellent work that Chris Alcock and Michael Wolfenden are doing with respectively &lt;a href=&quot;http://blog.cwa.me.uk/&quot;&gt;The Morning Brew&lt;/a&gt; and &lt;a href=&quot;https://michael-wolfenden.github.io/&quot;&gt;The Wolf Report&lt;/a&gt;. Don’t be surprised if I end up &lt;del&gt;stealing&lt;/del&gt; borrowing some links from them.&lt;/p&gt;
+
+&lt;p&gt;Without further ado let me get started with the first links.&lt;!--more--&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;how-to-be-a-programmer-a-short-comprehensive-and-personal-summary&quot;&gt;How To Be a Programmer: A Short, Comprehensive, and Personal Summary&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;Link&lt;/strong&gt;: &lt;a href=&quot;https://www.doc.ic.ac.uk/~susan/475/HowToBeAProgrammer.pdf&quot;&gt;https://www.doc.ic.ac.uk/~susan/475/HowToBeAProgrammer.pdf&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;This is a 40 pages long PDF but contains some invaluable lessons especially if you’ve been in the field for only a few years.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;A classic mistake is to use a hash table as a cache and forget to remove the references in the hash table. Since the reference remains, the referent is uncollectable but useless. This is called a memory leak.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;This is a mistake I’ve seen across almost all companies I’ve consulted for. I never managed to understand why dev teams adopted this anti-pattern as it has only drawbacks and is not simpler to write than a barebone caching system.&lt;/p&gt;
+
+&lt;p&gt;In the .NET word it’s often implemented via a &lt;code class=&quot;highlighter-rouge&quot;&gt;static private Dictionary&lt;/code&gt;. Developers tend to use objects as key without understanding the requirements around equality but the main issue is that there is rarely code to remove keys which then requires an app pool restart (in a web app) in order to get rid of the stale key! This is compounded by the fact that sessions are often stored in process too and will be wiped out by an app pool restart.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Caching is hard, only introduce caching if you need to (based on performance measurements and performance targets)&lt;/li&gt;
+  &lt;li&gt;Use the &lt;a href=&quot;https://docs.microsoft.com/en-us/dotnet/framework/performance/caching-in-net-framework-applications&quot;&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;System.Runtime.Caching&lt;/code&gt;&lt;/a&gt; namespace for in process caching&lt;/li&gt;
+  &lt;li&gt;Cache data for the smallest amount of time you can get away with&lt;/li&gt;
+  &lt;li&gt;Have an API allowing you to interact with your caching system&lt;/li&gt;
+  &lt;li&gt;Consider using a distributed caching system (&lt;a href=&quot;https://redis.io/&quot;&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Redis&lt;/code&gt;&lt;/a&gt; is great for this workload)&lt;/li&gt;
+  &lt;li&gt;When using a distributed caching system, consider using a short lived in process cache&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Never, ever, rest any hopes on vapor. Vapor is any alleged software that has been promised but is not yet available.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;This situation happened in one of my previous engagement. The feature we were developing was tightly integrated with a product being built by a startup. Their CEO flew down to our office, we listed the API endpoints we required and development started straight away. We even had a support engineer assigned to us!&lt;/p&gt;
+
+&lt;p&gt;Two things started to happen:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Already working features would break suddenly. After getting some support it would turn out that they pushed a new release that broke the feature. They would then deploy a patch which would break another feature!&lt;/li&gt;
+  &lt;li&gt;The core feature of this system was to poll third party services for created or modified entities. During our testing we noticed that entities were being missed frequently and we had to trigger the system manually for anything to happen. We raised those concerns and the startup promised to improve the reliability.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;We were developing at a faster pace and started to mock more and more dependencies. The release date was approaching and we had no confidence the integration would work. The product we were working on had long release cycles and was deployed by our customers on their own infrastructure, a failure would have been catastrophic. It was finally decided to test the reliability of our provider, we also included one of their competitor. After a few days of collecting data the verdict came in and things weren’t looking good, even though the competitor captured 100% of the entities we created our provider missed almost 30% of them!&lt;/p&gt;
+
+&lt;p&gt;The CTO decided to scrap the integration on the spot and we ended up throwing away half of the code base.&lt;/p&gt;
+
+&lt;p&gt;What we did right was to investigate the unknowns early on in the project. Instead of building our infrastructure we developed a small proof of concept and were able to get a contrived end-to-end execution. The lesson that I learned is that you should define a SLA for your provider from day one and measure it.&lt;/p&gt;
+
+&lt;h2 id=&quot;how-to-write-a-git-commit-message&quot;&gt;How to Write a Git Commit Message&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;Link&lt;/strong&gt;: &lt;a href=&quot;https://chris.beams.io/posts/git-commit/&quot;&gt;https://chris.beams.io/posts/git-commit/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;This is an amazing post, I’ve started to apply those rules a few months ago and my commit messages are so much better now.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Use the body to explain what and why vs. how&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://chris.beams.io/posts/git-commit/#why-not-how&quot;&gt;Giving context in the body&lt;/a&gt; is critical as often when fixing a bug I can see how it has been introduced but I have no idea why the change was made - even after reading the story associated with it! Please spend a few minutes explaining why and how a change was made, in 6 months or one year someone will be grateful. This someone might even be you!&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Wrap the body at 72 characters&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;I used to write my commit messages inline with the &lt;code class=&quot;highlighter-rouge&quot;&gt;-m&lt;/code&gt; argument. After reading this &lt;a href=&quot;https://chris.beams.io/posts/git-commit/#wrap-72&quot;&gt;rule&lt;/a&gt; I realized I needed an editor. I started to use &lt;a href=&quot;https://notepad-plus-plus.org/&quot;&gt;Notepad++&lt;/a&gt; by configuring Git this way:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;git config &lt;span class=&quot;nt&quot;&gt;--global&lt;/span&gt; core.editor &lt;span class=&quot;s2&quot;&gt;&quot;'C:&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\P&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;rogram Files (x86)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\N&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;otepad++&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;otepad++.exe' -multiInst -notabbar -nosession -noPlugin&quot;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Notepad++ accepts &lt;a href=&quot;https://docs.notepad-plus-plus.org/index.php/Command_Line_Switches&quot;&gt;command line switches&lt;/a&gt; but there is no switch to set the text width. Git has a setting enforcing the text width but it does not work with Notepad++. The good news is that Git can also use notepad and the text width will be enforced:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;git config &lt;span class=&quot;nt&quot;&gt;--global&lt;/span&gt; core.editor notepad
+git config &lt;span class=&quot;nt&quot;&gt;--global&lt;/span&gt; format.commitMessageColumns 72&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;But the text will be wrapped &lt;strong&gt;after&lt;/strong&gt; you save your commit message leading to a less than desirable result:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;/assets/links-insights-1/wrap-notepad.gif&quot;&gt;&lt;img src=&quot;/assets/links-insights-1/wrap-notepad.gif&quot; alt=&quot;wrap-notepad&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;A better solution is to use vim instead:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;git config &lt;span class=&quot;nt&quot;&gt;--global&lt;/span&gt; core.editor vim
+git config &lt;span class=&quot;nt&quot;&gt;--global&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--unset&lt;/span&gt; format.commitMessageColumns&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;a href=&quot;/assets/links-insights-1/wrap-vim.gif&quot;&gt;&lt;img src=&quot;/assets/links-insights-1/wrap-vim.gif&quot; alt=&quot;wrap-vim&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;I did not hit Enter while typing the body of this commit message, instead vim wrapped it for me automatically. If you want to learn more about configuring Git on Windows I wrote a &lt;a href=&quot;https://github.com/gabrielweyer/nuggets/blob/master/git/git.md&quot;&gt;tutorial&lt;/a&gt; to get you started.&lt;/p&gt;
+
+</description>
+        <pubDate>Sat, 27 Jan 2018 02:10:07 +0000</pubDate>
+        <link>https://gabrielweyer.github.io//2018/01/27/links-insights-1/</link>
+        <guid isPermaLink="true">https://gabrielweyer.github.io//2018/01/27/links-insights-1/</guid>
+      </item>
+    
+      <item>
         <title>Capture network packets with netsh</title>
         <description>&lt;p&gt;Another day, another “interesting” issue at a customer. After deploying our product we were left with a partially working web application. The product has been developed over many years and is a mix of ASP Classic, Web Forms, MVC and Web API. In this case ASP Classic pages were broken and would throw an error.&lt;/p&gt;
 
@@ -18,7 +114,7 @@
 &lt;/pre&gt;&lt;/noscript&gt;
 &lt;script src=&quot;https://gist.github.com/5eb3198119bead02649c0fe11d733055.js&quot;&gt; &lt;/script&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/2016-07-16-capture-network-packets-with-netsh/dummy-asp.png&quot; alt=&quot;dummy-asp&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/2016-07-16-capture-network-packets-with-netsh/dummy-asp.png&quot; alt=&quot;dummy-asp&quot; /&gt;&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;enabling-failed-request-tracing&quot;&gt;Enabling failed request tracing&lt;/h2&gt;
 
@@ -119,7 +215,7 @@
 
 &lt;h1 id=&quot;subscribing&quot;&gt;Subscribing&lt;/h1&gt;
 
-&lt;p&gt;As the pricing seems reasonable I decided to go ahead. The page is loaded over HTTPS so we start well but to my surprise the form contains a &lt;strong&gt;password remainder&lt;/strong&gt; field. Password remainders are a bad practice as users tend to fill them with their password (when allowed) or with a hint that is an obvious give away.&lt;/p&gt;
+&lt;p&gt;As the pricing seems reasonable I decided to go ahead. The page is loaded over HTTPS so we start well but to my surprise the form contains a &lt;strong&gt;password remainder&lt;/strong&gt; field. Password remainders are a bad practice as users tend to fill them with their password (when allowed) or with a hint that is an obvious give away.&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;p&gt;As I don’t know any of my password, a password reminder is useless to me so I always generate a strong unique random password for this field. After trying to submit the form I got the following error:&lt;/p&gt;
 
@@ -173,7 +269,7 @@
 
 &lt;p&gt;Knowing the DLL is redistributed with the product, is in multiple production versions and that the source control’s history is pretty patchy, the question then become: &lt;strong&gt;if we were to get a new DLL could we use it for all the versions?&lt;/strong&gt;&lt;/p&gt;
 
-&lt;p&gt;To answer this question we will have to assess the differences between the DLL in each version.&lt;/p&gt;
+&lt;p&gt;To answer this question we will have to assess the differences between the DLL in each version.&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;h1 id=&quot;first-naive-attempt-checksum&quot;&gt;First naive attempt: checksum&lt;/h1&gt;
 
@@ -297,7 +393,7 @@
         <title>Barnes and Noble: a tale of poor security practices</title>
         <description>&lt;p&gt;Being the happy owner of a Kindle I usually buy my ebooks on Amazon. They have a very large selection to choose from and normally sell all the latest releases. To my surprise they only had “&lt;a href=&quot;(http://us.macmillan.com/enigmaofchina/qiuxiaolong)&quot;&gt;Enigma of China&lt;/a&gt;” from Qiu Xialong in paperback and hardcover formats. &lt;a href=&quot;http://store.kobobooks.com/en-US/Search/Query?query=Enigma%20of%20China&amp;amp;dontModifyQuery=True&quot;&gt;Kobo&lt;/a&gt; didn’t have it at all but after searching for a while I found out that Barnes &amp;amp; Noble sold it as a &lt;a href=&quot;http://www.barnesandnoble.com/w/enigma-of-china-qiu-xiaolong/1114701902?ean=9781250025814&quot;&gt;NOOK Book&lt;/a&gt; for $10.&lt;/p&gt;
 
-&lt;p&gt;So far, so good or so it seemed. It turned out that Barnes &amp;amp; Noble has such a lax approach of security that at the end I decided not to purchase from them. You’ll find below the reasons that motivated my decision.&lt;/p&gt;
+&lt;p&gt;So far, so good or so it seemed. It turned out that Barnes &amp;amp; Noble has such a lax approach of security that at the end I decided not to purchase from them. You’ll find below the reasons that motivated my decision.&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;i-sign-in-and-registration-in-a-new-window&quot;&gt;I Sign in and registration in a new window&lt;/h2&gt;
 
@@ -390,7 +486,7 @@
   &lt;li&gt;&lt;a href=&quot;http://www.troyhunt.com/2012/05/everything-you-ever-wanted-to-know.html&quot;&gt;reset password feature&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;Due to the &lt;a href=&quot;http://heartbleed.com/&quot;&gt;Heartbleed&lt;/a&gt; vulnerability I decided to change some of my passwords recently. To my surprise many well known services impose some strong restrictions on the passwords users can set. Shall we get started? The offenders are ordered from worst ones to the most benign ones.&lt;/p&gt;
+&lt;p&gt;Due to the &lt;a href=&quot;http://heartbleed.com/&quot;&gt;Heartbleed&lt;/a&gt; vulnerability I decided to change some of my passwords recently. To my surprise many well known services impose some strong restrictions on the passwords users can set. Shall we get started? The offenders are ordered from worst ones to the most benign ones.&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;the-ugly&quot;&gt;The ugly&lt;/h2&gt;
 
@@ -598,7 +694,7 @@
 
 &lt;p&gt;A medium alert level extension can generate HTML elements on a page. It could perfectly hide a login form, replace it by it’s own, harvest your credentials and submit the hidden login form. A high alert level extension can do similar things but on your computer! This means that it could take your picture via your webcam, browse your hard drive looking for interesting files…&lt;/p&gt;
 
-&lt;p&gt;You would think that all of this is hypothetical and Google would certainly remove any malicious extension, but in this case you would be wrong.&lt;/p&gt;
+&lt;p&gt;You would think that all of this is hypothetical and Google would certainly remove any malicious extension, but in this case you would be wrong.&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;h1 id=&quot;technical-breakdown-of-a-malicious-extension&quot;&gt;Technical breakdown of a malicious extension&lt;/h1&gt;
 
