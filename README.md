@@ -1,6 +1,6 @@
 # gabrielweyer.github.io
 
-Source for my [blog][blog]. 
+Source for my [blog][blog].
 
 | CI | Status |
 | --- | --- |
@@ -12,6 +12,8 @@ Source for my [blog][blog].
 docker run --rm --volume="$($PWD):/srv/jekyll" -p 4000:4000 -it jekyll/jekyll:3.6.2 jekyll serve
 ```
 
+You can serve your [drafts][working-with-drafts] by adding the `--drafts` switch at the end of the command.
+
 ## Release
 
 - Always work in the `develop` branch
@@ -20,3 +22,4 @@ docker run --rm --volume="$($PWD):/srv/jekyll" -p 4000:4000 -it jekyll/jekyll:3.
 [blog]: https://gabrielweyer.github.io/
 [circle-ci]: https://circleci.com/gh/gabrielweyer/gabrielweyer.github.io
 [circle-ci-shield]: https://circleci.com/gh/gabrielweyer/gabrielweyer.github.io/tree/develop.svg?style=shield
+[working-with-drafts]: https://jekyllrb.com/docs/drafts/
