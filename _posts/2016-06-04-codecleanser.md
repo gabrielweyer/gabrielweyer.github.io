@@ -14,7 +14,7 @@ After [generating PDBs][generating-pdb] via [dotPeek][dotpeek] and adding them t
 
 Knowing the DLL is redistributed with the product, is in multiple production versions and that the source control's history is pretty patchy, the question then become: **if we were to get a new DLL could we use it for all the versions?**
 
-To answer this question we will have to assess the differences between the DLL in each version.
+To answer this question we will have to assess the differences between the DLL in each version.<!--more-->
 
 # First naive attempt: checksum
 

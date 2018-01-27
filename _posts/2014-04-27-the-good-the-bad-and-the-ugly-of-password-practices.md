@@ -31,7 +31,7 @@ Now that I've addressed password best practices on the users' side it's time to 
 - [proper use of HTTPS][proper-tls]
 - [reset password feature][reset-password]
 
-Due to the [Heartbleed][heartbleed] vulnerability I decided to change some of my passwords recently. To my surprise many well known services impose some strong restrictions on the passwords users can set. Shall we get started? The offenders are ordered from worst ones to the most benign ones.
+Due to the [Heartbleed][heartbleed] vulnerability I decided to change some of my passwords recently. To my surprise many well known services impose some strong restrictions on the passwords users can set. Shall we get started? The offenders are ordered from worst ones to the most benign ones.<!--more-->
 
 ## The ugly
 

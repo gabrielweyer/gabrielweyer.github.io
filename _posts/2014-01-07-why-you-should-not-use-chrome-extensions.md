@@ -21,7 +21,7 @@ In this case the exploit is fairly limited, you need the user to be copying / pa
 
 A medium alert level extension can generate HTML elements on a page. It could perfectly hide a login form, replace it by it's own, harvest your credentials and submit the hidden login form. A high alert level extension can do similar things but on your computer! This means that it could take your picture via your webcam, browse your hard drive looking for interesting files...
 
-You would think that all of this is hypothetical and Google would certainly remove any malicious extension, but in this case you would be wrong.
+You would think that all of this is hypothetical and Google would certainly remove any malicious extension, but in this case you would be wrong.<!--more-->
 
 # Technical breakdown of a malicious extension
 

@@ -10,7 +10,7 @@ I like football, even with the time difference I try to watch at least the World
 
 # Subscribing
 
-As the pricing seems reasonable I decided to go ahead. The page is loaded over HTTPS so we start well but to my surprise the form contains a **password remainder** field. Password remainders are a bad practice as users tend to fill them with their password (when allowed) or with a hint that is an obvious give away.
+As the pricing seems reasonable I decided to go ahead. The page is loaded over HTTPS so we start well but to my surprise the form contains a **password remainder** field. Password remainders are a bad practice as users tend to fill them with their password (when allowed) or with a hint that is an obvious give away.<!--more-->
 
 As I don't know any of my password, a password reminder is useless to me so I always generate a strong unique random password for this field. After trying to submit the form I got the following error:
 

@@ -8,7 +8,7 @@ categories:
 
 Being the happy owner of a Kindle I usually buy my ebooks on Amazon. They have a very large selection to choose from and normally sell all the latest releases. To my surprise they only had "[Enigma of China][enigma-china]" from Qiu Xialong in paperback and hardcover formats. [Kobo][kobo-enigma-china] didn't have it at all but after searching for a while I found out that Barnes & Noble sold it as a [NOOK Book][barnes-nobles-enigma-china] for $10.
 
-So far, so good or so it seemed. It turned out that Barnes & Noble has such a lax approach of security that at the end I decided not to purchase from them. You'll find below the reasons that motivated my decision.
+So far, so good or so it seemed. It turned out that Barnes & Noble has such a lax approach of security that at the end I decided not to purchase from them. You'll find below the reasons that motivated my decision.<!--more-->
 
 ## I Sign in and registration in a new window
 

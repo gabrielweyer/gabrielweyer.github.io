@@ -12,7 +12,7 @@ The first step is to ensure that IIS has been configured to execute ASP Classic 
 
 {% gist 5eb3198119bead02649c0fe11d733055 %}
 
-![dummy-asp]({{ "/assets/2016-07-16-capture-network-packets-with-netsh/dummy-asp.png" | prepend: site.baseurl }})
+![dummy-asp]({{ "/assets/2016-07-16-capture-network-packets-with-netsh/dummy-asp.png" | prepend: site.baseurl }})<!--more-->
 
 ## Enabling failed request tracing
 
