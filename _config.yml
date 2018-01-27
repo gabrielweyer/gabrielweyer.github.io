@@ -152,5 +152,6 @@ exclude:
   - "vendor/ruby/"
   - "deploy.ps1"
   - "README.md"
+  - "LICENSE"
 
 excerpt_separator: <!--more-->
