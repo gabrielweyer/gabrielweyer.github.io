@@ -7,6 +7,195 @@
     <atom:link href="https://gabrielweyer.github.io//feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
+        <title>Simple Routing for Elastic Beanstalk Worker tier</title>
+        <description>&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Elastic Beanstalk&lt;/code&gt; offers both a &lt;code class=&quot;highlighter-rouge&quot;&gt;Web&lt;/code&gt; tier and a &lt;code class=&quot;highlighter-rouge&quot;&gt;Worker&lt;/code&gt; tier. This allows developers to build reasonably complex applications without having to maintain moving pieces. Offloading heavy-duty workloads to the worker in order to keep the web tier responsive is as easy as putting a message on a queue.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/simple-routing-elastic-beanstalk-worker/http-path.png&quot; alt=&quot;HTTP Path&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;One annoyance that I have with &lt;code class=&quot;highlighter-rouge&quot;&gt;Beanstalk&lt;/code&gt; is that there is no way to direct a message to a specific endpoint, hence leaving a single endpoint the responsibility of distributing the messages to all their handlers and potentially leading to brittle code. But it doesn’t have to be that way.&lt;!--more--&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;implementation&quot;&gt;Implementation&lt;/h2&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;SQS&lt;/code&gt; messages have &lt;a href=&quot;https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-message-attributes.html&quot;&gt;attributes&lt;/a&gt;, attributes can be set by the sender and are read by the receiver. The idea is to use a known attribute to attach routing metadata to the message.&lt;/p&gt;
+
+&lt;h3 id=&quot;constants&quot;&gt;Constants&lt;/h3&gt;
+
+&lt;p&gt;Constants are the base of any decently built &lt;code class=&quot;highlighter-rouge&quot;&gt;C#&lt;/code&gt; application. I did not want to depart from to this rule and hence added some constants:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;RoutingConstants&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;HeaderName&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Task&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;HeaderType&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;String&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;These constansts will be used to add routing metadata to the &lt;code class=&quot;highlighter-rouge&quot;&gt;SQS&lt;/code&gt; message.&lt;/p&gt;
+
+&lt;p&gt;We can then define our routes via some more constants:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;WorkerConstants&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;DoSomeWorkTaskName&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;do-some-work&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;DoSomeOtherWorkTaskName&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;do-some-other-work&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;strong&gt;Note&lt;/strong&gt;: those two &lt;code class=&quot;highlighter-rouge&quot;&gt;class&lt;/code&gt; will have to be referenced by the sender and the &lt;code class=&quot;highlighter-rouge&quot;&gt;Worker&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;sending-the-message&quot;&gt;Sending the message&lt;/h3&gt;
+
+&lt;p&gt;The sender will most likely be the &lt;code class=&quot;highlighter-rouge&quot;&gt;Web&lt;/code&gt; tier but it could be any system being able to send a message to a &lt;code class=&quot;highlighter-rouge&quot;&gt;SQS&lt;/code&gt; queue.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;kt&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sendMessageRequest&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;SendMessageRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// Abbreviated: set properties on sendMessageRequest, such as the MessageBody and the QueueUrl&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// We're using RoutingConstants.HeaderName as the MessageAttribute key&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// and WorkerConstants.DoSomeWorkTaskName as the MessageAttribute value&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;sendMessageRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;MessageAttributes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Add&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;RoutingConstants&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;HeaderName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MessageAttributeValue&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;StringValue&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;WorkerConstants&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;DoSomeWorkTaskName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;DataType&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;RoutingConstants&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;HeaderType&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// Abbreviated: send the message&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h3 id=&quot;middleware&quot;&gt;Middleware&lt;/h3&gt;
+
+&lt;p&gt;In the &lt;code class=&quot;highlighter-rouge&quot;&gt;Worker&lt;/code&gt;, the routing is implemented via a &lt;code class=&quot;highlighter-rouge&quot;&gt;Middleware&lt;/code&gt;:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;HeaderRoutingMiddleware&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// Elastic Beanstalk prefixes the SQS messages properties' name with &quot;X-Aws-Sqsd-Attr-&quot;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;readonly&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TaskHeaderName&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;$&quot;X-Aws-Sqsd-Attr-&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;RoutingConstants&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;HeaderName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Task&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;Invoke&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;HttpContext&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// We get the value of the routing header&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;StringValues&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;task&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Headers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TaskHeaderName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;// And set it as the path&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Path&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;$&quot;/&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;task&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Single&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()}&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;_next&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;strong&gt;Note&lt;/strong&gt;: don’t forget to add &lt;code class=&quot;highlighter-rouge&quot;&gt;HeaderRoutingMiddleware&lt;/code&gt; to the &lt;code class=&quot;highlighter-rouge&quot;&gt;IApplicationBuilder&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;controller&quot;&gt;Controller&lt;/h3&gt;
+
+&lt;p&gt;The last piece of the puzzle is defining the expected route on the &lt;code class=&quot;highlighter-rouge&quot;&gt;Controller&lt;/code&gt;:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;c1&quot;&gt;// This is important, we do not want a prefix in front of the action's route&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;[Route(&quot;&quot;)]&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SomeController&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Controller&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;// The route has to match the value given to the MessageAttribute&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;HttpPost&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;WorkerConstants&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;DoSomeWorkTaskName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;async&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Task&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IActionResult&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;SomeMethod&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;SomeModel&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;model&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;c1&quot;&gt;// Abbreviated for clarity&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h2 id=&quot;simple-routing&quot;&gt;Simple routing&lt;/h2&gt;
+
+&lt;p&gt;I used &lt;code class=&quot;highlighter-rouge&quot;&gt;Simple Routing&lt;/code&gt; in production over the last few months and am now confident that it does what it’s supposed to do. This is why I decided to release it under a &lt;code class=&quot;highlighter-rouge&quot;&gt;MIT&lt;/code&gt; license to allow others to benefit from my work.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Simple Routing&lt;/code&gt; is available:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;On &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; as the package &lt;a href=&quot;https://www.nuget.org/packages/BeanstalkWorker.SimpleRouting/&quot;&gt;BeanstalkWorker.SimpleRouting&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;A &lt;code class=&quot;highlighter-rouge&quot;&gt;GitHub&lt;/code&gt; &lt;a href=&quot;https://github.com/gabrielweyer/simple-routing/releases&quot;&gt;release&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;As &lt;a href=&quot;https://github.com/gabrielweyer/simple-routing&quot;&gt;source&lt;/a&gt; on &lt;code class=&quot;highlighter-rouge&quot;&gt;Github&lt;/code&gt;
+    &lt;ul&gt;
+      &lt;li&gt;The implementation is so simple that you can just copy the classes into your own solution if that works better for you&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;demo&quot;&gt;Demo&lt;/h3&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;Simple Routing&lt;/code&gt; solution contains a &lt;code class=&quot;highlighter-rouge&quot;&gt;SampleWeb&lt;/code&gt; app, you can either:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Send “work” - &lt;code class=&quot;highlighter-rouge&quot;&gt;Send/Work&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;Send “nothing” - &lt;code class=&quot;highlighter-rouge&quot;&gt;Send/Nothing&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;send-messages&quot;&gt;Send messages&lt;/h4&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;GET http://localhost:5000/Send/Work HTTP/1.1
+Host: localhost:5000&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/simple-routing-elastic-beanstalk-worker/web-send-work.png&quot; alt=&quot;Send Work&quot; /&gt;&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;GET http://localhost:5000/Send/Nothing HTTP/1.1
+Host: localhost:5000&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/simple-routing-elastic-beanstalk-worker/web-send-nothing.png&quot; alt=&quot;Send Nothing&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;peek-at-the-messages&quot;&gt;Peek at the messages&lt;/h4&gt;
+
+&lt;p&gt;Now let’s look at the messages in the &lt;code class=&quot;highlighter-rouge&quot;&gt;SQS&lt;/code&gt; queue:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;Work&lt;/code&gt; message&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/simple-routing-elastic-beanstalk-worker/message-work-body.png&quot; alt=&quot;Work Message Body&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/simple-routing-elastic-beanstalk-worker/message-work-attributes.png&quot; alt=&quot;Work Message Attributes&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;Nothing&lt;/code&gt; message&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/simple-routing-elastic-beanstalk-worker/message-nothing-body.png&quot; alt=&quot;Nothing Message Body&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/simple-routing-elastic-beanstalk-worker/message-nothing-attributes.png&quot; alt=&quot;Nothing Message Attributes&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;handle-the-messages&quot;&gt;Handle the messages&lt;/h4&gt;
+
+&lt;p&gt;Launch the &lt;code class=&quot;highlighter-rouge&quot;&gt;SampleWorker&lt;/code&gt; app. When running in &lt;code class=&quot;highlighter-rouge&quot;&gt;ElasticBeanstalk&lt;/code&gt; the &lt;a href=&quot;https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html&quot;&gt;Sqsd daemon&lt;/a&gt; reads &lt;code class=&quot;highlighter-rouge&quot;&gt;SQS&lt;/code&gt; messages from the &lt;code class=&quot;highlighter-rouge&quot;&gt;SQS&lt;/code&gt; queue and &lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt; the content to your &lt;code class=&quot;highlighter-rouge&quot;&gt;Worker&lt;/code&gt;. But we’re running the &lt;code class=&quot;highlighter-rouge&quot;&gt;Worker&lt;/code&gt; on our machine and the &lt;code class=&quot;highlighter-rouge&quot;&gt;Sqsd daemon&lt;/code&gt; is not available. This is why I wrote &lt;code class=&quot;highlighter-rouge&quot;&gt;Beanstalk Seeder&lt;/code&gt;.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;a href=&quot;https://github.com/gabrielweyer/beanstalk-seeder&quot;&gt;Beanstalk Seeder&lt;/a&gt; emulates the &lt;code class=&quot;highlighter-rouge&quot;&gt;SQS Daemon&lt;/code&gt; surrounding an &lt;code class=&quot;highlighter-rouge&quot;&gt;Elastic Beanstalk&lt;/code&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;Worker Tier&lt;/code&gt; so that you can replicate the interaction between a &lt;code class=&quot;highlighter-rouge&quot;&gt;Web Tier&lt;/code&gt; and a &lt;code class=&quot;highlighter-rouge&quot;&gt;Worker Tier&lt;/code&gt; on your machine.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h5 id=&quot;handling-the-work-message&quot;&gt;Handling the &lt;code class=&quot;highlighter-rouge&quot;&gt;Work&lt;/code&gt; message&lt;/h5&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Beanstalk Seeder&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/simple-routing-elastic-beanstalk-worker/beanstalk-seeder-work.png&quot; alt=&quot;Work Message Beanstalk Seeder&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Worker&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/simple-routing-elastic-beanstalk-worker/worker-work.png&quot; alt=&quot;Work Message Worker&quot; /&gt;&lt;/p&gt;
+
+&lt;h5 id=&quot;handling-the-nothing-message&quot;&gt;Handling the &lt;code class=&quot;highlighter-rouge&quot;&gt;Nothing&lt;/code&gt; message&lt;/h5&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Beanstalk Seeder&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/simple-routing-elastic-beanstalk-worker/beanstalk-seeder-nothing.png&quot; alt=&quot;Nothing Message Beanstalk Seeder&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Worker&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/simple-routing-elastic-beanstalk-worker/worker-nothing.png&quot; alt=&quot;Nothing Message Worker&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I wrote a detailed guide in the &lt;a href=&quot;https://github.com/gabrielweyer/simple-routing&quot;&gt;GitHub repository&lt;/a&gt;. Give it a try and let me know if it works for you.&lt;/p&gt;
+
+</description>
+        <pubDate>Sun, 28 Jan 2018 20:24:33 +0000</pubDate>
+        <link>https://gabrielweyer.github.io//2018/01/28/simple-routing-elastic-beanstalk-worker/</link>
+        <guid isPermaLink="true">https://gabrielweyer.github.io//2018/01/28/simple-routing-elastic-beanstalk-worker/</guid>
+      </item>
+    
+      <item>
         <title>Links Insights #1</title>
         <description>&lt;p&gt;Every now and then I stumble upon a brilliant post on Internet, I share some of those links on my &lt;a href=&quot;https://www.diigo.com/user/gabrielweyer&quot;&gt;Diigo profile&lt;/a&gt; but the format is very succinct. I decided to start a new experiment and instead write full blog posts about those links. The first reason is quite selfish as I would like to keep a record of what I thought was interesting and why, I also hope to empower the reader so that she can decide if she wants to read the full post as some of them are lengthy.&lt;/p&gt;
 
