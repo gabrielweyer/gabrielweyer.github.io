@@ -9,10 +9,12 @@ Source for my [blog][blog].
 ## Development
 
 ```posh
-docker run --rm --volume="$($PWD):/srv/jekyll" -p 4000:4000 -it jekyll/jekyll:3.6.2 jekyll serve
+docker run --rm --volume="$($PWD):/srv/jekyll" -p 4000:4000 -it jekyll/jekyll:3.6.2 jekyll serve --force_polling --incremental --drafts
 ```
 
-You can serve your [drafts][working-with-drafts] by adding the `--drafts` switch at the end of the command.
+- `--force_polling --incremental` will regenerate the page you're working on.
+  - **Note**: this will only regenerate the pages you save (i.e the index will not be regenerated if you modify a post for example)
+- You can serve your [drafts][working-with-drafts] by adding the `--drafts` switch.
 
 ## Release
 
