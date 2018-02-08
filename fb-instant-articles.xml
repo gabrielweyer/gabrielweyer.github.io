@@ -9,6 +9,125 @@
     
         
             <item>
+                <title>Singleton HTTP Client</title>
+                <link>https://gabrielweyer.github.io//2018/02/08/singleton-http-client/</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>Even though the <code class="highlighter-rouge">class</code> <code class="highlighter-rouge">HttpClient</code> implements <code class="highlighter-rouge">IDisposable</code> it is supposed to be used as a singleton as stated in the <a href="https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpclient?view=netcore-2.0#Remarks">API reference</a>:</p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">HttpClient</code> is intended to be instantiated once and re-used throughout the life of an application. Instantiating an <code class="highlighter-rouge">HttpClient</code> class for every request will exhaust the number of sockets available under heavy loads. This will result in <code class="highlighter-rouge">SocketException</code> errors.</p>
+</blockquote>
+
+<p>The accepted best practice is to have one <code class="highlighter-rouge">HttpClient</code> per HTTP endpoint you’re interacting with. This will not only yield better performance it also allows to encapsulate endpoint specific logic (such as setting headers).</p>
+
+<p>Now the question is: how do you configure your <code class="highlighter-rouge">IoC</code> container to resolve the expected <code class="highlighter-rouge">HttpClient</code> instance? This used to require a cumbersome registration but <code class="highlighter-rouge">.NET Core 2.1</code> will ship with the <a href="https://github.com/aspnet/HttpClientFactory">HttpClientFactory</a> making our life much easier.<!--more--></p>
+
+<h2 id="httpclientfactory"><code class="highlighter-rouge">HttpClientFactory</code></h2>
+
+<p><a href="https://www.stevejgordon.co.uk/">Steve Gordon</a> has an excellent <a href="https://www.stevejgordon.co.uk/httpclientfactory-named-typed-clients-aspnetcore">post</a> explaining what is <code class="highlighter-rouge">HttpClientFactory</code> and how it works.</p>
+
+<p><code class="highlighter-rouge">HttpClientFactory</code> aims to provide the following improvements:</p>
+
+<ul>
+  <li>Alleviate sockets exhaustion by reusing connection when possible</li>
+  <li>Alleviate stale <code class="highlighter-rouge">DNS</code> records (by default <code class="highlighter-rouge">HttpClient</code> caches <code class="highlighter-rouge">DNS</code> records for its lifetime)</li>
+  <li>Easily resolve an <code class="highlighter-rouge">HttpClient</code> instance linked to a specific HTTP endpoint</li>
+</ul>
+
+<p>What if you can’t use <code class="highlighter-rouge">.NET Core</code> or can’t update? Fear not, we can achieve tomorrow’s dream with today’s tools (most of it anyway).</p>
+
+<h2 id="associate-an-httpclient-instance-with-the-service-using-it">Associate an <code class="highlighter-rouge">HttpClient</code> instance with the service using it</h2>
+
+<p><code class="highlighter-rouge">HttpClient</code> instances communicating with a specific HTTP endpoint tend to have dedicated settings such as an <code class="highlighter-rouge">Authorization</code> header, default request headers (<code class="highlighter-rouge">Accept</code> for example), maybe a <code class="highlighter-rouge">HMAC</code>… I tend to encapsulate those settings in a <code class="highlighter-rouge">class</code> to decouple the settings’s source from the consummer.</p>
+
+<p>Let’s imagine that we’re integrating with a fictitious company called <em>Contoso</em>. The integration takes place via an HTTP API and our contact at Contoso gave us a bearer token that needs to be set on the <code class="highlighter-rouge">Authorization</code> header.</p>
+
+<p>The first step is to create a <code class="highlighter-rouge">POCO</code> modelizing the settings:</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">public</span> <span class="k">class</span> <span class="nc">ContosoSettings</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="n">Uri</span> <span class="n">BaseAddress</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">public</span> <span class="kt">string</span> <span class="n">BearerToken</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p><code class="highlighter-rouge">HttpClient</code> makes writing tests harder. Developers tend to derive from <code class="highlighter-rouge">HttpMessageHandler</code> and provide an implementation allowing them to assert the requests issued by the <code class="highlighter-rouge">HttpClient</code>. I prefer to introduce an interface called <code class="highlighter-rouge">IHttpClient</code> exposing a single method to handle <code class="highlighter-rouge">HTTP</code> traffic:</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">public</span> <span class="k">interface</span> <span class="nc">IHttpClient</span>
+<span class="p">{</span>
+    <span class="n">Task</span><span class="p">&lt;</span><span class="n">HttpResponseMessage</span><span class="p">&gt;</span> <span class="nf">SendAsync</span><span class="p">(</span><span class="n">HttpRequestMessage</span> <span class="n">request</span><span class="p">);</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>We then implement the <code class="highlighter-rouge">ContosoHttpClient</code> that will be dedicated to communicating with the <code class="highlighter-rouge">Contoso</code> API:</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">public</span> <span class="k">class</span> <span class="nc">ContosoHttpClient</span> <span class="p">:</span> <span class="n">HttpClient</span><span class="p">,</span> <span class="n">IHttpClient</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="nf">ContosoHttpClient</span><span class="p">(</span><span class="n">ContosoSettings</span> <span class="n">settings</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">BaseAddress</span> <span class="p">=</span> <span class="n">settings</span><span class="p">.</span><span class="n">BaseAddress</span><span class="p">;</span>
+        <span class="n">DefaultRequestHeaders</span><span class="p">.</span><span class="n">Authorization</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">AuthenticationHeaderValue</span><span class="p">(</span><span class="s">"Bearer"</span><span class="p">,</span> <span class="n">settings</span><span class="p">.</span><span class="n">BearerToken</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>And finally we registers the <code class="highlighter-rouge">Type</code>s in the <code class="highlighter-rouge">IoC</code> container:</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">const</span> <span class="kt">string</span> <span class="n">contosoHttpClientAutofacKeyName</span> <span class="p">=</span> <span class="s">"ContosoHttpClient"</span><span class="p">;</span>
+
+<span class="n">builder</span><span class="p">.</span><span class="n">RegisterType</span><span class="p">&lt;</span><span class="n">ContosoHttpClient</span><span class="p">&gt;()</span>
+    <span class="p">.</span><span class="nf">Named</span><span class="p">(</span><span class="n">contosoHttpClientAutofacKeyName</span><span class="p">,</span> <span class="k">typeof</span><span class="p">(</span><span class="n">IHttpClient</span><span class="p">))</span>
+    <span class="p">.</span><span class="nf">SingleInstance</span><span class="p">();</span>
+
+<span class="n">builder</span><span class="p">.</span><span class="n">RegisterType</span><span class="p">&lt;</span><span class="n">ContosoClient</span><span class="p">&gt;()</span>
+    <span class="p">.</span><span class="nf">WithParameter</span><span class="p">(</span><span class="k">new</span> <span class="nf">ResolvedParameter</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">pi</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="n">pi</span><span class="p">.</span><span class="n">ParameterType</span> <span class="p">==</span> <span class="k">typeof</span><span class="p">(</span><span class="n">IHttpClient</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">pi</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="n">ctx</span><span class="p">.</span><span class="n">ResolveNamed</span><span class="p">&lt;</span><span class="n">IHttpClient</span><span class="p">&gt;(</span><span class="n">ContosoHttpClientAutofacKeyName</span><span class="p">)))</span>
+    <span class="p">.</span><span class="nf">AsImplementedInterfaces</span><span class="p">().</span><span class="nf">InstancePerRequest</span><span class="p">();</span>
+
+<span class="c1">// Abbreviated: resolve and register ContosoSettings (from Web.config, appsettings.json, CSV, volumen...)</span></code></pre></figure>
+
+<p>This snippet is using <code class="highlighter-rouge">Autofac</code> <a href="http://autofaccn.readthedocs.io/en/latest/advanced/keyed-services.html#named-services">named service</a>. Using a <code class="highlighter-rouge">named service</code> this way has several benefits:</p>
+
+<ul>
+  <li>If someone registered another <code class="highlighter-rouge">IHttpClient</code> that is supposed to be used everywhere else we will not override the registration for all the other services while still retrieving an instance of <code class="highlighter-rouge">ContosoHttpClient</code> when resolving <code class="highlighter-rouge">IContosoClient</code>.</li>
+  <li>The <code class="highlighter-rouge">named service</code> is an implementation details that only the <code class="highlighter-rouge">IoC</code> container knows about.</li>
+</ul>
+
+<h2 id="solve-stale-dns-records">Solve stale DNS records</h2>
+
+<p>Let’s say you’re interacting with an API hosted at <code class="highlighter-rouge">https://api.contoso.com</code>, <code class="highlighter-rouge">HttpClient</code> will first have to resolve the domain name to an <code class="highlighter-rouge">IP</code> thanks to a <code class="highlighter-rouge">DNS</code> server. But what happens if the <code class="highlighter-rouge">DNS</code> record is updated and the domain name now resolves to another <code class="highlighter-rouge">IP</code>? If you are using a transient <code class="highlighter-rouge">HttpClient</code> you’ll be fine but if you’re using a singleton instance (as you should) <code class="highlighter-rouge">Exception</code>s will start to shoot up in your monitoring system. Should we stop calling APIs, or maybe rewrite everything in <code class="highlighter-rouge">Go</code>?</p>
+
+<p>The <a href="https://docs.microsoft.com/en-us/dotnet/api/system.net.servicepoint.connectionleasetimeout?view=netframework-4.7.1#System_Net_ServicePoint_ConnectionLeaseTimeout">ConnectionLeaseTimeout</a> property can solve this situation nicely for us:</p>
+
+<blockquote>
+  <p>A <code class="highlighter-rouge">Int32</code> that specifies the number of <strong>milliseconds</strong> that an active <code class="highlighter-rouge">ServicePoint</code> connection remains open. <strong>The default is <code class="highlighter-rouge">-1</code>, which allows an active <code class="highlighter-rouge">ServicePoint</code> connection to stay connected indefinitely</strong>. Set this property to <code class="highlighter-rouge">0</code> to force <code class="highlighter-rouge">ServicePoint</code> connections to close after servicing a request.</p>
+</blockquote>
+
+<p>This is how you set it:</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="kt">var</span> <span class="n">apiUri</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">Uri</span><span class="p">(</span><span class="s">"https://api.contoso.com"</span><span class="p">);</span>
+<span class="kt">var</span> <span class="n">sp</span> <span class="p">=</span> <span class="n">ServicePointManager</span><span class="p">.</span><span class="nf">FindServicePoint</span><span class="p">(</span><span class="n">apiUri</span><span class="p">);</span>
+<span class="n">sp</span><span class="p">.</span><span class="n">ConnectionLeaseTimeout</span> <span class="p">=</span> <span class="m">60</span><span class="p">*</span><span class="m">1000</span><span class="p">;</span></code></pre></figure>
+
+<p>In the previous snippet I’m keeping the connection opened for a minute which seems like a good trade-off.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>I haven’t looked at the implementation of <code class="highlighter-rouge">HttpClientFactory</code> yet but I suspect the end result will be fairly similar to what I demonstrated above. If you still have doubts about using a singleton <code class="highlighter-rouge">HttpClient</code> I recommend you to perf test it. At a previous customer I developped an API that was calling other HTTP endpoints, I increased the throughput by a factor of <code class="highlighter-rouge">10</code> by changing a single thing: I made the <code class="highlighter-rouge">HttpClient</code> a singleton rather than a per-request scope.</p>
+
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2018/02/08/singleton-http-client/</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Thu, 08 Feb 2018 20:34:06 +0000</pubDate>
+                <author></author>
+            </item>
+        
+    
+        
+            <item>
                 <title>Simple Routing for Elastic Beanstalk Worker tier</title>
                 <link>https://gabrielweyer.github.io//2018/01/28/simple-routing-elastic-beanstalk-worker/</link>
                 <content:encoded>
