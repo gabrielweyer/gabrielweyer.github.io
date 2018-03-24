@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?201803091554" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?201803240139" type="text/css">
 
     <!-- Fonts -->
     
@@ -110,6 +110,27 @@
 <div class="home">
   
     <div class="posts">
+      
+        <div class="post py3">
+          <p class="post-meta">Jun 4, 2016</p>
+          <a href="/2016/06/04/codecleanser/" class="post-link"><h3 class="h1 post-title">CodeCleanser</h3></a>
+          <span class="post-summary">
+            <p>Recently I came up with an interesting issue at a customer. A governmental agency contacted us and informed us that due to a Windows update we could experience intermittent issue when trying to communicate with them. All I knew at this stage was that the issue would manifest itself when trying to upload a document and that the integration is done via DLLs that are wrapping a few web services.</p>
+
+<p>After <a href="https://www.jetbrains.com/help/decompiler/2016.1/Generating_PDB_Files.html">generating PDBs</a> via <a href="https://www.jetbrains.com/decompiler/">dotPeek</a> and adding them to the Visual Studio symbol cache directory I was able to debug through those third party DLLs and confirm that the issue was indeed located in one of them.</p>
+
+<p>Knowing the DLL is redistributed with the product, is in multiple production versions and that the source control’s history is pretty patchy, the question then become: <strong>if we were to get a new DLL could we use it for all the versions?</strong></p>
+
+<p>To answer this question we will have to assess the differences between the DLL in each version.</p>
+
+
+             
+            
+            
+              <a href="/2016/06/04/codecleanser/">Continue reading</a>
+            
+          </span>
+        </div>
       
         <div class="post py3">
           <p class="post-meta">Dec 7, 2014</p>

@@ -7,6 +7,122 @@
     <atom:link href="https://gabrielweyer.github.io//feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
+        <title>Testing anti-patterns #1</title>
+        <description>&lt;p&gt;I often ask candidates to define a good unit test. This is the starting point of a conversation around testing strategies and delivering value. Over the years I’ve heard opinions ranging from &lt;code class=&quot;highlighter-rouge&quot;&gt;the 100% coverage&lt;/code&gt;, passing by &lt;code class=&quot;highlighter-rouge&quot;&gt;testing is for testers&lt;/code&gt;, all the way to &lt;code class=&quot;highlighter-rouge&quot;&gt;we don't do automated testing&lt;/code&gt;. If the notion of a &lt;em&gt;good test&lt;/em&gt; can be subjective, it is easier to identify a &lt;strong&gt;bad&lt;/strong&gt; test. Bloggers have written about this topic at length but I thought I would try paraphrasing the same content hoping nobody would notice.&lt;/p&gt;
+
+&lt;p&gt;I must admit I have written - quite - a few bad tests myself and that’s fine. We all make mistakes, how we handle those mistakes is what help us grow:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;It’s important to understand why the mistake happened and put in place measures to prevent the same mistake from happening again&lt;/li&gt;
+  &lt;li&gt;Equally we should challenge existing practices, they might be there for a good reason but they might instead be there for a &lt;strong&gt;bad&lt;/strong&gt; reason&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;!--more--&gt;
+
+&lt;p&gt;Here are a few anti-patterns I’ve noticed over the years:&lt;/p&gt;
+
+&lt;h2 id=&quot;ignored-or-commented-test&quot;&gt;Ignored or commented test&lt;/h2&gt;
+
+&lt;p&gt;Have you ever seen this?&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;na&quot;&gt;[Ignore]&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;[TestMethod]&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;Test&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Luckily only &lt;code class=&quot;highlighter-rouge&quot;&gt;MSTest&lt;/code&gt; allows to ignore a test without providing a message, both &lt;code class=&quot;highlighter-rouge&quot;&gt;xUnit&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;NUnit&lt;/code&gt; require the developer to provide a message. What’s worse is that the message of the commit ignoring the test often reads &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;fixed&quot; test YOLO LMAO&lt;/code&gt; and you’re left wondering what deep philosophical message lies hidden behind those mundane words.&lt;/p&gt;
+
+&lt;p&gt;In the case of a &lt;em&gt;commented test&lt;/em&gt; the solution is simple: &lt;strong&gt;delete&lt;/strong&gt; it. Regarding &lt;em&gt;ignored tests&lt;/em&gt;, have a quick read through and run them. If you can’t get them to pass, &lt;strong&gt;delete&lt;/strong&gt; them too. Ignored / commented tests will only confuse future developers. You should treat your test code the same way you treat your production code: if a piece of code has no use anymore it should go.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Ask yourself&lt;/strong&gt;: why am I ignoring this test, what conditions should be met to enable it again? Then write a &lt;strong&gt;descriptive&lt;/strong&gt; ignore message.&lt;/p&gt;
+
+&lt;h2 id=&quot;non-thread-safe&quot;&gt;Non-thread-safe&lt;/h2&gt;
+
+&lt;p&gt;The first thing that is wrong with this test is that it’s recording log messages so that they can be asserted at a later stage (see &lt;a href=&quot;#asserting-log-messages&quot;&gt;below&lt;/a&gt; for the log anti-pattern):&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;n&quot;&gt;logger&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;When&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;l&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;l&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Info&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Arg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Any&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;()))&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Do&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ci&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_logs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Add&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ci&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Arg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;()));&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;But this was not the only issue with this statement. After making an unrelated change this test failed. I ran it again on its own and it passed, so this test was failing intermittently and I was also getting different &lt;code class=&quot;highlighter-rouge&quot;&gt;Exception&lt;/code&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;Type&lt;/code&gt;s! The &lt;code class=&quot;highlighter-rouge&quot;&gt;NullReferenceException&lt;/code&gt; wasn’t meaningful but I also got an &lt;code class=&quot;highlighter-rouge&quot;&gt;IndexOutOfRangeException&lt;/code&gt; when adding an element to the &lt;code class=&quot;highlighter-rouge&quot;&gt;List&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;It turned out the code under test was multi-threaded and multiple threads were trying to add to the &lt;code class=&quot;highlighter-rouge&quot;&gt;List&lt;/code&gt; at the same time. The &lt;a href=&quot;https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1?view=netframework-4.7.1#Thread_Safety&quot;&gt;.NET API browser&lt;/a&gt; makes it clear than &lt;code class=&quot;highlighter-rouge&quot;&gt;List&lt;/code&gt; is not thread-safe:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Any instance members are not guaranteed to be thread safe. […] &lt;strong&gt;To ensure thread safety, lock the collection during a read or write operation&lt;/strong&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;In this instance the solution was to lock the &lt;code class=&quot;highlighter-rouge&quot;&gt;List&lt;/code&gt; when adding to it:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;n&quot;&gt;logger&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;When&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;l&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;l&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Info&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Arg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Any&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;()))&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Do&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ci&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;lock&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;_logs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;_logs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Add&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ci&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Arg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;());&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;strong&gt;Ask yourself&lt;/strong&gt;: most of the code we write is not performance critical, do you need to create multiple threads?&lt;/p&gt;
+
+&lt;h2 id=&quot;failure-without-enough-context&quot;&gt;Failure without enough context&lt;/h2&gt;
+
+&lt;p&gt;There is nothing more frustrating than having a build failing on the build server and be faced by this kind of log:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;Assert.True() Failure
+Expected: True
+Actual:   False&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;From there things only get worse, when you look at the actual assert you discover it’s asserting multiple things at the same time and you’ve no idea which one went wrong:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;n&quot;&gt;Assert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;A&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;A&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;B&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;B&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;C&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;C&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;If you need to compare objects you can use an assertion library such as &lt;a href=&quot;http://fluentassertions.com/&quot;&gt;Fluent Assertions&lt;/a&gt; or &lt;a href=&quot;https://github.com/shouldly/shouldly&quot;&gt;Shouldly&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Ask yourself&lt;/strong&gt;: if I make this test break, would I have enough context based on &lt;strong&gt;only&lt;/strong&gt; the logs to understand what went wrong?&lt;/p&gt;
+
+&lt;h2 id=&quot;asserting-log-messages&quot;&gt;Asserting log messages&lt;/h2&gt;
+
+&lt;p&gt;Please don’t do this:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;n&quot;&gt;logger&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Received&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;m&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Info&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Super important log&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Logging is an implementation detail, asserting log messages is over-specifying.&lt;/p&gt;
+
+&lt;p&gt;On the other hand, if recording that something happened is critical from a business point of view you don’t want to use logging for this purpose as developers should be able to modify logging as they see fit.&lt;/p&gt;
+
+&lt;p&gt;Tracking business events can be achieved in different ways:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Via your &lt;code class=&quot;highlighter-rouge&quot;&gt;APM&lt;/code&gt; service, both &lt;a href=&quot;https://docs.microsoft.com/en-us/azure/application-insights/app-insights-api-custom-events-metrics#trackevent&quot;&gt;Application Insights&lt;/a&gt; and &lt;a href=&quot;https://docs.newrelic.com/docs/insights/insights-data-sources/custom-data/insert-custom-events-new-relic-apm-agents&quot;&gt;New Relic&lt;/a&gt; can track custom events&lt;/li&gt;
+  &lt;li&gt;Via a service bus. Your code could be instrumented to emit messages and any interested service can subscribe to them&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;Ask yourself&lt;/strong&gt;: is this the best way of doing this? Read the documentation of the systems you’re currently using, you’ll quite often discover features you had no idea existed.&lt;/p&gt;
+
+&lt;h2 id=&quot;nullreferenceexception-in-constructor&quot;&gt;NullReferenceException in constructor&lt;/h2&gt;
+
+&lt;p&gt;Don’t assert than your constructors are throwing a &lt;code class=&quot;highlighter-rouge&quot;&gt;NullReferenceException&lt;/code&gt; when being passed a &lt;code class=&quot;highlighter-rouge&quot;&gt;null&lt;/code&gt;. Your &lt;code class=&quot;highlighter-rouge&quot;&gt;IoC&lt;/code&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;container&lt;/code&gt; will throw an &lt;code class=&quot;highlighter-rouge&quot;&gt;Exception&lt;/code&gt; anyway when trying to resolve the dependencies.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Ask yourself&lt;/strong&gt;: do I need to test third-party libraries?&lt;/p&gt;
+
+&lt;h2 id=&quot;sanity-check&quot;&gt;Sanity check&lt;/h2&gt;
+
+&lt;p&gt;Quite often when starting a new project, developers will create a &lt;em&gt;sanity check&lt;/em&gt; test. This is a test that &lt;strong&gt;should&lt;/strong&gt; pass and if it were to fail it would mean that things are terribly wrong. An example of such a test is this:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;n&quot;&gt;Assert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;I’ve never seen this kind of test fail. Moreover, this test does not have any value as it doesn’t give me any confidence that the code is behaving the way it is supposed to.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Ask yourself&lt;/strong&gt;: Can I break this test by altering the correctness of the production code?&lt;/p&gt;
+
+</description>
+        <pubDate>Sat, 24 Mar 2018 06:36:53 +0000</pubDate>
+        <link>https://gabrielweyer.github.io//2018/03/24/testing-anti-patterns-1/</link>
+        <guid isPermaLink="true">https://gabrielweyer.github.io//2018/03/24/testing-anti-patterns-1/</guid>
+      </item>
+    
+      <item>
         <title>WinDbg #1 - The static root</title>
         <description>&lt;p&gt;This new series is an attempt to improve my &lt;code class=&quot;highlighter-rouge&quot;&gt;WinDbg&lt;/code&gt; skills. The concept is to create faulty applications and troubleshoot the issue using &lt;code class=&quot;highlighter-rouge&quot;&gt;WinDbg&lt;/code&gt; pretending that I have no prior knowledge of the code.&lt;/p&gt;
 
@@ -1278,231 +1394,6 @@ git config &lt;span class=&quot;nt&quot;&gt;--global&lt;/span&gt; &lt;span class
         <pubDate>Sun, 07 Dec 2014 06:16:14 +0000</pubDate>
         <link>https://gabrielweyer.github.io//2014/12/07/barnes-and-noble-a-tale-of-poor-security-practices/</link>
         <guid isPermaLink="true">https://gabrielweyer.github.io//2014/12/07/barnes-and-noble-a-tale-of-poor-security-practices/</guid>
-      </item>
-    
-      <item>
-        <title>The Good, the Bad and the Ugly of password practices</title>
-        <description>&lt;p&gt;Internet has taken a preponderant place in our lives and most of us regularly purchase goods on Internet or use Internet banking. The access to the services we use is protected by a password and humans are not good at managing passwords:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Most of us will reuse the same password on many services (combine this with the fact that people also use the same email address to log in into said services and you get an explosive mix when security is breached on one &lt;a href=&quot;http://www.geekosystem.com/gawker-hack-acai-spam-twitter/&quot;&gt;service&lt;/a&gt;).&lt;/li&gt;
-  &lt;li&gt;Most of us will use weak passwords, basically as weak as the service will allow. Not only our passwords are weak they’re also extremely &lt;a href=&quot;https://www.duosecurity.com/blog/brief-analysis-of-the-gawker-password-dump&quot;&gt;predictable&lt;/a&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;To address those issues you need to use &lt;strong&gt;strong unique&lt;/strong&gt; passwords. By &lt;strong&gt;strong&lt;/strong&gt; I mean that your passwords should be:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;long (let’s say at least 25 characters)&lt;/li&gt;
-  &lt;li&gt;a mix of lower / upper case letters, digits and symbols&lt;/li&gt;
-  &lt;li&gt;randomly generated (by a random generator not by you typing random keys on your keyboard)&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;By &lt;strong&gt;unique&lt;/strong&gt; I mean that you should &lt;em&gt;never&lt;/em&gt; reuse a password. You should set a different password on each service. As we tend to use many services and tend to log in from multiple devices (home and work computers, smartphones, tablets..) it makes it impossible to remember all those strong passwords.&lt;/p&gt;
-
-&lt;p&gt;Google has &lt;a href=&quot;https://www.youtube.com/watch?v=0RCsHJfHL_4&quot;&gt;recommended&lt;/a&gt; the use of sentence and substitution, something even stronger has been advocated by &lt;a href=&quot;http://xkcd.com/936/&quot;&gt;xkcd&lt;/a&gt;. But this doesn’t work. I use over a hundred different services, how could I remember a hundred different sentences? Common substitutions (the one you will use) are also well documented and will be attempted by the attackers to guess your password. Other experts have advised to &lt;a href=&quot;https://medium.com/cyber-security/9ed56d483eb&quot;&gt;get rid of passwords&lt;/a&gt; altogether, but this opinion is unconventional to say the least.&lt;/p&gt;
-
-&lt;p&gt;Want it or not we’re stuck with passwords for the  predictable future. Luckily there is a solution: it’s called a password manager. With a password manager you’ll only need to remember one password (the master password), all the other ones will be entered automatically for you in the login forms. I use &lt;a href=&quot;https://agilebits.com/onepassword&quot;&gt;1Password&lt;/a&gt;, but there are other products on the market: &lt;a href=&quot;https://lastpass.com/&quot;&gt;LastPass&lt;/a&gt;, &lt;a href=&quot;http://keepass.info/&quot;&gt;KeePass&lt;/a&gt;, &lt;a href=&quot;http://www.roboform.com/&quot;&gt;RoboForm&lt;/a&gt;… Most of those products are not free but I’m sure you’ll prefer to drop a few dozens dollars every few years instead of seeing your online (and sometimes offline) life ruined.&lt;/p&gt;
-
-&lt;p&gt;Now that I’ve addressed password best practices on the users’ side it’s time to mention the other side. The services that you use should do everything they can in order to protect your password. There is a &lt;a href=&quot;http://www.troyhunt.com/2011/06/owasp-top-10-for-net-developers-part-7.html&quot;&gt;lot&lt;/a&gt; to say in this area but I decided to address the features that are easily observable:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;passwords requirements: services shouldn’t restrict the length of our passwords (at least not smaller than a few dozens characters) or the characters’ set that we can use (this would reduce the entropy)&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;http://www.troyhunt.com/2013/05/your-login-form-posts-to-https-but-you.html&quot;&gt;proper use of HTTPS&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;http://www.troyhunt.com/2012/05/everything-you-ever-wanted-to-know.html&quot;&gt;reset password feature&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Due to the &lt;a href=&quot;http://heartbleed.com/&quot;&gt;Heartbleed&lt;/a&gt; vulnerability I decided to change some of my passwords recently. To my surprise many well known services impose some strong restrictions on the passwords users can set. Shall we get started? The offenders are ordered from worst ones to the most benign ones.&lt;!--more--&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;the-ugly&quot;&gt;The ugly&lt;/h2&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Use at your own risk. Most of those services do not use HTTPS properly or force you to choose passwords that are easily guessable.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;http://www.airfrance.fr/cgi-bin/AF/FR/en/common/home/home/HomePageAction.do&quot;&gt;Air France&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Not only Air France is loading the login form over HTTP, the password policy they enforce is a 4 digits PIN!&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://www.caisse-epargne.fr/particuliers/ile-de-france/accueil.aspx&quot;&gt;Caisse d’Epargne&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;One of the biggest French bank, forcing its users to use a 5 digits PIN as a password (and the login is the account number which is a semi-public information).&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;http://weibo.com/&quot;&gt;Weibo&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;The service logs users in over HTTP and limiting the password length to 16 characters.&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;http://doodle.com/en/&quot;&gt;Doodle&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;The service logs users in over HTTP! According to &lt;a href=&quot;http://en.blog.doodle.com/2014/04/10/important-security-news-from-doodle/&quot;&gt;them&lt;/a&gt;, they updated their system to patch the vulnerability. Of course as they don’t use HTTPS they were never vulnerable to this specific vulnerability in the first place.&lt;/p&gt;
-
-&lt;h2 id=&quot;the-bad&quot;&gt;The bad&lt;/h2&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Use with caution. Those services are not getting security, they’re exposing your passwords in clear via email.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://uberstrike.com/&quot;&gt;UberStrike&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;The service is currently using an expired certificate. When changing your password you’ll receive an email containing your new password in clear (and stating “We’ve reset your UberStrike password” [&lt;em&gt;sic&lt;/em&gt;]).&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;/assets/2014-04-27-the-good-the-bad-and-the-ugly-of-password-practices/uberstrike-change-password.png&quot;&gt;&lt;img src=&quot;/assets/2014-04-27-the-good-the-bad-and-the-ugly-of-password-practices/uberstrike-change-password.png&quot; alt=&quot;uberstrike-change-password&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://ielts.britishcouncil.org/CandidateLogin.aspx&quot;&gt;IELTS&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;The service does not allow you to change your password. This password is in fact your reference number that you need to use in every communication with IELTS’ staff.&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://www.astrill.com/&quot;&gt;Astrill&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Astrill provide VPN services and allow (among other things) to access blocked websites from Mainland China. A VPN also prevents attackers from listening to your traffic. This service is mainly about security and so you would expect them to have pretty good practices in terms of passwords. It turns out that if you’re not currently a paying customer you can’t change your password. Even worse the support staff does not have the ability to delete your account and will instead send you a new password in clear via email (you can read the full conversation &lt;a href=&quot;/assets/2014-04-27-the-good-the-bad-and-the-ugly-of-password-practices/astrill-change-password.png&quot;&gt;here&lt;/a&gt;)!&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;/assets/2014-04-27-the-good-the-bad-and-the-ugly-of-password-practices/astrill-reset-password1.png&quot;&gt;&lt;img src=&quot;/assets/2014-04-27-the-good-the-bad-and-the-ugly-of-password-practices/astrill-reset-password1.png&quot; alt=&quot;astrill-reset-password&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://depot-marque.inpi.fr/index.html&quot;&gt;INPI&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;This is the French department in charge of registering patents and trademarks. When creating an account they’re kind enough to send you your password via email in clear. At least they’re deleting inactive accounts after three months.&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;/assets/2014-04-27-the-good-the-bad-and-the-ugly-of-password-practices/inpi-create-account.png&quot;&gt;&lt;img src=&quot;/assets/2014-04-27-the-good-the-bad-and-the-ugly-of-password-practices/inpi-create-account.png&quot; alt=&quot;inpi-create-account&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;the-almost-good&quot;&gt;The (almost) good&lt;/h2&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;In this category you’ll find the offenders that almost got it right. But their policies are not good enough to get them off the hook. It’s all related to the maximal length of passwords and the allowed symbols.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;http://us.battle.net/en/&quot;&gt;Battle.net&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Your password must be between 8–16 characters in length. Your password may only contain alphabetic characters (A–Z), numeric characters (0–9), and punctuation.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;Blizzard has been battling accounts hijacking for years. A better password policy would certainly help protect the accounts of their users.&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;http://www.free.fr/adsl/index.html&quot;&gt;Free&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Your password can’t be longer than 16 characters. Characters are restricted to a-z, A-Z, 0-9, #$,;.:*@[]()?+=-_%&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://www.mymyki.com.au/NTSWebPortal/Common/getmyki/GetMykiOption.aspx?menu=Get%20myki&quot;&gt;Myki&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Your password can’t be longer than 15 characters.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;http://www.optus.com.au/&quot;&gt;Optus&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Your password can’t be longer than 15 characters.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://www.commbank.com.au/&quot;&gt;Commonwealth Bank&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;8 and 16 characters long. can contain most characters except &amp;lt;&amp;gt;^`{}~=&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;The 16 characters limit is completely unacceptable coming from a bank!&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;http://www.microsoft.com/en-au/default.aspx&quot;&gt;Microsoft&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Your password can’t be longer than 16 characters.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;This is the biggest company present in this list and it’s quite disappointing coming from an enterprise software company. Microsoft accounts are also used by businesses to access Azure, MSDN…&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;http://www.originenergy.com.au/&quot;&gt;Origin&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;The energy company in Australia (not the gaming service operated by EA).&lt;/p&gt;
-
-&lt;p&gt;Not only you can’t use symbols but also the password length is limited to 20 characters. Origin only allows you to change your password once per 24 hours, I’ve no idea why this is the case on how it can make the service more secure.&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;http://en.voyages-sncf.com/en/&quot;&gt;SNCF&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Password must only contain numbers and/or letters. The length should not be bigger than 25 characters.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;http://www.renren.com/&quot;&gt;RenRen&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;RenRen is limiting the password length to 20 characters.&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;http://www.viadeo.com/&quot;&gt;Viadeo&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Your password can’t be longer than 20 characters.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://btguard.com/&quot;&gt;BTGuard&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;The service prevents you from using symbols altogether:&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Password must only contain numbers and/or letters.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://my.gov.au/&quot;&gt;myGov&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;This website allows Australians to manage their social benefits (medicare, Centrelink, child support…). The service has a pretty good policy but restricts you from using certain symbols:&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;You can strengthen your password by including a mixture of upper and lower case letters, numbers, and the following special characters: !, @, #, $, %, ^, &amp;amp;, *.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;http://wordpress.com/&quot;&gt;WordPress&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;ERROR: Passwords may not contain the character “\”.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;This is a minor violation as WordPress is only preventing us from using a single symbol and this is why the service sits at the last position of this list.&lt;/p&gt;
-
-</description>
-        <pubDate>Sun, 27 Apr 2014 09:17:31 +0000</pubDate>
-        <link>https://gabrielweyer.github.io//2014/04/27/the-good-the-bad-and-the-ugly-of-password-practices/</link>
-        <guid isPermaLink="true">https://gabrielweyer.github.io//2014/04/27/the-good-the-bad-and-the-ugly-of-password-practices/</guid>
       </item>
     
   </channel>
