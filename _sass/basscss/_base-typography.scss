@@ -28,6 +28,12 @@ ul {
   margin-bottom: $space-2;
 }
 
+ul {
+  ul {
+    margin-bottom: 0;
+  }
+}
+
 ol,
 ul {
   padding-left: $space-3;
