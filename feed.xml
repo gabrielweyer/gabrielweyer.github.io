@@ -7,6 +7,123 @@
     <atom:link href="https://gabrielweyer.github.io//feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
+        <title>Advanced .NET Debugging #1</title>
+        <description>&lt;p&gt;After eyeing it for a while I finally decided to buy &lt;a href=&quot;https://www.goodreads.com/book/show/7306509-advanced-net-debugging&quot;&gt;Advanced .NET Debugging&lt;/a&gt; by Mario Hewardt. I’ve been studying &lt;code class=&quot;highlighter-rouge&quot;&gt;WinDbg&lt;/code&gt; for some time and consider myself somewhere between beginner and intermediate level. To my dismay I got stuck on the first excercise! Luckily I didn’t give up and finally stumbled on a blog post that unblocked me. This series has for goal to make &lt;a href=&quot;https://www.goodreads.com/book/show/7306509-advanced-net-debugging&quot;&gt;Advanced .NET Debugging&lt;/a&gt; more accessible to people - quite like me - that haven’t grasped all the concepts yet.&lt;/p&gt;
+
+&lt;h2 id=&quot;prerequisites&quot;&gt;Prerequisites&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;A hex viewer
+    &lt;ul&gt;
+      &lt;li&gt;I used the &lt;a href=&quot;https://marketplace.visualstudio.com/items?itemName=slevesque.vscode-hexdump&quot;&gt;hexdump for VSCode&lt;/a&gt; Visual Studio Code extension&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/gabrielweyer/nuggets/blob/master/windbg/README.md#download-and-install-windbg&quot;&gt;WinDbg&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Windows&lt;!--more--&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;the-problem&quot;&gt;The problem&lt;/h2&gt;
+
+&lt;p&gt;In the section &lt;strong&gt;Loading Native Images&lt;/strong&gt;, Mario explains how Windows is loading a native image using &lt;code class=&quot;highlighter-rouge&quot;&gt;Notepad.exe&lt;/code&gt; (&lt;code class=&quot;highlighter-rouge&quot;&gt;%SystemRoot%\notepad.exe&lt;/code&gt;) as an example. As the first step, Mario instructs the reader to:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;go to file offset &lt;code class=&quot;highlighter-rouge&quot;&gt;0x108&lt;/code&gt; where you will find the &lt;code class=&quot;highlighter-rouge&quot;&gt;AddressOfEntryPoint&lt;/code&gt; field&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The book was written a few years ago and back then Mario was running &lt;code class=&quot;highlighter-rouge&quot;&gt;Windows Vista&lt;/code&gt; (most likely in &lt;code class=&quot;highlighter-rouge&quot;&gt;32-bit&lt;/code&gt; too). If you look at the same file offset in &lt;code class=&quot;highlighter-rouge&quot;&gt;Windows 10 64-bit&lt;/code&gt; you’ll be disapointed:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/advanced-dotnet-debugging-1/no-address-of-entry-point.png&quot; alt=&quot;No AddressOfEntryPoint&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;OK, there are quite a few things to unpack in this screenshot.&lt;/p&gt;
+
+&lt;h3 id=&quot;hexadecimal&quot;&gt;Hexadecimal&lt;/h3&gt;
+
+&lt;p&gt;Each white cell represents a &lt;code class=&quot;highlighter-rouge&quot;&gt;byte&lt;/code&gt;. A &lt;code class=&quot;highlighter-rouge&quot;&gt;byte&lt;/code&gt; has 256 different values (from &lt;code class=&quot;highlighter-rouge&quot;&gt;0&lt;/code&gt; to &lt;code class=&quot;highlighter-rouge&quot;&gt;255&lt;/code&gt;). If we want to represent the value &lt;code class=&quot;highlighter-rouge&quot;&gt;255&lt;/code&gt; in &lt;code class=&quot;highlighter-rouge&quot;&gt;base 2&lt;/code&gt; (&lt;code class=&quot;highlighter-rouge&quot;&gt;binary&lt;/code&gt;), we would need 8 characters: &lt;code class=&quot;highlighter-rouge&quot;&gt;11111111&lt;/code&gt;. The same value in &lt;code class=&quot;highlighter-rouge&quot;&gt;base 10&lt;/code&gt; (&lt;code class=&quot;highlighter-rouge&quot;&gt;decimal&lt;/code&gt;) still requires 3 characters: &lt;code class=&quot;highlighter-rouge&quot;&gt;255&lt;/code&gt;. In &lt;code class=&quot;highlighter-rouge&quot;&gt;base 16&lt;/code&gt; (&lt;code class=&quot;highlighter-rouge&quot;&gt;hexadecimal&lt;/code&gt;) we only need 2 characters: &lt;code class=&quot;highlighter-rouge&quot;&gt;FF&lt;/code&gt;. Hence &lt;code class=&quot;highlighter-rouge&quot;&gt;hexadecimal&lt;/code&gt; strikes a good balance between brevity and not being too remote from the decimal base we human-beings use. You can use the &lt;code class=&quot;highlighter-rouge&quot;&gt;Windows 10&lt;/code&gt; calculator in &lt;code class=&quot;highlighter-rouge&quot;&gt;Programmer&lt;/code&gt; mode to convert between &lt;code class=&quot;highlighter-rouge&quot;&gt;hexadecimal&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;decimal&lt;/code&gt;:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/advanced-dotnet-debugging-1/win-10-calc.png&quot; alt=&quot;Convert between hex and dec&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;file-offset&quot;&gt;File offset&lt;/h3&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;byte&lt;/code&gt;s are displayed from left to right and top to bottom. They are accessed via a &lt;strong&gt;file offset&lt;/strong&gt;, represented by the blue numbers. The left column represents the 7 most significant digits while the top row represents the least significant digit.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/advanced-dotnet-debugging-1/file-offset.png&quot; alt=&quot;File offset&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The cell on the third row (&lt;code class=&quot;highlighter-rouge&quot;&gt;00000020&lt;/code&gt;) and last column (&lt;code class=&quot;highlighter-rouge&quot;&gt;0F&lt;/code&gt;) has a &lt;strong&gt;file offset&lt;/strong&gt; of &lt;code class=&quot;highlighter-rouge&quot;&gt;0000002F&lt;/code&gt;. &lt;strong&gt;File offset&lt;/strong&gt;s are 4 &lt;code class=&quot;highlighter-rouge&quot;&gt;byte&lt;/code&gt;s long, so every time we’ll be looking for an offset or an address we know it’ll be encoded over 4 &lt;code class=&quot;highlighter-rouge&quot;&gt;byte&lt;/code&gt;s.&lt;/p&gt;
+
+&lt;h3 id=&quot;endianness&quot;&gt;Endianness&lt;/h3&gt;
+
+&lt;p&gt;Windows is a &lt;a href=&quot;https://en.wikipedia.org/wiki/Endianness&quot;&gt;little-endian&lt;/a&gt; system. This means than the least significant &lt;code class=&quot;highlighter-rouge&quot;&gt;byte&lt;/code&gt;s will appear &lt;strong&gt;before&lt;/strong&gt; the most significant ones. So if you were to find the following value: &lt;code class=&quot;highlighter-rouge&quot;&gt;E0 93 01 00&lt;/code&gt;, the address would be &lt;code class=&quot;highlighter-rouge&quot;&gt;00 01 93 E0&lt;/code&gt; - only the &lt;code class=&quot;highlighter-rouge&quot;&gt;byte&lt;/code&gt; order is inverted, not the order within a &lt;code class=&quot;highlighter-rouge&quot;&gt;byte&lt;/code&gt; - which would commonly be written as &lt;code class=&quot;highlighter-rouge&quot;&gt;0x193E0&lt;/code&gt; (&lt;code class=&quot;highlighter-rouge&quot;&gt;0x&lt;/code&gt; denotes a hex notation and the leading &lt;code class=&quot;highlighter-rouge&quot;&gt;0&lt;/code&gt;s are dropped as they are not significant).&lt;/p&gt;
+
+&lt;h2 id=&quot;figuring-out-the-file-offset-of-addressofentrypoint&quot;&gt;Figuring out the file offset of &lt;code class=&quot;highlighter-rouge&quot;&gt;AddressOfEntryPoint&lt;/code&gt;&lt;/h2&gt;
+
+&lt;p&gt;Now that we know how to read the &lt;code class=&quot;highlighter-rouge&quot;&gt;hex&lt;/code&gt; dump, we’re still left with the same problem: there is no address where it’s supposed to be. This is when I started to browse the Internet trying to understand where &lt;code class=&quot;highlighter-rouge&quot;&gt;AddressOfEntryPoint&lt;/code&gt; was supposed to be located. My quest initially took me to the &lt;a href=&quot;https://msdn.microsoft.com/library/windows/desktop/ms680547(v=vs.85).aspx&quot;&gt;PE Format specification&lt;/a&gt;, after reading it for a while I ended up being more confused than I initially was. The situation was dire and I needed some hope, and hope did appear in the person of Simon Cooper and his brilliant post &lt;a href=&quot;https://www.red-gate.com/simple-talk/blogs/anatomy-of-a-net-assembly-pe-headers/&quot;&gt;Anatomy of a .NET Assembly – PE Headers&lt;/a&gt;. This illustration details the required steps to find the value of the &lt;code class=&quot;highlighter-rouge&quot;&gt;AddressOfEntryPoint&lt;/code&gt;:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/advanced-dotnet-debugging-1/address-of-entry-point.png&quot; alt=&quot;AddressOfEntryPoint&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Thanks to Simon’s detailed write-up I was able to figure out the file offset of the &lt;code class=&quot;highlighter-rouge&quot;&gt;AddressOfEntryPoint&lt;/code&gt; (&lt;code class=&quot;highlighter-rouge&quot;&gt;0x120&lt;/code&gt;), I also found its value: &lt;code class=&quot;highlighter-rouge&quot;&gt;0x193E0&lt;/code&gt;. You can use the below formula to compute the &lt;code class=&quot;highlighter-rouge&quot;&gt;AddressOfEntryPoint&lt;/code&gt; file offset based of the signature file offset:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Signature file offset + &lt;code class=&quot;highlighter-rouge&quot;&gt;0x28&lt;/code&gt; = &lt;code class=&quot;highlighter-rouge&quot;&gt;AddressOfEntryPoint&lt;/code&gt; file offset&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;If we look back at the screenshot above we can see than the signature file offset was &lt;code class=&quot;highlighter-rouge&quot;&gt;0xF8&lt;/code&gt;. Hence &lt;code class=&quot;highlighter-rouge&quot;&gt;0xF8&lt;/code&gt; + &lt;code class=&quot;highlighter-rouge&quot;&gt;0x28&lt;/code&gt; = &lt;code class=&quot;highlighter-rouge&quot;&gt;0x120&lt;/code&gt;, which is exactly what we found without using the formula.&lt;/p&gt;
+
+&lt;h2 id=&quot;relative-virtual-address&quot;&gt;Relative virtual address&lt;/h2&gt;
+
+&lt;p&gt;But we’re now faced with another issue, the address entry point (&lt;code class=&quot;highlighter-rouge&quot;&gt;0x193E0&lt;/code&gt;) resolves to some kind of wasteland:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/advanced-dotnet-debugging-1/wasteland.png&quot; alt=&quot;That can't be the entry point!&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The Portable Executable format has the concept of &lt;strong&gt;Relative Virtual Address&lt;/strong&gt; (&lt;code class=&quot;highlighter-rouge&quot;&gt;RVA&lt;/code&gt;) which it defines like this:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;In an image file, the address of an item after it is loaded into memory, with the base address of the image file subtracted from it.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;As it turns out the &lt;code class=&quot;highlighter-rouge&quot;&gt;AddressOfEntryPoint&lt;/code&gt; is &lt;strong&gt;not&lt;/strong&gt; a file offset, it is actually a &lt;code class=&quot;highlighter-rouge&quot;&gt;RVA&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;So we need to &lt;em&gt;load Notepad in memory&lt;/em&gt; which equates to running it. But we also need to be able to see the &lt;code class=&quot;highlighter-rouge&quot;&gt;base address&lt;/code&gt; of the image which is not something than the &lt;code class=&quot;highlighter-rouge&quot;&gt;Task Manager&lt;/code&gt; or any other basic tool will be able to provide us. To see this value we need a debugger. Open &lt;code class=&quot;highlighter-rouge&quot;&gt;Notepad.exe&lt;/code&gt; (&lt;code class=&quot;highlighter-rouge&quot;&gt;%SystemRoot%\notepad.exe&lt;/code&gt;) using &lt;a href=&quot;https://github.com/gabrielweyer/nuggets/blob/master/windbg/README.md#store&quot;&gt;WinDbg Preview&lt;/a&gt;:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/advanced-dotnet-debugging-1/open-notepad-windbg-preview.gif&quot; alt=&quot;Opening Notepad with WinDbg Preview&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Type the command &lt;a href=&quot;https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/lm--list-loaded-modules-&quot;&gt;List Loaded Modules&lt;/a&gt;:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;0:000&amp;gt; lm
+start             end                 module name
+00007ff6`f92f0000 00007ff6`f9331000   notepad    (deferred)
+00007ffd`09ce0000 00007ffd`09f49000   COMCTL32   (deferred)
+00007ffd`0abb0000 00007ffd`0ad7c000   urlmon     (deferred)
+// Abbreviated&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The value we’re interested in is &lt;code class=&quot;highlighter-rouge&quot;&gt;00007ff6`f92f0000&lt;/code&gt;, this is the &lt;code class=&quot;highlighter-rouge&quot;&gt;start&lt;/code&gt; (i.e. the &lt;code class=&quot;highlighter-rouge&quot;&gt;base address&lt;/code&gt;) of the &lt;code class=&quot;highlighter-rouge&quot;&gt;notepad&lt;/code&gt; module.&lt;/p&gt;
+
+&lt;p&gt;Armed with this information we’ll be able to look at the instructions located at the &lt;code class=&quot;highlighter-rouge&quot;&gt;RVA&lt;/code&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;0x193E0&lt;/code&gt; by using the &lt;a href=&quot;https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/u--unassemble-&quot;&gt;Unassemble&lt;/a&gt; command:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;0:000&amp;gt; u 00007ff6`f92f0000+0x193E0
+notepad!WinMainCRTStartup:
+00007ff6`f93093e0 4883ec28        sub     rsp,28h
+00007ff6`f93093e4 e8c7070000      call    notepad!_security_init_cookie (00007ff6`f9309bb0)
+00007ff6`f93093e9 4883c428        add     rsp,28h
+00007ff6`f93093ed e902000000      jmp     notepad!__mainCRTStartup (00007ff6`f93093f4)
+00007ff6`f93093f2 cc              int     3
+00007ff6`f93093f3 cc              int     3
+notepad!__mainCRTStartup:
+00007ff6`f93093f4 48895c2408      mov     qword ptr [rsp+8],rbx
+00007ff6`f93093f9 48897c2410      mov     qword ptr [rsp+10h],rdi&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Bingo!&lt;/p&gt;
+
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+
+&lt;p&gt;I hope this post clarified how to find the entry point of a native Windows executable.&lt;/p&gt;
+
+</description>
+        <pubDate>Sat, 07 Apr 2018 13:17:02 +1000</pubDate>
+        <link>https://gabrielweyer.github.io//2018/04/07/advanced-dotnet-debugging-1/</link>
+        <guid isPermaLink="true">https://gabrielweyer.github.io//2018/04/07/advanced-dotnet-debugging-1/</guid>
+      </item>
+    
+      <item>
         <title>Testing anti-patterns #1</title>
         <description>&lt;p&gt;I often ask candidates to define a good unit test. This is the starting point of a conversation around testing strategies and delivering value. Over the years I’ve heard opinions ranging from &lt;code class=&quot;highlighter-rouge&quot;&gt;the 100% coverage&lt;/code&gt;, passing by &lt;code class=&quot;highlighter-rouge&quot;&gt;testing is for testers&lt;/code&gt;, all the way to &lt;code class=&quot;highlighter-rouge&quot;&gt;we don't do automated testing&lt;/code&gt;. If the notion of a &lt;em&gt;good test&lt;/em&gt; can be subjective, it is easier to identify a &lt;strong&gt;bad&lt;/strong&gt; test. Bloggers have written about this topic at length but I thought I would try paraphrasing the same content hoping nobody would notice.&lt;/p&gt;
 
@@ -1328,72 +1445,6 @@ git config &lt;span class=&quot;nt&quot;&gt;--global&lt;/span&gt; &lt;span class
         <pubDate>Sat, 04 Jun 2016 00:41:48 +0000</pubDate>
         <link>https://gabrielweyer.github.io//2016/06/04/codecleanser/</link>
         <guid isPermaLink="true">https://gabrielweyer.github.io//2016/06/04/codecleanser/</guid>
-      </item>
-    
-      <item>
-        <title>Barnes and Noble: a tale of poor security practices</title>
-        <description>&lt;p&gt;Being the happy owner of a Kindle I usually buy my ebooks on Amazon. They have a very large selection to choose from and normally sell all the latest releases. To my surprise they only had “&lt;a href=&quot;(http://us.macmillan.com/enigmaofchina/qiuxiaolong)&quot;&gt;Enigma of China&lt;/a&gt;” from Qiu Xialong in paperback and hardcover formats. &lt;a href=&quot;http://store.kobobooks.com/en-US/Search/Query?query=Enigma%20of%20China&amp;amp;dontModifyQuery=True&quot;&gt;Kobo&lt;/a&gt; didn’t have it at all but after searching for a while I found out that Barnes &amp;amp; Noble sold it as a &lt;a href=&quot;http://www.barnesandnoble.com/w/enigma-of-china-qiu-xiaolong/1114701902?ean=9781250025814&quot;&gt;NOOK Book&lt;/a&gt; for $10.&lt;/p&gt;
-
-&lt;p&gt;So far, so good or so it seemed. It turned out that Barnes &amp;amp; Noble has such a lax approach of security that at the end I decided not to purchase from them. You’ll find below the reasons that motivated my decision.&lt;!--more--&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;i-sign-in-and-registration-in-a-new-window&quot;&gt;I Sign in and registration in a new window&lt;/h2&gt;
-
-&lt;p&gt;The first issue made itself apparent very quickly: when clicking on the “Sign in” link the browser will open a new window. This new window does not contain a toolbar, which means that users won’t be able to use some password managers (such as 1Password, the Chrome extension being accessible through a button in the toolbar).&lt;/p&gt;
-
-&lt;p&gt;I know that you can work around it as the &lt;a href=&quot;https://www.barnesandnoble.com/signin&quot;&gt;Sign in&lt;/a&gt; page is also available directly on the website. You can also use the shortcut “Ctrl + &quot; within the new window in order to enter your credentials via 1Password but I don’t think that everybody is a power user. Basically opening a new window instead of loading a page creates extra-friction when using a password manager.&lt;/p&gt;
-
-&lt;p&gt;Of course the registration page is also located in a new window and within this page things got even more interesting!&lt;/p&gt;
-
-&lt;h2 id=&quot;ii-mixed-content-warning&quot;&gt;II Mixed content warning&lt;/h2&gt;
-
-&lt;p&gt;As they’re loading a dedicated sign in page, you would expect Barnes &amp;amp; Noble to use SSL properly. As it turned out the source code contains a link to an HTTP iframe. Chrome (rightly so) blocks the content and displays a warning:&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;/assets/2014-12-07-barnes-and-noble-a-tale-of-poor-security-practices/barnes-and-noble-sign-in-mixed-content-warning.png&quot;&gt;&lt;img src=&quot;/assets/2014-12-07-barnes-and-noble-a-tale-of-poor-security-practices/barnes-and-noble-sign-in-mixed-content-warning.png&quot; alt=&quot;Sign in: mixed content warning&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;The most interesting part is that the tracking page is also available via &lt;a href=&quot;https://4476037.fls.doubleclick.net/activityi;cat=signi0;ord=1641192771;src=4476037;type=signi0?&quot;&gt;SSL&lt;/a&gt;. The sign in page being loaded only over SSL, the link could have been hardcoded as SSL too.&lt;/p&gt;
-
-&lt;h2 id=&quot;iii-weak-password-policy&quot;&gt;III Weak password policy&lt;/h2&gt;
-
-&lt;p&gt;So Barnes and Noble decided to limit the number of characters I can use in my password to 15. Not only this but they’re also preventing me from using any special characters. I’m not sure what “&lt;em&gt;numeric symbol&lt;/em&gt;” means, some special characters might be allowed but as a user I’ve no idea which one I can use.&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;/assets/2014-12-07-barnes-and-noble-a-tale-of-poor-security-practices/barnes-and-noble-password-policy.png&quot;&gt;&lt;img src=&quot;/assets/2014-12-07-barnes-and-noble-a-tale-of-poor-security-practices/barnes-and-noble-password-policy.png&quot; alt=&quot;Barnes &amp;amp; noble: password policy&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;It’s quite strange that the security answer is limited to 15 characters, what if my favorite movie is “&lt;a href=&quot;http://www.imdb.com/title/tt0111161/&quot;&gt;The Shawshank Redemption&lt;/a&gt;)”? Security questions are a terrible practice anyway as people tend to use easily guessable answers (as you can see in the screenshot I get my password manager to generate one for me).&lt;/p&gt;
-
-&lt;h2 id=&quot;iv-mixed-content-warning-on-payment-page&quot;&gt;IV Mixed content warning on payment page&lt;/h2&gt;
-
-&lt;p&gt;Even the payment page comes with a shiny warning:&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;/assets/2014-12-07-barnes-and-noble-a-tale-of-poor-security-practices/barnes-and-noble-payment-mixed-content-warning.png&quot;&gt;&lt;img src=&quot;/assets/2014-12-07-barnes-and-noble-a-tale-of-poor-security-practices/barnes-and-noble-payment-mixed-content-warning.png&quot; alt=&quot;Barnes &amp;amp; Noble: payment mixed content warning&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;This is due to the fact that the search form is posting to an &lt;a href=&quot;http://www.barnesandnoble.com/s/Enigma-of-China?store=allproducts&amp;amp;keyword=Enigma+of+China&quot;&gt;HTTP endpoint&lt;/a&gt; even when the page is loaded over SSL.&lt;/p&gt;
-
-&lt;p&gt;At this stage I decided to give up, buying this book is not worth taking the risk of exposing my credit card data.&lt;/p&gt;
-
-&lt;h2 id=&quot;special-bonus-credit-card-number-used-in-the-drm&quot;&gt;Special bonus: credit card number used in the DRM&lt;/h2&gt;
-
-&lt;p&gt;Barnes and Noble decided to protect its content via the highly controversial use of a &lt;a href=&quot;http://en.wikipedia.org/wiki/Digital_rights_management&quot;&gt;DRM&lt;/a&gt; system (Amazon has made the same choice). The goal is to prevent the consumer from sharing it’s purchase with any other user. Of course DRM don’t work and they’re only being a major annoyance to the people actually paying for content.&lt;/p&gt;
-
-&lt;p&gt;What is unusual is that Barnes and Noble decided that it would use your &lt;strong&gt;credit card number&lt;/strong&gt; in order to sign the DRM. This means that this data is included with your ebooks and could potentially be extracted.&lt;/p&gt;
-
-&lt;h2 id=&quot;how-could-barnes--noble-address-those-issues&quot;&gt;How could Barnes &amp;amp; Noble address those issues?&lt;/h2&gt;
-
-&lt;p&gt;Instead of opening a new window for sign in and registration the site should merely link to a new page. As a matter of fact they already have them in place: &lt;a href=&quot;https://www.barnesandnoble.com/signin&quot;&gt;sign in&lt;/a&gt; and &lt;a href=&quot;https://www.barnesandnoble.com/register&quot;&gt;registration&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;They should also link to the SSL URL of the DoubleClick script on their sign in and registration page.&lt;/p&gt;
-
-&lt;p&gt;Passwords should not be restricted in terms of character set or length. If you really want to have an upper limit it should be set to something ridiculously high (such as 100 characters). In fact they should instead enforce stronger passwords (combination of letters, numbers and symbols).&lt;/p&gt;
-
-&lt;p&gt;The payment should be on a page of its own and not use the same layout (I don’t think that users need to be able to look for a book while entering their credit card details).&lt;/p&gt;
-
-&lt;p&gt;And please stop encoding my credit card number into the books I’m buying from you. If you’re afraid I’ll remove your precious DRM and share the book on Internet there is nothing preventing you to use a unique string linked to my account.&lt;/p&gt;
-
-&lt;p&gt;Some of those points are extremely easy to address (new page for sign in and registration, SSL URL for the tracking script), others will certainly be more challenging but are nevertheless necessary.&lt;/p&gt;
-
-</description>
-        <pubDate>Sun, 07 Dec 2014 06:16:14 +0000</pubDate>
-        <link>https://gabrielweyer.github.io//2014/12/07/barnes-and-noble-a-tale-of-poor-security-practices/</link>
-        <guid isPermaLink="true">https://gabrielweyer.github.io//2014/12/07/barnes-and-noble-a-tale-of-poor-security-practices/</guid>
       </item>
     
   </channel>
