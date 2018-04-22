@@ -7,6 +7,335 @@
     <atom:link href="https://gabrielweyer.github.io//feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
+        <title>Cake build</title>
+        <description>&lt;p&gt;As a developer I’m amazed by the number of free tools and services available. I wanted to create an end-to-end demo of a &lt;code class=&quot;highlighter-rouge&quot;&gt;CI/CD&lt;/code&gt; pipeline that would include:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;/2018/04/22/cake-build/#configuration&quot;&gt;Trigger a build on commit&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;/2018/04/22/cake-build/#semantic-versioning&quot;&gt;Use semantic versioning&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;/2018/04/22/cake-build/#run-the-tests&quot;&gt;Run tests&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;/2018/04/22/cake-build/#publish-the-test-results&quot;&gt;Publish test results&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;/2018/04/22/cake-build/#create-nuget-packages&quot;&gt;Create NuGet packages&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;/2018/04/22/cake-build/#publish-the-nuget-packages&quot;&gt;Publish the NuGet packages&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;/2018/04/22/cake-build/#create-a-github-release&quot;&gt;Create a GitHub release&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;At work I’ve been increasingly using &lt;a href=&quot;https://www.visualstudio.com/team-services/&quot;&gt;VSTS&lt;/a&gt;. The service has come a long way and when deploying to &lt;code class=&quot;highlighter-rouge&quot;&gt;Azure&lt;/code&gt; it’s a no brainer. But for my purpose I wanted anonymous users to have access to a read-only view. I initially selected &lt;a href=&quot;https://www.appveyor.com/&quot;&gt;AppVeyor&lt;/a&gt; as it seems to be the most popular choice for &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET&lt;/code&gt; open-source projects. But while browsing around I discovered than projects were often using more than one platform. &lt;a href=&quot;https://travis-ci.org/&quot;&gt;Travis CI&lt;/a&gt; and &lt;a href=&quot;https://circleci.com/&quot;&gt;CircleCI&lt;/a&gt; seemed to be the two other prevailing options. I decided to leverage the three platforms so that I could highlight their pros and cons.&lt;!--more--&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;configuration&quot;&gt;Configuration&lt;/h2&gt;
+
+&lt;p&gt;The code is hosted on the &lt;code class=&quot;highlighter-rouge&quot;&gt;GitHub&lt;/code&gt; repository &lt;a href=&quot;https://github.com/gabrielweyer/cake-build&quot;&gt;Cake build&lt;/a&gt;. It’s named &lt;a href=&quot;https://cakebuild.net/&quot;&gt;Cake&lt;/a&gt; after my favourite build automation system and the project is using &lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt; as its build system.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;Travis CI&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; all use &lt;a href=&quot;http://yaml.org/&quot;&gt;YAML&lt;/a&gt; configuration files. This means than your build steps are living in the same space than your code and this presents several benefits:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Any developer can modify the build&lt;/li&gt;
+  &lt;li&gt;The project is self-contained
+    &lt;ul&gt;
+      &lt;li&gt;Developers don’t have to search where the build is located&lt;/li&gt;
+      &lt;li&gt;It doesn’t matter if something terrible happens to the build server&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Ability to run the build locally for certain platforms&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;I’m sure you’ll be as surprised as I was when you’ll realise how simple the &lt;code class=&quot;highlighter-rouge&quot;&gt;YAML&lt;/code&gt; files are:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt;: &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/13b9161596414355f35ffb64ab4aedacb006359f/appveyor.yml&quot;&gt;appveyor.yml&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Travis CI&lt;/code&gt;: &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/13b9161596414355f35ffb64ab4aedacb006359f/.travis.yml&quot;&gt;.travis.yml&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt;: &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/13b9161596414355f35ffb64ab4aedacb006359f/.circleci/config.yml&quot;&gt;.circleci/config.yml&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;the-code&quot;&gt;The code&lt;/h2&gt;
+
+&lt;p&gt;The project is useless. What is important is that it describes a real-life scenario:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The solution contains two projects which will be packed as &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; packages
+    &lt;ul&gt;
+      &lt;li&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;Logic&lt;/code&gt; project references a &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; package from &lt;a href=&quot;https://www.nuget.org/&quot;&gt;nuget.org&lt;/a&gt; via a &lt;code class=&quot;highlighter-rouge&quot;&gt;PackageReference&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;dotnet pack&lt;/code&gt; will turn this into a package reference.&lt;/li&gt;
+      &lt;li&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;SuperLogic&lt;/code&gt; project depends on &lt;code class=&quot;highlighter-rouge&quot;&gt;Logic&lt;/code&gt; and when packing, this project reference will be turned into a &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; package reference (handled out of the box by &lt;code class=&quot;highlighter-rouge&quot;&gt;dotnet pack&lt;/code&gt;)&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;The projects target both &lt;code class=&quot;highlighter-rouge&quot;&gt;nestandard2.0&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;net461&lt;/code&gt; so they can also be used with the &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Framework&lt;/code&gt; (&lt;code class=&quot;highlighter-rouge&quot;&gt;net461&lt;/code&gt; and above)
+    &lt;ul&gt;
+      &lt;li&gt;The resulting &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; packages should contain &lt;code class=&quot;highlighter-rouge&quot;&gt;DLL&lt;/code&gt;s for both frameworks&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;The projects reference a third project that should be embedded as a &lt;code class=&quot;highlighter-rouge&quot;&gt;DLL&lt;/code&gt; rather than being referenced as a &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; package
+    &lt;ul&gt;
+      &lt;li&gt;This is not yet supported by the new tooling but can be &lt;a href=&quot;#create-nuget-packages&quot;&gt;achieved&lt;/a&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;cake&quot;&gt;Cake&lt;/h2&gt;
+
+&lt;h3 id=&quot;mono&quot;&gt;Mono&lt;/h3&gt;
+
+&lt;p&gt;I wanted to run the build pipeline using &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Core 2.x&lt;/code&gt; exclusively as this is what I target in the codebase but there are still a few blockers:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt; itself is targeting &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Core 1.0.x&lt;/code&gt;. There is a &lt;a href=&quot;https://github.com/cake-build/cake/pull/1812&quot;&gt;PR&lt;/a&gt; porting it to &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Core 2&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;GitVersion&lt;/code&gt; only runs on the &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Framework&lt;/code&gt;. There is a &lt;a href=&quot;https://github.com/GitTools/GitVersion/pull/1269&quot;&gt;PR&lt;/a&gt; porting it to &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Core&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet.exe&lt;/code&gt; only runs on the &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Framework&lt;/code&gt;. As far as I’m aware there is no plan to port it to &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Core&lt;/code&gt; as we already have support for &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; packages in the &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Core CLI&lt;/code&gt;
+    &lt;ul&gt;
+      &lt;li&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Core CLI&lt;/code&gt; does not yet support the same breadth of scenario than &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet.exe&lt;/code&gt;. Typically, it does not support restoring packages from a &lt;code class=&quot;highlighter-rouge&quot;&gt;packages.config&lt;/code&gt; which &lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt; leverages to install its plugins and modules&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;For those reasons I’m relying on &lt;code class=&quot;highlighter-rouge&quot;&gt;Mono&lt;/code&gt; when building on &lt;code class=&quot;highlighter-rouge&quot;&gt;Linux&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;macOS&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;pinning-cake-version&quot;&gt;Pinning &lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt; version&lt;/h3&gt;
+
+&lt;p&gt;To &lt;a href=&quot;https://cakebuild.net/docs/tutorials/pinning-cake-version&quot;&gt;pin&lt;/a&gt; the version of &lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt;, add the following lines to your &lt;code class=&quot;highlighter-rouge&quot;&gt;.gitignore&lt;/code&gt; file:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;tools/*
+!tools/packages.config&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Pinning the version of &lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt; guarantees you’ll be using the same version of &lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt; on your machine and in the build server.&lt;/p&gt;
+
+&lt;h2 id=&quot;semantic-versioning&quot;&gt;Semantic versioning&lt;/h2&gt;
+
+&lt;p&gt;As I’m releasing packages I decided to use &lt;a href=&quot;https://semver.org/&quot;&gt;semantic versioning&lt;/a&gt;.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Consider a version format of &lt;code class=&quot;highlighter-rouge&quot;&gt;X.Y.Z&lt;/code&gt; (&lt;code class=&quot;highlighter-rouge&quot;&gt;Major.Minor.Patch&lt;/code&gt;). Bug fixes not affecting the API increment the &lt;strong&gt;patch&lt;/strong&gt; version, backwards compatible API additions/changes increment the &lt;strong&gt;minor&lt;/strong&gt; version, and backwards incompatible API changes increment the &lt;strong&gt;major&lt;/strong&gt; version.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Semantic versioning allows the consumers of your binaries to assess the effort to upgrade to a newer version. Semantic versioning should not be used blindly for all kinds of projects. It makes a lot of sense for a &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; package but it doesn’t for a product or an API for example.&lt;/p&gt;
+
+&lt;h3 id=&quot;versioning-in-net&quot;&gt;Versioning in &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET&lt;/code&gt;&lt;/h3&gt;
+
+&lt;p&gt;In &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET&lt;/code&gt; we use four properties to handle versioning:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;AssemblyVersion&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;AssemblyFileVersion&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;AssemblyInformationalVersion&lt;/code&gt; to version assemblies&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;PackageVersion&lt;/code&gt; to version a &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; package&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;versioning-an-assembly&quot;&gt;Versioning an assembly&lt;/h4&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://stackoverflow.com/a/65062&quot;&gt;These&lt;/a&gt; two &lt;code class=&quot;highlighter-rouge&quot;&gt;StackOverflow&lt;/code&gt; &lt;a href=&quot;https://stackoverflow.com/a/802038&quot;&gt;answers&lt;/a&gt; are great at explaining how to version an assembly.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;AssemblyVersion&lt;/code&gt;: the only version the &lt;code class=&quot;highlighter-rouge&quot;&gt;CLR&lt;/code&gt; cares about (if you use &lt;a href=&quot;https://docs.microsoft.com/en-us/dotnet/framework/app-domains/strong-named-assemblies&quot;&gt;strong named assemblies&lt;/a&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Curiously enough the &lt;a href=&quot;https://docs.microsoft.com/en-us/dotnet/framework/app-domains/assembly-versioning#assembly-version-number&quot;&gt;official documentation&lt;/a&gt; is sparse on the &lt;a href=&quot;https://blogs.msdn.microsoft.com/msbuild/2007/01/03/why-are-build-numbers-limited-to-65535/&quot;&gt;topic&lt;/a&gt; but this what I came up with after doing some reading:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;AssemblyVersion&lt;/code&gt; can be defined as &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;major-version&amp;gt;.&amp;lt;minor-version&amp;gt;.&amp;lt;build-number&amp;gt;.&amp;lt;revision&amp;gt;&lt;/code&gt; where each of the four segment is a &lt;code class=&quot;highlighter-rouge&quot;&gt;16-bit&lt;/code&gt; unsigned number.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;AssemblyInformationalVersion&lt;/code&gt;: &lt;code class=&quot;highlighter-rouge&quot;&gt;string&lt;/code&gt; that attaches additional version information to an assembly for informational purposes only. Corresponds to the product’s marketing literature, packaging, or product name&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;AssemblyInformationalVersion&lt;/code&gt; is well &lt;a href=&quot;https://docs.microsoft.com/en-us/dotnet/framework/app-domains/assembly-versioning#assembly-informational-version&quot;&gt;documented&lt;/a&gt;.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;AssemblyFileVersion&lt;/code&gt;: intended to uniquely identify a build of the individual assembly&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Developers tend to auto-increment this on each build. I prefer it linked to a &lt;code class=&quot;highlighter-rouge&quot;&gt;commit&lt;/code&gt; / &lt;code class=&quot;highlighter-rouge&quot;&gt;tag&lt;/code&gt; to be able to reproduce a build. I also use the same &lt;code class=&quot;highlighter-rouge&quot;&gt;string&lt;/code&gt; for &lt;code class=&quot;highlighter-rouge&quot;&gt;AssemblyInformationalVersion&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;AssemblyFileVersion&lt;/code&gt; (I’m a bad person I know).&lt;/p&gt;
+
+&lt;h4 id=&quot;versioning-a-nuget-package&quot;&gt;Versioning a &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; package&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;PackageVersion&lt;/code&gt;: A specific package is always referred to using its package identifier and an exact version number&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; package versioning is described &lt;a href=&quot;https://docs.microsoft.com/en-us/nuget/reference/package-versioning&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;gitversion&quot;&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;GitVersion&lt;/code&gt;&lt;/h3&gt;
+
+&lt;p&gt;I’ve implemented semantic versioning using &lt;a href=&quot;https://github.com/GitTools/GitVersion&quot;&gt;GitVersion&lt;/a&gt;. I recommend using &lt;a href=&quot;https://guides.github.com/introduction/flow/&quot;&gt;GitHub Flow&lt;/a&gt; when working on a simple package. In my experience &lt;a href=&quot;https://trunkbaseddevelopment.com/&quot;&gt;Trunk Based Development&lt;/a&gt; tends to lead to lower code quality. Developers push early and often thinking they will fix it later but we all know than in software development later means never.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;GitVersion&lt;/code&gt; produces an output that will allow you to handle even the trickiest situations:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-json&quot; data-lang=&quot;json&quot;&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Major&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Minor&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Patch&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;PreReleaseTag&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;region-endpoint.2&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;PreReleaseTagWithDash&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;-region-endpoint.2&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;PreReleaseLabel&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;region-endpoint&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;PreReleaseNumber&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;BuildMetaData&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;BuildMetaDataPadded&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;FullBuildMetaData&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Branch.features/region-endpoint.Sha.1f05a4bb4ebda8b293fbd139063ce3af22b1935a&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;MajorMinorPatch&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0.2.3&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;SemVer&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0.2.3-region-endpoint.2&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;LegacySemVer&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0.2.3-region-endpoint2&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;LegacySemVerPadded&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0.2.3-region-endpoint0002&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;AssemblySemVer&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0.2.3.0&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;FullSemVer&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0.2.3-region-endpoint.2&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;InformationalVersion&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0.2.3-region-endpoint.2+Branch.features/region-endpoint.Sha.1f05a4bb4ebda8b293fbd139063ce3af22b1935a&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;BranchName&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;features/region-endpoint&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Sha&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;1f05a4bb4ebda8b293fbd139063ce3af22b1935a&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;NuGetVersionV2&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0.2.3-region-endpoint0002&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;NuGetVersion&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0.2.3-region-endpoint0002&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;CommitsSinceVersionSource&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;CommitsSinceVersionSourcePadded&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;0002&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;CommitDate&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;2018-01-31&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;In my case I’m using:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;AssemblySemVer&lt;/code&gt; as the &lt;code class=&quot;highlighter-rouge&quot;&gt;AssemblyVersion&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;NuGetVersion&lt;/code&gt; as the &lt;code class=&quot;highlighter-rouge&quot;&gt;AssemblyInformationalVersion&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;AssemblyFileVersion&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;PackageVersion&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;If you want to handle rebasing and &lt;code class=&quot;highlighter-rouge&quot;&gt;Pull Request&lt;/code&gt;s you’ll have to use a more complex versioning strategy (keep in mind that &lt;code class=&quot;highlighter-rouge&quot;&gt;GitHub&lt;/code&gt; &lt;a href=&quot;https://help.github.com/articles/about-pull-requests/&quot;&gt;does not support rebasing&lt;/a&gt; in &lt;code class=&quot;highlighter-rouge&quot;&gt;Pull Request&lt;/code&gt;s).&lt;/p&gt;
+
+&lt;p&gt;As an aside &lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt; allows you to &lt;a href=&quot;https://cakebuild.net/api/Cake.AppVeyor/AppVeyorBuild/069D8D3F&quot;&gt;set&lt;/a&gt; the &lt;code class=&quot;highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt; build number.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/cake-build/app-veyor-version.png&quot; alt=&quot;AppVeyor version&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Somehow, I had issues running &lt;code class=&quot;highlighter-rouge&quot;&gt;GitVersion&lt;/code&gt; on &lt;code class=&quot;highlighter-rouge&quot;&gt;Mono&lt;/code&gt; so I invoked the binary directly rather than relying on the built-in &lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt; helper. I didn’t spend too much time digging so don’t take this as an example (I might update this section later if I’m not too lazy).&lt;/p&gt;
+
+&lt;h2 id=&quot;run-the-tests&quot;&gt;Run the tests&lt;/h2&gt;
+
+&lt;p&gt;As &lt;code class=&quot;highlighter-rouge&quot;&gt;Travis CI&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; are running on &lt;code class=&quot;highlighter-rouge&quot;&gt;Linux&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;macOS&lt;/code&gt; they don’t support testing against &lt;code class=&quot;highlighter-rouge&quot;&gt;net461&lt;/code&gt;. Luckily the framework can be enforced using an argument: &lt;code class=&quot;highlighter-rouge&quot;&gt;-framework netcoreapp2.0&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;publish-the-test-results&quot;&gt;Publish the test results&lt;/h2&gt;
+
+&lt;h3 id=&quot;circleci&quot;&gt;CircleCI&lt;/h3&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; has a few quirks when it comes to testing.&lt;/p&gt;
+
+&lt;p&gt;First it only support the &lt;a href=&quot;http://llg.cubic.org/docs/junit/&quot;&gt;JUnit format&lt;/a&gt; so I had to write a &lt;a href=&quot;https://github.com/gabrielweyer/xunit-to-junit&quot;&gt;transform&lt;/a&gt; to be able to publish the test results. Then you must place your test results within a folder named after the test framework you are using if you want &lt;code class=&quot;highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; to identify your test framework.&lt;/p&gt;
+
+&lt;p&gt;When the tests run successfully &lt;code class=&quot;highlighter-rouge&quot;&gt;CirceCI&lt;/code&gt; will only display the slowest test:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/cake-build/circle-ci-slowest-test.png&quot; alt=&quot;Circle CI slowest test&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I don’t understand the use case, I would prefer the list of tests and timing and the ability to sort them client-side.&lt;/p&gt;
+
+&lt;p&gt;The output for failed tests is not ideal but it might be due to the way I transform the test results:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/cake-build/circle-ci-failed-test.png&quot; alt=&quot;Circle CI failed test&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I decided not to invest more time on this as &lt;code class=&quot;highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; has zero documentation around publishing test results.&lt;/p&gt;
+
+&lt;h3 id=&quot;appveyor&quot;&gt;AppVeyor&lt;/h3&gt;
+
+&lt;p&gt;Again, the integration between &lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt; shines in this area as &lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt; will automatically publish the test results for you (I wondered for a while why I had duplicate test results and then I RTFM).&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt; displays all the tests but you must hover to see the framework used:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/cake-build/app-veyor-test-success.png&quot; alt=&quot;AppVeyor framework&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Failed tests come with a nice formatting and a &lt;code class=&quot;highlighter-rouge&quot;&gt;StackTrace&lt;/code&gt;:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/cake-build/app-veyor-failed-test.png&quot; alt=&quot;AppVeyor failed test&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;travis-ci&quot;&gt;Travis CI&lt;/h3&gt;
+
+&lt;p&gt;What about &lt;code class=&quot;highlighter-rouge&quot;&gt;Travis CI&lt;/code&gt; you may ask. It turns out &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Travis CI&lt;/code&gt; doesn’t parse test results&lt;/strong&gt;! All you can rely on is the build log, luckily for us &lt;code class=&quot;highlighter-rouge&quot;&gt;xUnit&lt;/code&gt; is awesome:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;Contoso.Hello.HelloTests.EvenMoreUselessTests.WhenDoWork_ThenSomeSweetJson [FAIL]
+  Assert.Equal() Failure
+                  ↓ (pos 6)
+  Expected: Some JASON (maybe): &quot;Hello&quot;
+  Actual:   Some JSON (maybe): &quot;Hello&quot;
+                  ↑ (pos 6)&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h2 id=&quot;create-nuget-packages&quot;&gt;Create &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; packages&lt;/h2&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Core&lt;/code&gt; is leveraging the new &lt;code class=&quot;highlighter-rouge&quot;&gt;*.csproj&lt;/code&gt; system and this means:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;No more &lt;code class=&quot;highlighter-rouge&quot;&gt;packages.config&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;No more &lt;code class=&quot;highlighter-rouge&quot;&gt;*.nuspec&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;No more tears&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The references (projects and packages) and the package configuration are both contained in the &lt;code class=&quot;highlighter-rouge&quot;&gt;*.csproj&lt;/code&gt; making it the single source of truth!&lt;/p&gt;
+
+&lt;h3 id=&quot;referencing-a-project-without-turning-it-into-a-package-reference&quot;&gt;Referencing a project without turning it into a package reference&lt;/h3&gt;
+
+&lt;p&gt;Sometimes you want to include a &lt;code class=&quot;highlighter-rouge&quot;&gt;DLL&lt;/code&gt; in a &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; package rather than add it as a package reference.&lt;/p&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;SuperLogic&lt;/code&gt; project depends on the &lt;code class=&quot;highlighter-rouge&quot;&gt;ExtraLogic&lt;/code&gt; project but we don’t want to ship &lt;code class=&quot;highlighter-rouge&quot;&gt;ExtraLogic&lt;/code&gt; as a package. Instead we want to include &lt;code class=&quot;highlighter-rouge&quot;&gt;Contoso.Hello.ExtraLogic.dll&lt;/code&gt; in the &lt;code class=&quot;highlighter-rouge&quot;&gt;SuperLogic&lt;/code&gt; package directly. Currently this is not supported out of the box but the team is &lt;a href=&quot;https://github.com/NuGet/Home/issues/6285&quot;&gt;tracking it&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Luckily &lt;a href=&quot;https://github.com/NuGet/Home/issues/3891&quot;&gt;this issue&lt;/a&gt; provides a workaround. All the modifications will take place in &lt;code class=&quot;highlighter-rouge&quot;&gt;SuperLogic.csproj&lt;/code&gt;.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;In the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;PropertyGroup&amp;gt;&lt;/code&gt; section add the following line:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-xml&quot; data-lang=&quot;xml&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;TargetsForTfmSpecificBuildOutput&amp;gt;&lt;/span&gt;$(TargetsForTfmSpecificBuildOutput);IncludeReferencedProjectInPackage&lt;span class=&quot;nt&quot;&gt;&amp;lt;/TargetsForTfmSpecificBuildOutput&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Prevent the project to be added as a package reference by making &lt;a href=&quot;https://docs.microsoft.com/en-us/dotnet/core/tools/csproj#includeassets-excludeassets-and-privateassets&quot;&gt;all assets private&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-xml&quot; data-lang=&quot;xml&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;ProjectReference&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Include=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;..\ExtraLogic\ExtraLogic.csproj&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;PrivateAssets&amp;gt;&lt;/span&gt;all&lt;span class=&quot;nt&quot;&gt;&amp;lt;/PrivateAssets&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/ProjectReference&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Finally add the target responsible of copying the &lt;code class=&quot;highlighter-rouge&quot;&gt;DLL&lt;/code&gt;:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-xml&quot; data-lang=&quot;xml&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;Target&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;IncludeReferencedProjectInPackage&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;ItemGroup&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;BuildOutputInPackage&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Include=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;$(OutputPath)Contoso.Hello.ExtraLogic.dll&quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/ItemGroup&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/Target&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;There is another &lt;a href=&quot;https://github.com/NuGet/Home/issues/4337&quot;&gt;bug&lt;/a&gt; with the current tooling. &lt;code class=&quot;highlighter-rouge&quot;&gt;dotnet pack&lt;/code&gt; does not respect the &lt;code class=&quot;highlighter-rouge&quot;&gt;Version&lt;/code&gt; and ends up generating invalid &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; packages when using same-solution project dependencies. The solution is to run a &lt;code class=&quot;highlighter-rouge&quot;&gt;restore&lt;/code&gt; beforehand with the expected &lt;code class=&quot;highlighter-rouge&quot;&gt;Version&lt;/code&gt; as a parameter.&lt;/p&gt;
+
+&lt;p&gt;The result is the following &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; package:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/cake-build/package-version.png&quot; alt=&quot;Package version&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;And the assemblies have been versioned as expected:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;na&quot;&gt;[assembly: AssemblyFileVersion(&quot;1.0.5-fix-typos0003&quot;)]&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;[assembly: AssemblyInformationalVersion(&quot;1.0.5-fix-typos0003&quot;)]&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;[assembly: AssemblyVersion(&quot;1.0.5.0&quot;)]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;strong&gt;Note&lt;/strong&gt;: you can also use the new &lt;code class=&quot;highlighter-rouge&quot;&gt;*.csproj&lt;/code&gt; system for &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Framework&lt;/code&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; packages. You don’t need to target &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Core&lt;/code&gt; to take advantage of it.&lt;/p&gt;
+
+&lt;h2 id=&quot;publish-the-nuget-packages&quot;&gt;Publish the &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; packages&lt;/h2&gt;
+
+&lt;p&gt;On any branches starting with &lt;code class=&quot;highlighter-rouge&quot;&gt;features/&lt;/code&gt;, the &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; packages will be published to a pre-release feed. If the branch is &lt;code class=&quot;highlighter-rouge&quot;&gt;master&lt;/code&gt; it’ll be published to the production feed. This is handled by &lt;code class=&quot;highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt; in this &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/b707a64cf8218092942accfa5b1f570487f34f4e/appveyor.yml#L48-L69&quot;&gt;section&lt;/a&gt; of the configuration.&lt;/p&gt;
+
+&lt;p&gt;As this is a demo project both feeds are hosted by &lt;code class=&quot;highlighter-rouge&quot;&gt;MyGet&lt;/code&gt;. For my other projects I use &lt;code class=&quot;highlighter-rouge&quot;&gt;MyGet&lt;/code&gt; to host my &lt;a href=&quot;https://www.myget.org/feed/Packages/gabrielweyer-pre-release&quot;&gt;pre-release feed&lt;/a&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; for my &lt;a href=&quot;https://www.nuget.org/profiles/gabrielweyer&quot;&gt;production feed&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;When publishing the packages, I’m also publishing the associated &lt;a href=&quot;https://msdn.microsoft.com/en-us/library/windows/desktop/ee416588(v=vs.85).aspx&quot;&gt;symbols&lt;/a&gt; to allow consumers to debug through my packages.&lt;/p&gt;
+
+&lt;p&gt;Strangely enough &lt;code class=&quot;highlighter-rouge&quot;&gt;Travis CI&lt;/code&gt; does not support artifacts out of the box. You must provide an &lt;code class=&quot;highlighter-rouge&quot;&gt;S3&lt;/code&gt; account if you wish to save your build artifacts.&lt;/p&gt;
+
+&lt;h2 id=&quot;create-a-github-release&quot;&gt;Create a GitHub release&lt;/h2&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt; also creates &lt;code class=&quot;highlighter-rouge&quot;&gt;GitHub&lt;/code&gt; &lt;a href=&quot;/2018/04/22/cake-build/#create-a-github-release&quot;&gt;releases&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+
+&lt;p&gt;This is one possible workflow only. I’ve glossed over many details and taken some shortcuts (for example there is no support for &lt;code class=&quot;highlighter-rouge&quot;&gt;PR&lt;/code&gt; builds).&lt;/p&gt;
+
+&lt;p&gt;Those are the key takeaways:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Do &lt;strong&gt;upfront planning on how you want to handle versioning&lt;/strong&gt;. This is the hardest part and the one that will be the hardest to fix later on. Read the &lt;a href=&quot;http://gitversion.readthedocs.io/en/latest/&quot;&gt;GitVersion documentation&lt;/a&gt; in details before making any decision.&lt;/li&gt;
+  &lt;li&gt;Do what works for your team. If you didn’t have any issues with auto-incrementing your builds, keep doing so. There is no point bringing additional complexity to fix a problem you don’t have.&lt;/li&gt;
+  &lt;li&gt;Don’t assume you’ll be running on &lt;code class=&quot;highlighter-rouge&quot;&gt;Windows&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;Visual Studio Enterprise&lt;/code&gt; installed. Adding cross-platform or other &lt;code class=&quot;highlighter-rouge&quot;&gt;IDE&lt;/code&gt; (&lt;code class=&quot;highlighter-rouge&quot;&gt;Rider&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;Code&lt;/code&gt;…) support from the start will make your life easier down the track.&lt;/li&gt;
+&lt;/ul&gt;
+
+</description>
+        <pubDate>Sun, 22 Apr 2018 09:57:02 +1000</pubDate>
+        <link>https://gabrielweyer.github.io//2018/04/22/cake-build/</link>
+        <guid isPermaLink="true">https://gabrielweyer.github.io//2018/04/22/cake-build/</guid>
+      </item>
+    
+      <item>
         <title>Advanced .NET Debugging #1</title>
         <description>&lt;p&gt;After eyeing it for a while I finally decided to buy &lt;a href=&quot;https://www.goodreads.com/book/show/7306509-advanced-net-debugging&quot;&gt;Advanced .NET Debugging&lt;/a&gt; by Mario Hewardt. I’ve been studying &lt;code class=&quot;highlighter-rouge&quot;&gt;WinDbg&lt;/code&gt; for some time and consider myself somewhere between beginner and intermediate level. To my dismay I got stuck on the first excercise! Luckily I didn’t give up and finally stumbled on a blog post that unblocked me. This series has for goal to make &lt;a href=&quot;https://www.goodreads.com/book/show/7306509-advanced-net-debugging&quot;&gt;Advanced .NET Debugging&lt;/a&gt; more accessible to people - quite like me - that haven’t grasped all the concepts yet.&lt;/p&gt;
 
@@ -1317,134 +1646,6 @@ git config &lt;span class=&quot;nt&quot;&gt;--global&lt;/span&gt; &lt;span class
         <pubDate>Mon, 13 Jun 2016 10:46:32 +0000</pubDate>
         <link>https://gabrielweyer.github.io//2016/06/13/bein-sports-connect/</link>
         <guid isPermaLink="true">https://gabrielweyer.github.io//2016/06/13/bein-sports-connect/</guid>
-      </item>
-    
-      <item>
-        <title>CodeCleanser</title>
-        <description>&lt;p&gt;Recently I came up with an interesting issue at a customer. A governmental agency contacted us and informed us that due to a Windows update we could experience intermittent issue when trying to communicate with them. All I knew at this stage was that the issue would manifest itself when trying to upload a document and that the integration is done via DLLs that are wrapping a few web services.&lt;/p&gt;
-
-&lt;p&gt;After &lt;a href=&quot;https://www.jetbrains.com/help/decompiler/2016.1/Generating_PDB_Files.html&quot;&gt;generating PDBs&lt;/a&gt; via &lt;a href=&quot;https://www.jetbrains.com/decompiler/&quot;&gt;dotPeek&lt;/a&gt; and adding them to the Visual Studio symbol cache directory I was able to debug through those third party DLLs and confirm that the issue was indeed located in one of them.&lt;/p&gt;
-
-&lt;p&gt;Knowing the DLL is redistributed with the product, is in multiple production versions and that the source control’s history is pretty patchy, the question then become: &lt;strong&gt;if we were to get a new DLL could we use it for all the versions?&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;To answer this question we will have to assess the differences between the DLL in each version.&lt;!--more--&gt;&lt;/p&gt;
-
-&lt;h1 id=&quot;first-naive-attempt-checksum&quot;&gt;First naive attempt: checksum&lt;/h1&gt;
-
-&lt;p&gt;Windows ships with a few ways to compute a checksum, &lt;a href=&quot;http://superuser.com/a/898377/128002&quot;&gt;CertUtil&lt;/a&gt; is one of them, PowerShell has a &lt;a href=&quot;https://technet.microsoft.com/en-us/library/dn520872.aspx&quot;&gt;Get-FileHash&lt;/a&gt; cmdlet and this is what I’ll use:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-posh&quot; data-lang=&quot;posh&quot;&gt;&lt;span class=&quot;nb&quot;&gt;Get-FileHash&lt;/span&gt; &amp;lt;filepath&amp;gt; -Algorithm MD5&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;For our purpose MD5 is good enough, if you want to ensure that a file hasn’t been tampered with you should be using SHA256 at least.&lt;/p&gt;
-
-&lt;p&gt;Sadly the three checksums for the three versions were different. But it doesn’t mean the DLLs are semantically different. It could have been metadata, different .NET Framework versions…&lt;/p&gt;
-
-&lt;p&gt;At this stage I could have used &lt;a href=&quot;https://msdn.microsoft.com/en-us/library/f7dy01k1(v=vs.110).aspx&quot;&gt;Ildasm&lt;/a&gt; to try to diff the full source code in one file but according to my previous tries the output end up being different. For sake of completeness I tried again before writing this blog post.&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-posh&quot; data-lang=&quot;posh&quot;&gt;ildasm &amp;lt;dll-filepath&amp;gt; /text /out&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&amp;lt;output-filepath&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;This time is no exception, WinMerge indicates 348 differences! Some of them can be explained away:&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;/assets/2016-06-04-codecleanser/different-dot-net-version.png&quot;&gt;&lt;img src=&quot;/assets/2016-06-04-codecleanser/different-dot-net-version.png&quot; alt=&quot;different-dot-net-version&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;The assemblies have been compiled using different version of the .NET Framework, which makes sense as many years separate those two versions.&lt;/p&gt;
-
-&lt;p&gt;Next comes an interesting piece of information that explains why two builds of the same source code always result in two different DLLs:&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;/assets/2016-06-04-codecleanser/mvid-image-base.png&quot;&gt;&lt;img src=&quot;/assets/2016-06-04-codecleanser/mvid-image-base.png&quot; alt=&quot;mvid-image-base.png&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;The &lt;a href=&quot;https://msdn.microsoft.com/en-us/library/system.reflection.module.moduleversionid(v=vs.110).aspx&quot;&gt;MVID&lt;/a&gt; changes at every single build, for our purpose we can safely ignore this difference, same goes for the Image base. The other differences are more worrying:&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;/assets/2016-06-04-codecleanser/different-attributes.png&quot;&gt;&lt;img src=&quot;/assets/2016-06-04-codecleanser/different-attributes.png&quot; alt=&quot;different-attributes.png&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;It looks like the Attributes are the same but in a different order. There are hundreds of such instances and as IL is harder to read than C# it’s time to move on to another strategy.&lt;/p&gt;
-
-&lt;h1 id=&quot;plan-b-generate-a-project-via-dotpeek&quot;&gt;Plan B: generate a project via dotPeek&lt;/h1&gt;
-
-&lt;p&gt;dotPeek can not only decompile IL to C#, it also can &lt;a href=&quot;https://www.jetbrains.com/help/decompiler/2016.1/Exporting_Assembly_to_Project.html&quot;&gt;generate a project from a DLL&lt;/a&gt;. Let’s give it a spin and close this case!&lt;/p&gt;
-
-&lt;p&gt;According to WinMerge, every single file is different! Now I’m a sad panda :(, how could the C# differ even more than the IL? This is due to the fact that as a &lt;em&gt;convenience&lt;/em&gt;, dotPeek kindly outputs the MVID and the assembly location at the top of each file:&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;/assets/2016-06-04-codecleanser/dotpeek-mvid-assembly-location.png&quot;&gt;&lt;img src=&quot;/assets/2016-06-04-codecleanser/dotpeek-mvid-assembly-location.png&quot; alt=&quot;dotpeek-mvid-assembly-location&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;In our use case, this is rather inconvenient. Luckily WinMerge has a feature called &lt;a href=&quot;http://stackoverflow.com/a/22178182/57369&quot;&gt;LineFilters&lt;/a&gt; which allows to ignore lines based on Regular Expressions. Two filters later a lot of files are still different:&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;/assets/2016-06-04-codecleanser/win-merge.png&quot;&gt;&lt;img src=&quot;/assets/2016-06-04-codecleanser/win-merge.png&quot; alt=&quot;win-merge.png&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;It’s now confirmed, some attributes are in a different order! dotPeek has an &lt;a href=&quot;https://youtrack.jetbrains.com/issue/DOTP-7063&quot;&gt;opened bug&lt;/a&gt; regarding this but it hasn’t been updated since October 2015 so we can assume it won’t be fixed anytime soon. By then I already spent 30 minutes on this task and being a consultant I can’t justify spending more time trying to find a (mostly) automated solution. I might be able to pull it off with a Regex but it might also turn to be a rabbit hole. According to the number of different files and hoping it would only be about attributes ordering it should take me less than an hour to go through the difference. It actually only took me 30 minutes and confirmed the assumption that only the order of the attributes was differing.&lt;/p&gt;
-
-&lt;h1 id=&quot;enter-codecleanser&quot;&gt;Enter CodeCleanser&lt;/h1&gt;
-
-&lt;p&gt;Fast forward two days, it’s Saturday morning and I’m wondering if I can use &lt;a href=&quot;https://github.com/dotnet/roslyn&quot;&gt;Roslyn&lt;/a&gt; to solve this problem.&lt;/p&gt;
-
-&lt;p&gt;I had 3 objectives:&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;Get rid of the comments at the top of the file&lt;/li&gt;
-  &lt;li&gt;Sort Attributes by alphabetical order&lt;/li&gt;
-  &lt;li&gt;Wrap up before training&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;The source code is available &lt;a href=&quot;https://github.com/gabrielweyer/CodeCleanser&quot;&gt;here&lt;/a&gt;, feel free to use it and adapt it to your own needs.&lt;/p&gt;
-
-&lt;h2 id=&quot;get-rid-of-the-comments-at-the-top-of-the-file&quot;&gt;Get rid of the comments at the top of the file&lt;/h2&gt;
-
-&lt;p&gt;Let’s start by what seems the easiest: removing the comments at the top of the files. What’s very nice with Roslyn is that you don’t need an actual file, you can pass a string as an argument which makes unit testing very easy. As I’m only planning on doing cosmetic changes and I only care about comparing the two DLLs I don’t need to operate at a project or solution level.&lt;/p&gt;
-
-&lt;p&gt;Following the TDD principles I’ll first write a &lt;a href=&quot;https://github.com/gabrielweyer/CodeCleanser/blob/4b7b769bdf104461decc7db0f6ce46a890de4351/Tests/RemoveLeadingTriviaTests.cs#L8-L55&quot;&gt;test&lt;/a&gt;:&lt;/p&gt;
-
-&lt;noscript&gt;&lt;pre&gt;400: Invalid request
-&lt;/pre&gt;&lt;/noscript&gt;
-&lt;script src=&quot;https://gist.github.com/b6aaa2c60ba20f8340d32edd4ff87265.js&quot;&gt; &lt;/script&gt;
-
-&lt;p&gt;This test ensures that everything before the first using statement is removed. Let’s now look at the &lt;a href=&quot;https://github.com/gabrielweyer/CodeCleanser/blob/4b7b769bdf104461decc7db0f6ce46a890de4351/Logic/CodeCleaner.cs#L39-L47&quot;&gt;implementation&lt;/a&gt;:&lt;/p&gt;
-
-&lt;noscript&gt;&lt;pre&gt;400: Invalid request
-&lt;/pre&gt;&lt;/noscript&gt;
-&lt;script src=&quot;https://gist.github.com/ac0976203a5315f16e1bac81963a6a8b.js&quot;&gt; &lt;/script&gt;
-
-&lt;p&gt;The Roslyn documentation defines a &lt;a href=&quot;https://github.com/dotnet/roslyn/wiki/Roslyn%20Overview#syntax-trivia&quot;&gt;trivia&lt;/a&gt; as:&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Syntax trivia represent the parts of the source text that are largely insignificant for normal understanding of the code, such as whitespace, comments, and preprocessor directives.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;All the code is doing is replace each leading trivia with an empty trivia. I’m sure there is a better way of doing this but this works well enough for my purpose.&lt;/p&gt;
-
-&lt;h2 id=&quot;sort-attributes-by-alphabetical-order&quot;&gt;Sort Attributes by alphabetical order&lt;/h2&gt;
-
-&lt;p&gt;Again we’ll start with a &lt;a href=&quot;https://github.com/gabrielweyer/CodeCleanser/blob/4b7b769bdf104461decc7db0f6ce46a890de4351/Tests/SortAttributesAlphabeticallyTests.cs#L8-L51&quot;&gt;test&lt;/a&gt;:&lt;/p&gt;
-
-&lt;noscript&gt;&lt;pre&gt;400: Invalid request
-&lt;/pre&gt;&lt;/noscript&gt;
-&lt;script src=&quot;https://gist.github.com/786db1ecb44c689ce18532cda794f0f7.js&quot;&gt; &lt;/script&gt;
-
-&lt;p&gt;We’ll need to pack a bit more power this time. In my case the issue only happened on class, enum and property declarations, CSharpSyntaxRewriter seems to be a good candidate for what I want to achieve. The implementation can be found &lt;a href=&quot;https://github.com/gabrielweyer/CodeCleanser/blob/4b7b769bdf104461decc7db0f6ce46a890de4351/Logic/AttributesSorter.cs#L46-L66&quot;&gt;here&lt;/a&gt;:&lt;/p&gt;
-
-&lt;noscript&gt;&lt;pre&gt;400: Invalid request
-&lt;/pre&gt;&lt;/noscript&gt;
-&lt;script src=&quot;https://gist.github.com/2daec819f25eca2679174c08985b599e.js&quot;&gt; &lt;/script&gt;
-
-&lt;p&gt;I had to make sure the blank line preceding the first attribute didn’t get moved down and that’s why there is some logic around leading trivia (prompted by this &lt;a href=&quot;https://github.com/gabrielweyer/CodeCleanser/blob/4b7b769bdf104461decc7db0f6ce46a890de4351/Tests/SortAttributesAlphabeticallyTests.cs#L180-L219&quot;&gt;test&lt;/a&gt;). Initially I was storing the AttributeListSyntax in a dictionary using the first attribute name as a key, of course I forgot that you could have the same attribute multiple time on a single declaration. It prompted me to write this &lt;a href=&quot;https://github.com/gabrielweyer/CodeCleanser/blob/4b7b769bdf104461decc7db0f6ce46a890de4351/Tests/SortAttributesAlphabeticallyTests.cs#L53-L9&quot;&gt;test&lt;/a&gt;) and adapt my implementation. It took me a few tries to get it right and rather than having to replace the files after each attempt I created a local Git repository, committed the unmodified files and issued a git reset after each attempt.&lt;/p&gt;
-
-&lt;p&gt;After running CodeCleanser on the three DLLs I was able to confirm they were identical.&lt;/p&gt;
-
-&lt;h1 id=&quot;plot-twist&quot;&gt;Plot twist&lt;/h1&gt;
-
-&lt;p&gt;I contacted the governmental agency and asked them if they could provide us with the new version of their DLL. To my surprise they told me that they’re distributing source code only. Sure enough after a few Git commands I discovered we had the code under source control all along! Funnily enough nobody knew about it and it wouldn’t have helped anyway as history only go two years back.&lt;/p&gt;
-
-&lt;h1 id=&quot;takeaways&quot;&gt;Takeaways&lt;/h1&gt;
-
-&lt;p&gt;The main takeaway is that everything is immutable in Roslyn. I kept forgetting that Add and AddRange would return a new AttributeListSyntax instead of performing an in place Add. As those methods have not been marked as Pure, ReSharper would not warm me that I didn’t use the return type and I would end up with an empty AttributeListSyntax. After 10 seconds of debugging I would exclaim “I’m an idiot” every single time, never gets old! Roslyn has changed a lot between the different Release Candidates and many code sample from Internet won’t compile.&lt;/p&gt;
-
-&lt;p&gt;During my research I found &lt;a href=&quot;https://roslynquoter.azurewebsites.net/&quot;&gt;https://roslynquoter.azurewebsites.net/&lt;/a&gt;, it takes C# as an input and writes out the Roslyn code that will generate it.&lt;/p&gt;
-
-&lt;p&gt;I realize CodeCleanser doesn’t do much and the whole comparing process still requires some manual steps but I hope it can help someone else.&lt;/p&gt;
-
-</description>
-        <pubDate>Sat, 04 Jun 2016 00:41:48 +0000</pubDate>
-        <link>https://gabrielweyer.github.io//2016/06/04/codecleanser/</link>
-        <guid isPermaLink="true">https://gabrielweyer.github.io//2016/06/04/codecleanser/</guid>
       </item>
     
   </channel>

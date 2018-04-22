@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?201804070007" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?201804211917" type="text/css">
 
     <!-- Fonts -->
     
@@ -112,6 +112,33 @@
     <div class="posts">
       
         <div class="post py3">
+          <p class="post-meta">Apr 22, 2018</p>
+          <a href="/2018/04/22/cake-build/" class="post-link"><h3 class="h1 post-title">Cake build</h3></a>
+          <span class="post-summary">
+            <p>As a developer I’m amazed by the number of free tools and services available. I wanted to create an end-to-end demo of a <code class="highlighter-rouge">CI/CD</code> pipeline that would include:</p>
+
+<ul>
+  <li><a href="/2018/04/22/cake-build/#configuration">Trigger a build on commit</a></li>
+  <li><a href="/2018/04/22/cake-build/#semantic-versioning">Use semantic versioning</a></li>
+  <li><a href="/2018/04/22/cake-build/#run-the-tests">Run tests</a></li>
+  <li><a href="/2018/04/22/cake-build/#publish-the-test-results">Publish test results</a></li>
+  <li><a href="/2018/04/22/cake-build/#create-nuget-packages">Create NuGet packages</a></li>
+  <li><a href="/2018/04/22/cake-build/#publish-the-nuget-packages">Publish the NuGet packages</a></li>
+  <li><a href="/2018/04/22/cake-build/#create-a-github-release">Create a GitHub release</a></li>
+</ul>
+
+<p>At work I’ve been increasingly using <a href="https://www.visualstudio.com/team-services/">VSTS</a>. The service has come a long way and when deploying to <code class="highlighter-rouge">Azure</code> it’s a no brainer. But for my purpose I wanted anonymous users to have access to a read-only view. I initially selected <a href="https://www.appveyor.com/">AppVeyor</a> as it seems to be the most popular choice for <code class="highlighter-rouge">.NET</code> open-source projects. But while browsing around I discovered than projects were often using more than one platform. <a href="https://travis-ci.org/">Travis CI</a> and <a href="https://circleci.com/">CircleCI</a> seemed to be the two other prevailing options. I decided to leverage the three platforms so that I could highlight their pros and cons.</p>
+
+
+             
+            
+            
+              <a href="/2018/04/22/cake-build/">Continue reading</a>
+            
+          </span>
+        </div>
+      
+        <div class="post py3">
           <p class="post-meta">Apr 7, 2018</p>
           <a href="/2018/04/07/advanced-dotnet-debugging-1/" class="post-link"><h3 class="h1 post-title">Advanced .NET Debugging #1</h3></a>
           <span class="post-summary">
@@ -173,25 +200,6 @@
             
             
               <a href="/2018/03/09/windbg-1-static-root/">Continue reading</a>
-            
-          </span>
-        </div>
-      
-        <div class="post py3">
-          <p class="post-meta">Feb 23, 2018</p>
-          <a href="/2018/02/23/beanstalk-seeder/" class="post-link"><h3 class="h1 post-title">Beanstalk Seeder</h3></a>
-          <span class="post-summary">
-            <p><code class="highlighter-rouge">Elastic Beanstalk</code> is a great platform, it offers both a <code class="highlighter-rouge">Web</code> tier and a <code class="highlighter-rouge">Worker</code> tier. I recently wrote about <a href="/2018/01/28/simple-routing-elastic-beanstalk-worker/">Simple Routing</a> one of my library that allows you to route a <code class="highlighter-rouge">SQS</code> message to a specific endpoint on the <code class="highlighter-rouge">Worker</code>.</p>
-
-<p>While <code class="highlighter-rouge">Beanstalk</code> works great once it’s deployed to <code class="highlighter-rouge">AWS</code> there is no easy way to run it locally. As soon as you want to execute an end-to-end flow involving both the <code class="highlighter-rouge">Web</code> and the <code class="highlighter-rouge">Worker</code> you need to manually <code class="highlighter-rouge">POST</code> requests to the <code class="highlighter-rouge">Worker</code> using <a href="https://www.getpostman.com/">Postman</a> which is cumbersome and error-prone.</p>
-
-<p>As it core all the <a href="https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html">SQS daemon</a> does is dequeue messages from a <code class="highlighter-rouge">SQS</code> queue and <code class="highlighter-rouge">POST</code> it to a specified endpoint. With this goal in mind I wrote <a href="https://github.com/gabrielweyer/beanstalk-seeder">Beanstalk Seeder</a>.</p>
-
-
-             
-            
-            
-              <a href="/2018/02/23/beanstalk-seeder/">Continue reading</a>
             
           </span>
         </div>

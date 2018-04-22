@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?201804070007" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?201804211917" type="text/css">
 
     <!-- Fonts -->
     
@@ -112,6 +112,25 @@
     <div class="posts">
       
         <div class="post py3">
+          <p class="post-meta">Feb 23, 2018</p>
+          <a href="/2018/02/23/beanstalk-seeder/" class="post-link"><h3 class="h1 post-title">Beanstalk Seeder</h3></a>
+          <span class="post-summary">
+            <p><code class="highlighter-rouge">Elastic Beanstalk</code> is a great platform, it offers both a <code class="highlighter-rouge">Web</code> tier and a <code class="highlighter-rouge">Worker</code> tier. I recently wrote about <a href="/2018/01/28/simple-routing-elastic-beanstalk-worker/">Simple Routing</a> one of my library that allows you to route a <code class="highlighter-rouge">SQS</code> message to a specific endpoint on the <code class="highlighter-rouge">Worker</code>.</p>
+
+<p>While <code class="highlighter-rouge">Beanstalk</code> works great once it’s deployed to <code class="highlighter-rouge">AWS</code> there is no easy way to run it locally. As soon as you want to execute an end-to-end flow involving both the <code class="highlighter-rouge">Web</code> and the <code class="highlighter-rouge">Worker</code> you need to manually <code class="highlighter-rouge">POST</code> requests to the <code class="highlighter-rouge">Worker</code> using <a href="https://www.getpostman.com/">Postman</a> which is cumbersome and error-prone.</p>
+
+<p>As it core all the <a href="https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html">SQS daemon</a> does is dequeue messages from a <code class="highlighter-rouge">SQS</code> queue and <code class="highlighter-rouge">POST</code> it to a specified endpoint. With this goal in mind I wrote <a href="https://github.com/gabrielweyer/beanstalk-seeder">Beanstalk Seeder</a>.</p>
+
+
+             
+            
+            
+              <a href="/2018/02/23/beanstalk-seeder/">Continue reading</a>
+            
+          </span>
+        </div>
+      
+        <div class="post py3">
           <p class="post-meta">Feb 8, 2018</p>
           <a href="/2018/02/08/singleton-http-client/" class="post-link"><h3 class="h1 post-title">Singleton HTTP Client</h3></a>
           <span class="post-summary">
@@ -170,31 +189,6 @@
             
             
               <a href="/2018/01/27/links-insights-1/">Continue reading</a>
-            
-          </span>
-        </div>
-      
-        <div class="post py3">
-          <p class="post-meta">Jul 16, 2016</p>
-          <a href="/2016/07/16/capture-network-packets-with-netsh/" class="post-link"><h3 class="h1 post-title">Capture network packets with netsh</h3></a>
-          <span class="post-summary">
-            <p>Another day, another “interesting” issue at a customer. After deploying our product we were left with a partially working web application. The product has been developed over many years and is a mix of ASP Classic, Web Forms, MVC and Web API. In this case ASP Classic pages were broken and would throw an error.</p>
-
-<h2 id="ensuring-asp-classic-is-configured-properly">Ensuring ASP Classic is configured properly</h2>
-
-<p>The first step is to ensure that IIS has been configured to execute ASP Classic and this is done easily by adding a dummy ASP page to the web application. After deploying this page I was able to confirm that it was working as expected.</p>
-
-<noscript><pre>400: Invalid request
-</pre></noscript>
-<script src="https://gist.github.com/5eb3198119bead02649c0fe11d733055.js"> </script>
-
-<p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/dummy-asp.png" alt="dummy-asp" /></p>
-
-
-             
-            
-            
-              <a href="/2016/07/16/capture-network-packets-with-netsh/">Continue reading</a>
             
           </span>
         </div>
