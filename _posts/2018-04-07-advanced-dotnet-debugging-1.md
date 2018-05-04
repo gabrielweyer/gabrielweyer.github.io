@@ -7,7 +7,7 @@ categories:
 - Advanced .NET Debugging
 ---
 
-After eyeing it for a while I finally decided to buy [Advanced .NET Debugging][adavanced-dotnet-debugging-book] by Mario Hewardt. I've been studying `WinDbg` for some time and consider myself somewhere between beginner and intermediate level. To my dismay I got stuck on the first excercise! Luckily I didn't give up and finally stumbled on a blog post that unblocked me. This series has for goal to make [Advanced .NET Debugging][adavanced-dotnet-debugging-book] more accessible to people - quite like me - that haven't grasped all the concepts yet.
+After eyeing it for a while I finally decided to buy [Advanced .NET Debugging][advanced-dotnet-debugging-book] by Mario Hewardt. I've been studying `WinDbg` for some time and consider myself somewhere between beginner and intermediate level. To my dismay I got stuck on the first excercise! Luckily I didn't give up and finally stumbled on a blog post that unblocked me. This series has for goal to make [Advanced .NET Debugging][advanced-dotnet-debugging-book] more accessible to people - quite like me - that haven't grasped all the concepts yet.
 
 ## Prerequisites
 
@@ -109,7 +109,7 @@ Bingo!
 
 I hope this post clarified how to find the entry point of a native Windows executable.
 
-[adavanced-dotnet-debugging-book]: https://www.goodreads.com/book/show/7306509-advanced-net-debugging
+[advanced-dotnet-debugging-book]: https://www.goodreads.com/book/show/7306509-advanced-net-debugging
 [hexdump-for-vscode]: https://marketplace.visualstudio.com/items?itemName=slevesque.vscode-hexdump
 [get-windbg]: https://github.com/gabrielweyer/nuggets/blob/master/windbg/README.md#download-and-install-windbg
 [endianness]: https://en.wikipedia.org/wiki/Endianness
