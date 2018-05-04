@@ -7,6 +7,222 @@
     <atom:link href="https://gabrielweyer.github.io//feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
+        <title>WinDbg #2 - The blocked async</title>
+        <description>&lt;p&gt;Today’s exercise is not an exercise! The investigation I’m about to describe was triggered by a production outage affecting multiple &lt;code class=&quot;highlighter-rouge&quot;&gt;API&lt;/code&gt;s - albeit not at the same time - at a customer. For obvious reasons I’ll not be able to share the code and will have to alter / obfuscate some of the commands’ results. I still think this is a valuable exercise as it is a classic example of an easy to make mistake leading to a catastrophic result.&lt;/p&gt;
+
+&lt;p&gt;The other interesting point is that I had no idea what the issue was so I’ll not be following a script as I did in the first instalment.&lt;!--more--&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;the-symptoms&quot;&gt;The symptoms&lt;/h2&gt;
+
+&lt;p&gt;A week prior we had another production outage. One of our &lt;code class=&quot;highlighter-rouge&quot;&gt;API&lt;/code&gt; became unresponsive, requests would sit in &lt;code class=&quot;highlighter-rouge&quot;&gt;Chrome&lt;/code&gt; waiting for minutes for the server to reply. Logs did not yield anything interesting and according to &lt;a href=&quot;https://newrelic.com/&quot;&gt;New Relic&lt;/a&gt; we had a quasiperfect &lt;a href=&quot;https://docs.newrelic.com/docs/apm/new-relic-apm/apdex/apdex-measuring-user-satisfaction&quot;&gt;Apdex&lt;/a&gt;.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The working theory was that requests were failing early in the pipeline so that our logging did not pick anything&lt;/li&gt;
+  &lt;li&gt;According to &lt;code class=&quot;highlighter-rouge&quot;&gt;New Relic&lt;/code&gt; our traffic plummeted during the outage. So basically, &lt;code class=&quot;highlighter-rouge&quot;&gt;New Relic&lt;/code&gt; was not capturing any of the failing requests and the dashboards were all green!&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;At this stage I recommended to capture a memory dump before restarting the web app. The later happened but the former did not. The app recycled and started to serve production traffic again but we were left with few clues. Afterwards the operation team engaged Microsoft and learned than the thread count spiked during the outage.&lt;/p&gt;
+
+&lt;p&gt;I then wrote a guide explaining how to write a memory dump and we instructed the operation team to capture a memory dump before recycling the app if the outage were to happen again.&lt;/p&gt;
+
+&lt;p&gt;We were left with two clues:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Unresponsive web app&lt;/li&gt;
+  &lt;li&gt;High thread count&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;We had released a new version of this &lt;code class=&quot;highlighter-rouge&quot;&gt;API&lt;/code&gt; a week before the outage. The release included a fix that I did for an intermittent &lt;code class=&quot;highlighter-rouge&quot;&gt;500&lt;/code&gt; error that our testers and front-end teams experienced. The patch involved modifying the lifetime of some classes involved in the logging system. The Pull Request had been approved after a heated discussion and as soon as news of the outage broke, fingers were pointed at my fix.&lt;/p&gt;
+
+&lt;h2 id=&quot;draw-of-luck&quot;&gt;Draw of luck&lt;/h2&gt;
+
+&lt;p&gt;Come Friday morning, I’m sipping my Dirty Chai while absently looking at &lt;code class=&quot;highlighter-rouge&quot;&gt;Slack&lt;/code&gt;. Suddenly a message catches my attention:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/windbg-2/unresponsive-again.png&quot; alt=&quot;Unresponsive again&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This is the same &lt;code class=&quot;highlighter-rouge&quot;&gt;API&lt;/code&gt; that went down last week! My heart beats slightly faster while I fire up the &lt;code class=&quot;highlighter-rouge&quot;&gt;Azure&lt;/code&gt; portal. And sure enough the thread count is far too high for the current dev traffic this API is serving:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/windbg-2/oh-my-thread-count.png&quot; alt=&quot;Oh my thread count&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I write a memory dump, slurp the end of my Dirty Chai and go to work thinking I’ll allocate some &lt;code class=&quot;highlighter-rouge&quot;&gt;WinDbg&lt;/code&gt; time during the week-end.&lt;/p&gt;
+
+&lt;h2 id=&quot;were-down-again&quot;&gt;We’re down again&lt;/h2&gt;
+
+&lt;p&gt;A few hours later another &lt;code class=&quot;highlighter-rouge&quot;&gt;API&lt;/code&gt; experiences a significant outage. The symptoms are eerily similar. I was waiting for another of my &lt;code class=&quot;highlighter-rouge&quot;&gt;PR&lt;/code&gt; to get approved but the process is being delayed as our build server is &lt;a href=&quot;https://githubengineering.com/crypto-deprecation-notice/&quot;&gt;down&lt;/a&gt;. I don’t have access to the memory dump that was written in production during the outage but it’s likely the outages have a common cause; hence I decide to take my frustration out on the memory dump I wrote in the morning.&lt;/p&gt;
+
+&lt;h2 id=&quot;investigation&quot;&gt;Investigation&lt;/h2&gt;
+
+&lt;h3 id=&quot;threads-all-the-things&quot;&gt;Threads all the things&lt;/h3&gt;
+
+&lt;p&gt;The first question I had was: &lt;strong&gt;why do we have so many threads and what are they doing&lt;/strong&gt;?&lt;/p&gt;
+
+&lt;p&gt;I’ll start with the &lt;code class=&quot;highlighter-rouge&quot;&gt;Threads&lt;/code&gt; &lt;a href=&quot;https://docs.microsoft.com/en-us/dotnet/framework/tools/sos-dll-sos-debugging-extension#commands&quot;&gt;SOS command&lt;/a&gt;.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Displays all managed threads in the process.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;Note&lt;/strong&gt;: The first column is the thread &lt;code class=&quot;highlighter-rouge&quot;&gt;ID&lt;/code&gt;.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;0:000&amp;gt; !threads
+ThreadCount:      145
+UnstartedThread:  0
+BackgroundThread: 133
+PendingThread:    0
+DeadThread:       12
+Hosted Runtime:   no
+                                                                         Lock
+       ID OSID ThreadOBJ    State GC Mode     GC Alloc Context  Domain   Count Apt Exception
+   4    1 4420 05db3d78     28220 Preemptive  00000000:00000000 04e8e548 0     Ukn
+  22    2 c3ac 05dc9200     2b220 Preemptive  00000000:00000000 04e8e548 0     MTA (Finalizer)
+  23    3 108fc 05e0f738   102a220 Preemptive  00000000:00000000 04e8e548 0     MTA (Threadpool Worker)
+  25    4 10ddc 05e1c0f0     21220 Preemptive  00000000:00000000 04e8e548 0     Ukn
+  26    7 9010 05eb8e90   1020220 Preemptive  00000000:00000000 04e8e548 0     Ukn (Threadpool Worker)
+#
+# Abbreviated
+#
+ 144  127 ed88 23f294b0   1029220 Preemptive  0E65ACE0:00000000 04e8e548 0     MTA (Threadpool Worker)
+ 145  141 ba3c 2407e100   3029220 Preemptive  0E61BF28:00000000 20e69ac0 0     MTA (Threadpool Worker)
+ 146  140 9cfc 23f20428   1029220 Preemptive  0A524AFC:00000000 04e8e548 0     MTA (Threadpool Worker)
+ 147  131 194f8 20f753a8   3029220 Preemptive  00000000:00000000 20e69ac0 0     MTA (Threadpool Worker)
+ 148  144 f4a8 23f20970   1029220 Preemptive  064DFA28:00000000 04e8e548 0     MTA (Threadpool Worker)
+ 149  145 9028 20f758f0     20220 Preemptive  06443CB8:00000000 04e8e548 0     Ukn
+ 150  143 16520 23f299f8   1029220 Preemptive  1253C4A8:00000000 04e8e548 0     MTA (Threadpool Worker)
+ 151  146 13db0 23f20eb8     20220 Preemptive  0E61FB98:00000000 04e8e548 0     Ukn&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;I then pick a few threads to see what they’re doing. To achieve this I’ll combine two different commands:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/-e--thread-specific-command-&quot;&gt;Thread-Specific Command&lt;/a&gt;: The &lt;code class=&quot;highlighter-rouge&quot;&gt;~e&lt;/code&gt; command executes one or more commands for a specific thread&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;~&amp;lt;thread-ID&amp;gt;e &amp;lt;command&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://docs.microsoft.com/en-us/dotnet/framework/tools/sos-dll-sos-debugging-extension#commands&quot;&gt;CLRStack&lt;/a&gt;: Provides a stack trace of managed code only&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;thread-143&quot;&gt;Thread 143&lt;/h4&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;0:000&amp;gt; ~143e !CLRStack
+OS Thread Id: 0xb9ac (143)
+Child SP       IP Call Site
+2a8bd110 7712eb2c [GCFrame: 2a8bd110]
+2a8bd2b8 7712eb2c [GCFrame: 2a8bd2b8]
+2a8bd268 7712eb2c [HelperMethodFrame: 2a8bd268] System.Threading.Monitor.ReliableEnter(System.Object, Boolean ByRef)
+2a8bd2f8 21ab107d Autofac.Core.Lifetime.LifetimeScope.GetOrCreateAndShare(System.Guid, System.Func`1)
+2a8bd344 21ab0f15 Autofac.Core.Resolving.InstanceLookup.Execute()
+2a8bd370 21ab0a16 Autofac.Core.Resolving.ResolveOperation.GetOrCreateInstance(Autofac.Core.ISharingLifetimeScope, Autofac.Core.IComponentRegistration, System.Collections.Generic.IEnumerable`1)
+2a8bd390 21ab20e1 Autofac.Core.Resolving.InstanceLookup.ResolveComponent(Autofac.Core.IComponentRegistration, System.Collections.Generic.IEnumerable`1)
+# Abbreviated&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;So thread &lt;code class=&quot;highlighter-rouge&quot;&gt;143&lt;/code&gt; is trying to acquire a lock: &lt;code class=&quot;highlighter-rouge&quot;&gt;System.Threading.Monitor.ReliableEnter(System.Object, Boolean ByRef)&lt;/code&gt;. Let’s look at another thread.&lt;/p&gt;
+
+&lt;h4 id=&quot;thread-136&quot;&gt;Thread 136&lt;/h4&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;0:000&amp;gt; ~136e !CLRStack
+OS Thread Id: 0x17e4 (136)
+Child SP       IP Call Site
+2b07d610 7712eb2c [GCFrame: 2b07d610]
+2b07d7bc 7712eb2c [GCFrame: 2b07d7bc]
+2b07d76c 7712eb2c [HelperMethodFrame: 2b07d76c] System.Threading.Monitor.ReliableEnter(System.Object, Boolean ByRef)
+2b07d7fc 21ab107d Autofac.Core.Lifetime.LifetimeScope.GetOrCreateAndShare(System.Guid, System.Func`1)
+2b07d848 21ab0f15 Autofac.Core.Resolving.InstanceLookup.Execute()
+2b07d874 21ab0a16 Autofac.Core.Resolving.ResolveOperation.GetOrCreateInstance(Autofac.Core.ISharingLifetimeScope, Autofac.Core.IComponentRegistration, System.Collections.Generic.IEnumerable`1)
+2b07d894 21ab20e1 Autofac.Core.Resolving.InstanceLookup.ResolveComponent(Autofac.Core.IComponentRegistration, System.Collections.Generic.IEnumerable`1)
+# Abbreviated&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Thread &lt;code class=&quot;highlighter-rouge&quot;&gt;136&lt;/code&gt; is also trying to acquire a lock.&lt;/p&gt;
+
+&lt;h4 id=&quot;thread-123&quot;&gt;Thread 123&lt;/h4&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;0:000&amp;gt; ~123e !CLRStack
+OS Thread Id: 0x4ce4 (123)
+Child SP       IP Call Site
+3d14d850 7712eb2c [GCFrame: 3d14d850]
+3d14d9fc 7712eb2c [GCFrame: 3d14d9fc]
+3d14d9ac 7712eb2c [HelperMethodFrame: 3d14d9ac] System.Threading.Monitor.ReliableEnter(System.Object, Boolean ByRef)
+3d14da3c 21ab107d Autofac.Core.Lifetime.LifetimeScope.GetOrCreateAndShare(System.Guid, System.Func`1)
+3d14da88 21ab0f15 Autofac.Core.Resolving.InstanceLookup.Execute()
+3d14dab4 21ab0a16 Autofac.Core.Resolving.ResolveOperation.GetOrCreateInstance(Autofac.Core.ISharingLifetimeScope, Autofac.Core.IComponentRegistration, System.Collections.Generic.IEnumerable`1)
+3d14dad4 21ab20e1 Autofac.Core.Resolving.InstanceLookup.ResolveComponent(Autofac.Core.IComponentRegistration, System.Collections.Generic.IEnumerable`1)
+# Abbreviated&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Thread &lt;code class=&quot;highlighter-rouge&quot;&gt;123&lt;/code&gt; is also trying to acquire a lock. By now &lt;strong&gt;it’s safe to assume than many threads are trying to acquire a lock. How many of them exactly? And more importantly: which naughty thread is holding on the lock?&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;who-is-holding-on-the-lock&quot;&gt;Who is holding on the lock?&lt;/h3&gt;
+
+&lt;p&gt;Time to use another &lt;a href=&quot;https://docs.microsoft.com/en-us/dotnet/framework/tools/sos-dll-sos-debugging-extension#commands&quot;&gt;SOS command&lt;/a&gt;: &lt;code class=&quot;highlighter-rouge&quot;&gt;SyncBlk&lt;/code&gt;.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;0:000&amp;gt; !syncblk
+Index         SyncBlock MonitorHeld Recursion Owning Thread Info          SyncBlock Owner
+   52 20ee3118          229         2 20fc6ba0 9628  42   0a13ee8c System.Object
+-----------------------------
+Total           279
+CCW             4
+RCW             3
+ComClassFactory 0
+Free            206&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Thread &lt;code class=&quot;highlighter-rouge&quot;&gt;ID&lt;/code&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;42&lt;/code&gt; is holding the lock. The third column (&lt;code class=&quot;highlighter-rouge&quot;&gt;MonitorHeld&lt;/code&gt;) indicates how many threads are trying to acquire the same lock. In this case it is &lt;code class=&quot;highlighter-rouge&quot;&gt;114&lt;/code&gt; (&lt;code class=&quot;highlighter-rouge&quot;&gt;(229 - 1) / 2&lt;/code&gt;). You can read more about how I computed this number in this &lt;a href=&quot;https://stackoverflow.com/a/2203085/57369&quot;&gt;Stack Overflow answer&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;what-is-thread-42-doing&quot;&gt;What is thread 42 doing?&lt;/h3&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;0:000&amp;gt; ~42e !CLRStack
+OS Thread Id: 0x9628 (42)
+Child SP       IP Call Site
+293bd178 7712eb2c [GCFrame: 293bd178]
+293bd228 7712eb2c [HelperMethodFrame_1OBJ: 293bd228] System.Threading.Monitor.ObjWait(Boolean, Int32, System.Object)
+293bd2b4 707bc273 System.Threading.Monitor.Wait(System.Object, Int32, Boolean) [f:\dd\ndp\clr\src\BCL\system\threading\monitor.cs @ 203]
+293bd2c4 7084ca14 System.Threading.Monitor.Wait(System.Object, Int32) [f:\dd\ndp\clr\src\BCL\system\threading\monitor.cs @ 213]
+293bd2c8 707ccb56 System.Threading.ManualResetEventSlim.Wait(Int32, System.Threading.CancellationToken)
+293bd31c 707c785c System.Threading.Tasks.Task.SpinThenBlockingWait(Int32, System.Threading.CancellationToken) [f:\dd\ndp\clr\src\BCL\system\threading\Tasks\Task.cs @ 3320]
+293bd35c 70868aed System.Threading.Tasks.Task.InternalWait(Int32, System.Threading.CancellationToken) [f:\dd\ndp\clr\src\BCL\system\threading\Tasks\Task.cs @ 3259]
+293bd3c0 707c58ca System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(System.Threading.Tasks.Task) [f:\dd\ndp\clr\src\BCL\system\runtime\compilerservices\TaskAwaiter.cs @ 148]
+293bd3cc 1f4e5fd3 Contoso.AzureKeyVaultClient.GetSecretByName(System.String)
+293bd3d8 1f4e5d80 Contoso.SecureAppSettings.GetOrFail(System.String)
+293bd3f0 1f4e5ccb Contoso.CachableSecureAppSettings.GetOrFail(System.String)
+293bd404 218b4f94 Contoso.SomeSecureSettings..ctor(Contoso.ISecureSettings)
+293bd418 20af91eb DynamicClass.lambda_method(System.Runtime.CompilerServices.Closure, System.Object[])
+293bd424 21ab1ef5 Autofac.Core.Activators.Reflection.ConstructorParameterBinding.Instantiate()&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The last line executed in our code was:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;n&quot;&gt;Contoso&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;AzureKeyVaultClient&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;GetSecretByName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Despite its name it seems to be executing &lt;code class=&quot;highlighter-rouge&quot;&gt;async&lt;/code&gt; code and even more troubling it looks like we’re blocking. I have enough information to locate the source and find the following method:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;GetSecretByName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;secretName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;GetSecretByNameAsync&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;secretName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;GetAwaiter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;GetResult&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Sure enough we’re blocking on an &lt;code class=&quot;highlighter-rouge&quot;&gt;async&lt;/code&gt; method. I’ll let Stephen Cleary explains what’s wrong but it can be summed up as: &lt;a href=&quot;http://blog.stephencleary.com/2012/07/dont-block-on-async-code.html&quot;&gt;Don’t Block on Async Code&lt;/a&gt; (seriously read the blog post).&lt;/p&gt;
+
+&lt;h2 id=&quot;solution&quot;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;There are two alternatives:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Resolve the secret on application startup. At this stage we’re single threaded and there is no request context so we can block without risking a deadlock. It isn’t pretty and will slow down the application startup but it works.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;A nicer option would be to resolve the secret when needed (lazy initialization). By then we’ll be in an &lt;code class=&quot;highlighter-rouge&quot;&gt;async&lt;/code&gt; method and we will be able to call the &lt;code class=&quot;highlighter-rouge&quot;&gt;Async&lt;/code&gt; overload.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+
+&lt;p&gt;Once again &lt;code class=&quot;highlighter-rouge&quot;&gt;WinDbg&lt;/code&gt; has delivered the goods. I write up my findings and communicate them to my colleagues. It’s 4:30 PM and the build server is still not fixed, I decide to call it a day.&lt;/p&gt;
+
+</description>
+        <pubDate>Sat, 05 May 2018 08:59:01 +1000</pubDate>
+        <link>https://gabrielweyer.github.io//2018/05/05/windbg-2-blocked-async/</link>
+        <guid isPermaLink="true">https://gabrielweyer.github.io//2018/05/05/windbg-2-blocked-async/</guid>
+      </item>
+    
+      <item>
         <title>Cake build</title>
         <description>&lt;p&gt;As a developer I’m amazed by the number of free tools and services available. I wanted to create an end-to-end demo of a &lt;code class=&quot;highlighter-rouge&quot;&gt;CI/CD&lt;/code&gt; pipeline that would include:&lt;/p&gt;
 
@@ -1594,58 +1810,6 @@ git config &lt;span class=&quot;nt&quot;&gt;--global&lt;/span&gt; &lt;span class
         <pubDate>Sat, 16 Jul 2016 09:20:07 +0000</pubDate>
         <link>https://gabrielweyer.github.io//2016/07/16/capture-network-packets-with-netsh/</link>
         <guid isPermaLink="true">https://gabrielweyer.github.io//2016/07/16/capture-network-packets-with-netsh/</guid>
-      </item>
-    
-      <item>
-        <title>beIN SPORTS CONNECT</title>
-        <description>&lt;p&gt;I like football, even with the time difference I try to watch at least the World Cup and the European Championship. I watched the last World Cup on &lt;a href=&quot;http://www.sbs.com.au/&quot;&gt;SBS&lt;/a&gt; but this time around they only managed to secure a handful of games. As they’re a public service it makes sense after all that they wouldn’t buy the rights for all the games. A quick search on Google indicated that &lt;a href=&quot;http://www.beinsportsconnect.com.au/home&quot;&gt;beIN SPORTS CONNECT&lt;/a&gt; is the way to go in Australia - I will refer to this service as beIN for the rest of this post.&lt;/p&gt;
-
-&lt;h1 id=&quot;subscribing&quot;&gt;Subscribing&lt;/h1&gt;
-
-&lt;p&gt;As the pricing seems reasonable I decided to go ahead. The page is loaded over HTTPS so we start well but to my surprise the form contains a &lt;strong&gt;password remainder&lt;/strong&gt; field. Password remainders are a bad practice as users tend to fill them with their password (when allowed) or with a hint that is an obvious give away.&lt;!--more--&gt;&lt;/p&gt;
-
-&lt;p&gt;As I don’t know any of my password, a password reminder is useless to me so I always generate a strong unique random password for this field. After trying to submit the form I got the following error:&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/2016-06-13-bein-sports-connect/password-remainder.png&quot; alt=&quot;password-remainder&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;I don’t understand the benefits of restricting the characters I can use. On the contrary it seems to indicate this site is potentially vulnerable to &lt;a href=&quot;https://www.troyhunt.com/understanding-xss-input-sanitisation/&quot;&gt;XSS&lt;/a&gt;. I generate another reminder without “special” characters and get presented with another error:&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/2016-06-13-bein-sports-connect/invalid-format.png&quot; alt=&quot;invalid-format&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;So my valid email address is in an “Incorrect format”. How convenient should they ever decide to sell my data to a third party without me being able to track it back to them.&lt;/p&gt;
-
-&lt;p&gt;I start to have a bad feeling about the password requirements. After all the only one that is stated is that my password should be at least 6 characters. I decide to use “123456” and also use it as the password reminder. &lt;strong&gt;&amp;lt;clickbait&amp;gt;&lt;/strong&gt;You won’t believe what happens next!&lt;strong&gt;&amp;lt;/clickbait&amp;gt;&lt;/strong&gt;. Actually I’m sure you knew what would happen: the form happily accepted my password and let me reuse it in the reminder field. Well at least I “&lt;em&gt;can access the site&lt;/em&gt; &lt;strong&gt;securely&lt;/strong&gt;” (emphasis is mine).&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/2016-06-13-bein-sports-connect/123456.png&quot; alt=&quot;123456&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;One last thing before we move on to the dessert. Does it seem normal to be loading so many third party JavaScript files on a registration page? They’re even loading ads and we know what malicious ads do to your browser and it’s not kind (malware installation, credentials theft…).&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/2016-06-13-bein-sports-connect/do-you-need-ads-on-signup.png&quot; alt=&quot;do-you-need-ads-on-signup.png&quot; /&gt;&lt;/p&gt;
-
-&lt;h1 id=&quot;sign-inform-loaded-over-http&quot;&gt;Sign-in form loaded over HTTP&lt;/h1&gt;
-
-&lt;p&gt;Yes you read that right. Even though the form is POSTing to HTTPS by then it is &lt;a href=&quot;https://www.troyhunt.com/your-login-form-posts-to-https-but-you/&quot;&gt;too late&lt;/a&gt;. An attacker could have already intercepted the initial HTTP response and pointed the form to the URL of his choosing.&lt;/p&gt;
-
-&lt;p&gt;Sometimes websites still offer sign-in over HTTPS when you look for it but it doesn’t seem to be the case here.  &lt;a href=&quot;https://secure.beinsportsconnect.com.au/&quot;&gt;https://secure.beinsportsconnect.com.au/&lt;/a&gt; redirects to &lt;a href=&quot;http://www.beinsportsconnect.com.au/&quot;&gt;http://www.beinsportsconnect.com.au/&lt;/a&gt; and trying to access &lt;a href=&quot;https://www.beinsportsconnect.com.au/&quot;&gt;https://www.beinsportsconnect.com.au/&lt;/a&gt; results in something you should never see:&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/2016-06-13-bein-sports-connect/bein-loaded-over-https.png&quot; alt=&quot;bein-loaded-over-https.png&quot; /&gt;&lt;/p&gt;
-
-&lt;h1 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h1&gt;
-
-&lt;p&gt;If you’re already using beIN or are planning on starting to use it at least generate a unique password so that when they get compromised attackers will not gain access to your account on other services.&lt;/p&gt;
-
-&lt;p&gt;I understand going all HTTPS would require a tremendous amount of work but beIN could first take some other steps that would make a big difference:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Remove the password reminder altogether&lt;/li&gt;
-  &lt;li&gt;Provide a dedicated HTTPS only sign-in page&lt;/li&gt;
-  &lt;li&gt;Stop loading third-party ads on the sign-in page&lt;/li&gt;
-&lt;/ul&gt;
-
-</description>
-        <pubDate>Mon, 13 Jun 2016 10:46:32 +0000</pubDate>
-        <link>https://gabrielweyer.github.io//2016/06/13/bein-sports-connect/</link>
-        <guid isPermaLink="true">https://gabrielweyer.github.io//2016/06/13/bein-sports-connect/</guid>
       </item>
     
   </channel>
