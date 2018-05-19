@@ -7,6 +7,135 @@
     <atom:link href="https://gabrielweyer.github.io//feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
+        <title>Advanced .NET Debugging #2</title>
+        <description>&lt;p&gt;I’m continuing to read the excellent &lt;a href=&quot;https://www.goodreads.com/book/show/7306509-advanced-net-debugging&quot;&gt;Advanced .NET Debugging&lt;/a&gt; by Mario Hewardt. Last time I looked at &lt;a href=&quot;/2018/04/07/advanced-dotnet-debugging-1/&quot;&gt;finding the entry point of a native image&lt;/a&gt;. This time around I’ll be investigating the launch of a &lt;strong&gt;managed&lt;/strong&gt; image by &lt;code class=&quot;highlighter-rouge&quot;&gt;Windows&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;prerequisites&quot;&gt;Prerequisites&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;A hex viewer
+    &lt;ul&gt;
+      &lt;li&gt;I used the &lt;a href=&quot;https://peclrviewer.azurewebsites.net/&quot;&gt;PE CLR Viewer&lt;/a&gt; (&lt;strong&gt;disclaimer&lt;/strong&gt;: I created this truly ugly looking website)&lt;!--more--&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;the-problem&quot;&gt;The problem&lt;/h2&gt;
+
+&lt;p&gt;In the section &lt;strong&gt;Loading .NET Assemblies&lt;/strong&gt; Mario explains how &lt;code class=&quot;highlighter-rouge&quot;&gt;Windows&lt;/code&gt; is loading a managed image. He’s leveraging &lt;a href=&quot;https://docs.microsoft.com/en-us/cpp/build/reference/dumpbin-reference&quot;&gt;dumpbin.exe&lt;/a&gt; which requires a &lt;code class=&quot;highlighter-rouge&quot;&gt;Visual Studio&lt;/code&gt; installation &lt;strong&gt;with&lt;/strong&gt; the &lt;code class=&quot;highlighter-rouge&quot;&gt;C++&lt;/code&gt; workload. This has two issues:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;C++&lt;/code&gt; workload requires a few &lt;code class=&quot;highlighter-rouge&quot;&gt;GB&lt;/code&gt; of hard drive&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;dumpbin&lt;/code&gt; presents a high-level view of the different headers, hence it’s not a good teaching tool as it abstracts the process of reading the bytes&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;I decided to try a different approach. I’ve compiled a &lt;strong&gt;x86&lt;/strong&gt; managed image which you can download &lt;a href=&quot;https://gabrielweyer.blob.core.windows.net/blog-samples/advanced-dotnet-debugging-2/net461-x86.exe&quot;&gt;here&lt;/a&gt;. You can then visualise it using the &lt;a href=&quot;https://peclrviewer.azurewebsites.net/&quot;&gt;PE CLR Viewer&lt;/a&gt; and follow me down the rabbit hole.&lt;/p&gt;
+
+&lt;h2 id=&quot;finding-the-addressofentrypoint&quot;&gt;Finding the &lt;code class=&quot;highlighter-rouge&quot;&gt;AddressOfEntryPoint&lt;/code&gt;&lt;/h2&gt;
+
+&lt;p&gt;I recommend you first read the &lt;a href=&quot;/2018/04/07/advanced-dotnet-debugging-1/&quot;&gt;previous post&lt;/a&gt; in this series as it explains core concepts such as &lt;a href=&quot;/2018/04/07/advanced-dotnet-debugging-1/#endianness&quot;&gt;endianness&lt;/a&gt; and &lt;a href=&quot;/2018/04/07/advanced-dotnet-debugging-1/#relative-virtual-address&quot;&gt;Relative Virtual Address&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Last time I highlighted a formula to compute the &lt;code class=&quot;highlighter-rouge&quot;&gt;AddressOfEntryPoint&lt;/code&gt; file offset:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Signature file offset + &lt;code class=&quot;highlighter-rouge&quot;&gt;0x28&lt;/code&gt; = &lt;code class=&quot;highlighter-rouge&quot;&gt;AddressOfEntryPoint&lt;/code&gt; file offset&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;signature file offset&lt;/code&gt; is always at file offset &lt;code class=&quot;highlighter-rouge&quot;&gt;0x3C&lt;/code&gt;. As seen below it has for value &lt;code class=&quot;highlighter-rouge&quot;&gt;0x80&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/advanced-dotnet-debugging-2/signature-file-offset.png&quot; alt=&quot;Signature file offset&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Now that we have the &lt;code class=&quot;highlighter-rouge&quot;&gt;signature file offset&lt;/code&gt;, we can compute the &lt;code class=&quot;highlighter-rouge&quot;&gt;AddressOfEntryPoint&lt;/code&gt; file offset:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;0x80&lt;/code&gt; + &lt;code class=&quot;highlighter-rouge&quot;&gt;0x28&lt;/code&gt; = &lt;code class=&quot;highlighter-rouge&quot;&gt;0xA8&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/advanced-dotnet-debugging-2/address-of-entry-point.png&quot; alt=&quot;AddressOfEntryPoint&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;As seen above, &lt;code class=&quot;highlighter-rouge&quot;&gt;AddressOfEntryPoint&lt;/code&gt; has for value &lt;code class=&quot;highlighter-rouge&quot;&gt;0x2716&lt;/code&gt;. But wait we’re not done, the &lt;code class=&quot;highlighter-rouge&quot;&gt;AddressOfEntryPoint&lt;/code&gt; is a &lt;code class=&quot;highlighter-rouge&quot;&gt;RVA&lt;/code&gt; which we need to convert to a file offset.&lt;/p&gt;
+
+&lt;h2 id=&quot;converting-the-entry-point-rva-to-a-file-offset&quot;&gt;Converting the entry point &lt;code class=&quot;highlighter-rouge&quot;&gt;RVA&lt;/code&gt; to a file offset&lt;/h2&gt;
+
+&lt;p&gt;The entry point is located in the &lt;strong&gt;.text&lt;/strong&gt; section (the &lt;strong&gt;.text&lt;/strong&gt; section contains executable code), so we’ll need to locate the &lt;strong&gt;.text&lt;/strong&gt; section first and this is where the &lt;strong&gt;section headers&lt;/strong&gt; come into play. The &lt;strong&gt;section headers&lt;/strong&gt; is a conversion table between &lt;code class=&quot;highlighter-rouge&quot;&gt;RVA&lt;/code&gt; and file offset for the different sections:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/advanced-dotnet-debugging-2/text-section-header.png&quot; alt=&quot;.text section header&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;According to the screenshot above the &lt;strong&gt;.text&lt;/strong&gt; section has a base &lt;code class=&quot;highlighter-rouge&quot;&gt;RVA&lt;/code&gt; of &lt;code class=&quot;highlighter-rouge&quot;&gt;0x2000&lt;/code&gt; and is located at file offset &lt;code class=&quot;highlighter-rouge&quot;&gt;0x200&lt;/code&gt;. Those two pieces of information will allow us to convert the entry point &lt;code class=&quot;highlighter-rouge&quot;&gt;RVA&lt;/code&gt; into an entry point file offset:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Entry point &lt;code class=&quot;highlighter-rouge&quot;&gt;RVA&lt;/code&gt; - .text base &lt;code class=&quot;highlighter-rouge&quot;&gt;RVA&lt;/code&gt; + .text file offset = entry point file offset&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Let’s replace the placeholders with the values we obtained previously:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;0x2716&lt;/code&gt; - &lt;code class=&quot;highlighter-rouge&quot;&gt;0x2000&lt;/code&gt; + &lt;code class=&quot;highlighter-rouge&quot;&gt;0x200&lt;/code&gt; = &lt;code class=&quot;highlighter-rouge&quot;&gt;0x916&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The entry point has for file offset &lt;code class=&quot;highlighter-rouge&quot;&gt;0x916&lt;/code&gt;. But as we’ll see in the next section, this is yet another level of indirection.&lt;/p&gt;
+
+&lt;h2 id=&quot;jumping-into-the-import-address-table&quot;&gt;Jumping into the Import Address Table&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/advanced-dotnet-debugging-2/jump.png&quot; alt=&quot;JMP&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Apparently the first part (&lt;code class=&quot;highlighter-rouge&quot;&gt;FF25&lt;/code&gt;) is the &lt;a href=&quot;https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/x86-instructions#control_flow&quot;&gt;x86 instruction&lt;/a&gt; for &lt;code class=&quot;highlighter-rouge&quot;&gt;JMP&lt;/code&gt; which instruct the computer to jump to an address (the second part):&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;JMP 402000&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;0x402000&lt;/code&gt; is a &lt;code class=&quot;highlighter-rouge&quot;&gt;VA&lt;/code&gt; (&lt;code class=&quot;highlighter-rouge&quot;&gt;Virtual Address&lt;/code&gt;) based on the &lt;strong&gt;image base&lt;/strong&gt; which has a value of &lt;code class=&quot;highlighter-rouge&quot;&gt;0x400000&lt;/code&gt; (as seen in the &lt;strong&gt;NT specific fields header&lt;/strong&gt; section):&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/advanced-dotnet-debugging-2/image-base.png&quot; alt=&quot;Image Base&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Armed with this knowledge we can convert the &lt;code class=&quot;highlighter-rouge&quot;&gt;VA&lt;/code&gt; to a &lt;code class=&quot;highlighter-rouge&quot;&gt;RVA&lt;/code&gt;:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;VA&lt;/code&gt; - image base &lt;code class=&quot;highlighter-rouge&quot;&gt;VA&lt;/code&gt; = &lt;code class=&quot;highlighter-rouge&quot;&gt;RVA&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Let’s replace the placeholders with the values we obtained previously:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;0x402000&lt;/code&gt; - &lt;code class=&quot;highlighter-rouge&quot;&gt;0x400000&lt;/code&gt; = &lt;code class=&quot;highlighter-rouge&quot;&gt;0x2000&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;If we look at the &lt;strong&gt;Data directories&lt;/strong&gt; section, we can see than the &lt;strong&gt;Import Address Table&lt;/strong&gt; is located at &lt;code class=&quot;highlighter-rouge&quot;&gt;RVA&lt;/code&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;0x2000&lt;/code&gt;. The &lt;strong&gt;Import Address Table&lt;/strong&gt; is the first section of the &lt;strong&gt;.text&lt;/strong&gt; section.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/advanced-dotnet-debugging-2/import-address-table-rva.png&quot; alt=&quot;Import Address Table RVA&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;jumping-out-of-the-import-address-table&quot;&gt;Jumping out of the Import Address Table&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/advanced-dotnet-debugging-2/import-address-table.png&quot; alt=&quot;Import Address Table&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;RVA&lt;/code&gt; located at file offset &lt;code class=&quot;highlighter-rouge&quot;&gt;0x200&lt;/code&gt; is: &lt;code class=&quot;highlighter-rouge&quot;&gt;0x26F8&lt;/code&gt;. Like a mad rabbit, we continue jumping around. We can reuse the formula to convert a &lt;code class=&quot;highlighter-rouge&quot;&gt;RVA&lt;/code&gt; to a file offset:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;0x26F8&lt;/code&gt; - &lt;code class=&quot;highlighter-rouge&quot;&gt;0x2000&lt;/code&gt; + &lt;code class=&quot;highlighter-rouge&quot;&gt;0x200&lt;/code&gt; = &lt;code class=&quot;highlighter-rouge&quot;&gt;0x8F8&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Now I have good news, &lt;code class=&quot;highlighter-rouge&quot;&gt;0x8F8&lt;/code&gt; is our final destination. Let’s inspect it more closely:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/advanced-dotnet-debugging-2/real-entry-point.png&quot; alt=&quot;Real entry point&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;We skip the leading &lt;code class=&quot;highlighter-rouge&quot;&gt;NUL&lt;/code&gt; bytes, the other bytes are &lt;code class=&quot;highlighter-rouge&quot;&gt;ASCII&lt;/code&gt; characters. The first section is the function name &lt;code class=&quot;highlighter-rouge&quot;&gt;_CorExeMain&lt;/code&gt; and - coming after a &lt;code class=&quot;highlighter-rouge&quot;&gt;NUL&lt;/code&gt; byte - the second section is the name of the executable: &lt;code class=&quot;highlighter-rouge&quot;&gt;mscoree.dll&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;As it turns out &lt;code class=&quot;highlighter-rouge&quot;&gt;mscoree.dll&lt;/code&gt; is located in the &lt;code class=&quot;highlighter-rouge&quot;&gt;Windows&lt;/code&gt; directory:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/advanced-dotnet-debugging-2/mscoree.png&quot; alt=&quot;mscoree&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+
+&lt;p&gt;I’ve demonstrated how to find the entry point of a &lt;strong&gt;x86&lt;/strong&gt; managed image but in reality &lt;code class=&quot;highlighter-rouge&quot;&gt;Windows&lt;/code&gt; knows how to execute a managed image just by looking at the &lt;strong&gt;CLI header&lt;/strong&gt;. In the case of &lt;strong&gt;x64&lt;/strong&gt; managed image the entry point is not even present!&lt;/p&gt;
+
+</description>
+        <pubDate>Sat, 19 May 2018 11:58:34 +1000</pubDate>
+        <link>https://gabrielweyer.github.io//2018/05/19/advanced-dotnet-debugging-2/</link>
+        <guid isPermaLink="true">https://gabrielweyer.github.io//2018/05/19/advanced-dotnet-debugging-2/</guid>
+      </item>
+    
+      <item>
         <title>WinDbg #2 - The blocked async</title>
         <description>&lt;p&gt;Today’s exercise is not an exercise! The investigation I’m about to describe was triggered by a production outage affecting multiple &lt;code class=&quot;highlighter-rouge&quot;&gt;API&lt;/code&gt;s - albeit not at the same time - at a customer. For obvious reasons I’ll not be able to share the code and will have to alter / obfuscate some of the commands’ results. I still think this is a valuable exercise as it is a classic example of an easy to make mistake leading to a catastrophic result.&lt;/p&gt;
 
@@ -1703,113 +1832,6 @@ git config &lt;span class=&quot;nt&quot;&gt;--global&lt;/span&gt; &lt;span class
         <pubDate>Sat, 27 Jan 2018 02:10:07 +0000</pubDate>
         <link>https://gabrielweyer.github.io//2018/01/27/links-insights-1/</link>
         <guid isPermaLink="true">https://gabrielweyer.github.io//2018/01/27/links-insights-1/</guid>
-      </item>
-    
-      <item>
-        <title>Capture network packets with netsh</title>
-        <description>&lt;p&gt;Another day, another “interesting” issue at a customer. After deploying our product we were left with a partially working web application. The product has been developed over many years and is a mix of ASP Classic, Web Forms, MVC and Web API. In this case ASP Classic pages were broken and would throw an error.&lt;/p&gt;
-
-&lt;h2 id=&quot;ensuring-asp-classic-is-configured-properly&quot;&gt;Ensuring ASP Classic is configured properly&lt;/h2&gt;
-
-&lt;p&gt;The first step is to ensure that IIS has been configured to execute ASP Classic and this is done easily by adding a dummy ASP page to the web application. After deploying this page I was able to confirm that it was working as expected.&lt;/p&gt;
-
-&lt;noscript&gt;&lt;pre&gt;400: Invalid request
-&lt;/pre&gt;&lt;/noscript&gt;
-&lt;script src=&quot;https://gist.github.com/5eb3198119bead02649c0fe11d733055.js&quot;&gt; &lt;/script&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/2016-07-16-capture-network-packets-with-netsh/dummy-asp.png&quot; alt=&quot;dummy-asp&quot; /&gt;&lt;!--more--&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;enabling-failed-request-tracing&quot;&gt;Enabling failed request tracing&lt;/h2&gt;
-
-&lt;p&gt;The features written in ASP Classic have been written many years ago and the developers didn’t consider logging as a key part of the development process. The end result being that when something goes wrong no logs get written by the application or to the event viewer.&lt;/p&gt;
-
-&lt;p&gt;The second step is to turn on the “&lt;strong&gt;Failed Request Tracing Rules&lt;/strong&gt;“ and reload the failing page. Internet has a lot of tutorials around this but they’re all missing key steps, I’ll focus on those as you can find everything else easily.&lt;/p&gt;
-
-&lt;p&gt;“Failed Request Tracing Rules” will not be available in the IIS Manager if you didn’t turn on the &lt;strong&gt;Tracing&lt;/strong&gt; feature in Windows Features:&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/2016-07-16-capture-network-packets-with-netsh/tracing.png&quot; alt=&quot;tracing&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Another thing is that multiple sites could be writing traces at the same time. Each site will be writing to a different sub folder suffixed with the site ID:&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/2016-07-16-capture-network-packets-with-netsh/site-id.gif&quot; alt=&quot;site-id&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Finally you can copy the log files back to your machine, don’t forget to copy the freb.xsl file too, you’ll then be able to open the XML files in Internet Explorer and look at a human readable representation of the log.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/2016-07-16-capture-network-packets-with-netsh/invalid-authority.png&quot; alt=&quot;invalid-authority&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;All ASP Classic pages are calling an API endpoint in order to get a token (long story short: don’t ask - the user is signing-in in an AngularJS app backed by Web API and is then able to use seamlessly the pages hosted on MVC, Web Forms and Classic ASP). What is strange in this situation is that Internet Explorer is marking the TLS certificate as valid, so does Chrome. Even worse: the same ASP Classic page hosted on my machine calling the token endpoint on the remote server is successful! The Windows Certificate Manager is displaying the same message for the root CA, intermediate CA and certificate: ”This certificate is OK.”.&lt;/p&gt;
-
-&lt;p&gt;I then suspected the certificate might be using unsupported ciphers but it turned out that it wasn’t the case. I quickly wrote a C# Console application calling the same token endpoint - the HttpClient class is throwing meaningful errors - but to my dismay the C# code was able to call the endpoint successfully!&lt;/p&gt;
-
-&lt;p&gt;Armed with the ErrorCode “80072f0d” and the Description “The certificate authority is invalid or incorrect” I scoured Internet for some potential solutions. Everything I could find was related to invalid and self-signed certificates.&lt;/p&gt;
-
-&lt;h2 id=&quot;capturing-packets-on-a-windows-server&quot;&gt;Capturing packets on a Windows Server&lt;/h2&gt;
-
-&lt;p&gt;When people think “packet capture” they always assume they need to install &lt;a href=&quot;https://www.wireshark.org/&quot;&gt;Wireshark&lt;/a&gt; (or another similar tool) whereas Windows Server is shipping with the ability to capture network packets with &lt;a href=&quot;https://technet.microsoft.com/en-us/library/dd878517(v=ws.10).aspx&quot;&gt;netsh&lt;/a&gt; since Windows Server 2008 R2. The advantage of this solution is that you don’t need to install anything on the machine. To see if it’s available, all you need to do is open a command prompt and type:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-posh&quot; data-lang=&quot;posh&quot;&gt;netsh trace&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/2016-07-16-capture-network-packets-with-netsh/netsh-trace.gif&quot; alt=&quot;netsh-trace&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Now that we know that &lt;strong&gt;trace&lt;/strong&gt; is available we need to start capturing the packets and reproduce the problem. Launch an &lt;strong&gt;elevated&lt;/strong&gt; command prompt and type:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-posh&quot; data-lang=&quot;posh&quot;&gt;netsh trace &lt;span class=&quot;nb&quot;&gt;start &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;tracefile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;C:\tmp\traces\classic.etl&quot;&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;scenario&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;internetclient &lt;span class=&quot;nv&quot;&gt;capture&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;yes &lt;span class=&quot;nv&quot;&gt;maxsize&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;200 &lt;span class=&quot;nv&quot;&gt;filemode&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;circular &lt;span class=&quot;nv&quot;&gt;overwrite&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;yes&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;&lt;strong&gt;Note&lt;/strong&gt;: the path needs to exist beforehand.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/2016-07-16-capture-network-packets-with-netsh/start-stop.gif&quot; alt=&quot;start-stop&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Starting and stopping the trace is actually slower that what is demonstrated above but I didn’t want lo lose your attention! And of course you would need to reproduce the issue before issuing:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-posh&quot; data-lang=&quot;posh&quot;&gt;netsh stop&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;h2 id=&quot;microsoft-message-analyzer&quot;&gt;Microsoft Message Analyzer&lt;/h2&gt;
-
-&lt;p&gt;We now need to analyze this trace and this is done with the &lt;a href=&quot;https://technet.microsoft.com/en-us/library/jj649776.aspx&quot;&gt;Microsoft Message&lt;/a&gt; &lt;a href=&quot;https://blogs.technet.microsoft.com/messageanalyzer/&quot;&gt;Analyzer&lt;/a&gt; (can be downloaded &lt;a href=&quot;https://www.microsoft.com/en-au/download/details.aspx?id=44226&quot;&gt;here&lt;/a&gt;). The Analyzer takes a long time to open the smallest trace but once the trace is loaded you can search quickly.&lt;/p&gt;
-
-&lt;p&gt;We’ll first look for an HTTP CONNECT, use this filter:&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;(HTTP.Method == &quot;CONNECT&quot;) And
-(HTTP.Uri.Host == &quot;domain.name&quot;) And
-(HTTP.Uri.Port == &quot;port&quot;)
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/2016-07-16-capture-network-packets-with-netsh/connect.png&quot; alt=&quot;connect.png&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;As we can see the CONNECT was successful. Let’s investigate the TLS handshake now, this is handled by the TLS module so all we need to do is filter on this module only:&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;TLS&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;This is what was captured when the C# application connected to the token endpoint:&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/2016-07-16-capture-network-packets-with-netsh/c-sharp-tls.png&quot; alt=&quot;c-sharp-tls&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;This is matching closely what is described in the &lt;a href=&quot;https://tools.ietf.org/html/rfc5246#page-36&quot;&gt;RFC 5246&lt;/a&gt; (TLS 1.2).&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/2016-07-16-capture-network-packets-with-netsh/full-handshake.png&quot; alt=&quot;full-handshake&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Let’s now capture the traffic when the VB code is trying to call the token endpoint.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/2016-07-16-capture-network-packets-with-netsh/vb-tls.png&quot; alt=&quot;vb-tls.png&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Great Scott! The server is sending &lt;code class=&quot;highlighter-rouge&quot;&gt;ServerHello&lt;/code&gt; as expected but the client doesn’t reply with &lt;code class=&quot;highlighter-rouge&quot;&gt;ClientKeyExchange&lt;/code&gt;. I then removed the filter and started to look at the messages below. My reasoning was that I should be finding some kind of error message soon after and here it was:&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/2016-07-16-capture-network-packets-with-netsh/browsing-messages.png&quot; alt=&quot;browsing-messages&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;The error message was:&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider. (0x800B0109)&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;As it turned out someone had messed up with the certificate store and removed the intermediate CA from the “Intermediate Certification Authorities”. As the root CA was still present in the “Trusted Root Certification Authorities” it was good enough for Internet Explorer and C# but it wasn’t for VB! I added the intermediate CA to the store and things started to work again.&lt;/p&gt;
-
-</description>
-        <pubDate>Sat, 16 Jul 2016 09:20:07 +0000</pubDate>
-        <link>https://gabrielweyer.github.io//2016/07/16/capture-network-packets-with-netsh/</link>
-        <guid isPermaLink="true">https://gabrielweyer.github.io//2016/07/16/capture-network-packets-with-netsh/</guid>
       </item>
     
   </channel>
