@@ -22,7 +22,7 @@ baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://gabrielweyer.github.io/" # the base hostname & protocol for your site, e.g. http://example.com
 date_format: "%b %-d, %Y"
 header_pages:
- - about.md
+  - 01_about.md
 
 # Google services
 google_verification:
