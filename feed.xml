@@ -353,7 +353,9 @@ Child SP       IP Call Site
     
       <item>
         <title>Cake build</title>
-        <description>&lt;p&gt;As a developer I’m amazed by the number of free tools and services available. I wanted to create an end-to-end demo of a &lt;code class=&quot;highlighter-rouge&quot;&gt;CI/CD&lt;/code&gt; pipeline that would include:&lt;/p&gt;
+        <description>&lt;p&gt;&lt;strong&gt;5th of Jan 2019&lt;/strong&gt;: a lot has been happening since I initially wrote this post. &lt;code class=&quot;highlighter-rouge&quot;&gt;Azure DevOps&lt;/code&gt; released a free tier for open source projects, the &lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;GitVersion&lt;/code&gt; contributors have been hard at work to take advantage of the latest features of &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Core&lt;/code&gt;. So much things have changed that I decided to update this post to reflect the current state of affairs (inclusion of &lt;code class=&quot;highlighter-rouge&quot;&gt;Azure DevOps&lt;/code&gt;, upgrade to &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Core 2.2&lt;/code&gt;, utilisation of &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Core global tools&lt;/code&gt; and removing the &lt;code class=&quot;highlighter-rouge&quot;&gt;Mono&lt;/code&gt; requirement on &lt;code class=&quot;highlighter-rouge&quot;&gt;Unix&lt;/code&gt; platforms).&lt;/p&gt;
+
+&lt;p&gt;As a developer I’m amazed by the number of free tools and services available. I wanted to create an end-to-end demo of a &lt;code class=&quot;highlighter-rouge&quot;&gt;CI/CD&lt;/code&gt; pipeline that would include:&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;/2018/04/22/cake-build/#configuration&quot;&gt;Trigger a build on commit&lt;/a&gt;&lt;/li&gt;
@@ -365,13 +367,13 @@ Child SP       IP Call Site
   &lt;li&gt;&lt;a href=&quot;/2018/04/22/cake-build/#create-a-github-release&quot;&gt;Create a GitHub release&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;At work I’ve been increasingly using &lt;a href=&quot;https://www.visualstudio.com/team-services/&quot;&gt;VSTS&lt;/a&gt;. The service has come a long way and when deploying to &lt;code class=&quot;highlighter-rouge&quot;&gt;Azure&lt;/code&gt; it’s a no brainer. But for my purpose I wanted anonymous users to have access to a read-only view. I initially selected &lt;a href=&quot;https://www.appveyor.com/&quot;&gt;AppVeyor&lt;/a&gt; as it seems to be the most popular choice for &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET&lt;/code&gt; open-source projects. But while browsing around I discovered than projects were often using more than one platform. &lt;a href=&quot;https://travis-ci.org/&quot;&gt;Travis CI&lt;/a&gt; and &lt;a href=&quot;https://circleci.com/&quot;&gt;CircleCI&lt;/a&gt; seemed to be the two other prevailing options. I decided to leverage the three platforms so that I could highlight their pros and cons.&lt;!--more--&gt;&lt;/p&gt;
+&lt;p&gt;For my purpose I wanted anonymous users to have access to a read-only view. I initially selected &lt;a href=&quot;https://www.appveyor.com/&quot;&gt;AppVeyor&lt;/a&gt; as it seems to be the most popular choice for &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET&lt;/code&gt; open-source projects. But while browsing around I discovered than projects were often using more than one platform. &lt;a href=&quot;https://travis-ci.org/&quot;&gt;Travis CI&lt;/a&gt; and &lt;a href=&quot;https://circleci.com/&quot;&gt;CircleCI&lt;/a&gt; seemed to be the two other prevailing options. Since the initial version of this post, &lt;a href=&quot;https://azure.microsoft.com/en-au/services/devops/&quot;&gt;Azure DevOps&lt;/a&gt; has released a free and unlimited plan for open source projects. I decided to leverage the four platforms so that I could highlight their pros and cons.&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;configuration&quot;&gt;Configuration&lt;/h2&gt;
 
 &lt;p&gt;The code is hosted on the &lt;code class=&quot;highlighter-rouge&quot;&gt;GitHub&lt;/code&gt; repository &lt;a href=&quot;https://github.com/gabrielweyer/cake-build&quot;&gt;Cake build&lt;/a&gt;. It’s named &lt;a href=&quot;https://cakebuild.net/&quot;&gt;Cake&lt;/a&gt; after my favourite build automation system and the project is using &lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt; as its build system.&lt;/p&gt;
 
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;Travis CI&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; all use &lt;a href=&quot;http://yaml.org/&quot;&gt;YAML&lt;/a&gt; configuration files. This means than your build steps are living in the same space than your code and this presents several benefits:&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;Azure DevOps&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;Travis CI&lt;/code&gt; all use &lt;a href=&quot;http://yaml.org/&quot;&gt;YAML&lt;/a&gt; configuration files. This means that your build steps are living in the same space than your code and this presents several benefits:&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;Any developer can modify the build&lt;/li&gt;
@@ -381,15 +383,16 @@ Child SP       IP Call Site
       &lt;li&gt;It doesn’t matter if something terrible happens to the build server&lt;/li&gt;
     &lt;/ul&gt;
   &lt;/li&gt;
-  &lt;li&gt;Ability to run the build locally for certain platforms&lt;/li&gt;
+  &lt;li&gt;Ability to run the build locally on some platforms&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;I’m sure you’ll be as surprised as I was when you’ll realise how simple the &lt;code class=&quot;highlighter-rouge&quot;&gt;YAML&lt;/code&gt; files are:&lt;/p&gt;
+&lt;p&gt;I’m sure you’ll be as surprised as I was when I realised how simple the &lt;code class=&quot;highlighter-rouge&quot;&gt;YAML&lt;/code&gt; files are:&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt;: &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/13b9161596414355f35ffb64ab4aedacb006359f/appveyor.yml&quot;&gt;appveyor.yml&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Travis CI&lt;/code&gt;: &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/13b9161596414355f35ffb64ab4aedacb006359f/.travis.yml&quot;&gt;.travis.yml&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt;: &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/13b9161596414355f35ffb64ab4aedacb006359f/.circleci/config.yml&quot;&gt;.circleci/config.yml&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt;: &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/master/appveyor.yml&quot;&gt;appveyor.yml&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Azure DevOps&lt;/code&gt;: &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/master/azure-pipelines.yml&quot;&gt;azure-pipelines.yml&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt;: &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/master/.circleci/config.yml&quot;&gt;.circleci/config.yml&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Travis CI&lt;/code&gt;: &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/master/.travis.yml&quot;&gt;.travis.yml&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h2 id=&quot;the-code&quot;&gt;The code&lt;/h2&gt;
@@ -419,28 +422,11 @@ Child SP       IP Call Site
 
 &lt;h3 id=&quot;mono&quot;&gt;Mono&lt;/h3&gt;
 
-&lt;p&gt;I wanted to run the build pipeline using &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Core 2.x&lt;/code&gt; exclusively as this is what I target in the codebase but there are still a few blockers:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt; itself is targeting &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Core 1.0.x&lt;/code&gt;. There is a &lt;a href=&quot;https://github.com/cake-build/cake/pull/1812&quot;&gt;PR&lt;/a&gt; porting it to &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Core 2&lt;/code&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;GitVersion&lt;/code&gt; only runs on the &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Framework&lt;/code&gt;. There is a &lt;a href=&quot;https://github.com/GitTools/GitVersion/pull/1269&quot;&gt;PR&lt;/a&gt; porting it to &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Core&lt;/code&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet.exe&lt;/code&gt; only runs on the &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Framework&lt;/code&gt;. As far as I’m aware there is no plan to port it to &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Core&lt;/code&gt; as we already have support for &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; packages in the &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Core CLI&lt;/code&gt;
-    &lt;ul&gt;
-      &lt;li&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Core CLI&lt;/code&gt; does not yet support the same breadth of scenario than &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet.exe&lt;/code&gt;. Typically, it does not support restoring packages from a &lt;code class=&quot;highlighter-rouge&quot;&gt;packages.config&lt;/code&gt; which &lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt; leverages to install its plugins and modules&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;For those reasons I’m relying on &lt;code class=&quot;highlighter-rouge&quot;&gt;Mono&lt;/code&gt; when building on &lt;code class=&quot;highlighter-rouge&quot;&gt;Linux&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;macOS&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Mono&lt;/code&gt; is not required any more when building on &lt;code class=&quot;highlighter-rouge&quot;&gt;Linux&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;macOS&lt;/code&gt;. This is a massive achievement from the &lt;a href=&quot;https://github.com/cake-build/cake/graphs/contributors&quot;&gt;Cake&lt;/a&gt; and &lt;a href=&quot;https://github.com/GitTools/GitVersion/graphs/contributors&quot;&gt;GitVersion&lt;/a&gt; contributors. The build step installing &lt;code class=&quot;highlighter-rouge&quot;&gt;Mono&lt;/code&gt; on &lt;code class=&quot;highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;Travis CI&lt;/code&gt; never took less than &lt;code class=&quot;highlighter-rouge&quot;&gt;5&lt;/code&gt; minutes and would sometimes take over &lt;code class=&quot;highlighter-rouge&quot;&gt;10&lt;/code&gt; minutes on &lt;code class=&quot;highlighter-rouge&quot;&gt;Travis CI&lt;/code&gt;! As a result the build script has been simplified and is doing less platform specific handling.&lt;/p&gt;
 
 &lt;h3 id=&quot;pinning-cake-version&quot;&gt;Pinning &lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt; version&lt;/h3&gt;
 
-&lt;p&gt;To &lt;a href=&quot;https://cakebuild.net/docs/tutorials/pinning-cake-version&quot;&gt;pin&lt;/a&gt; the version of &lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt;, add the following lines to your &lt;code class=&quot;highlighter-rouge&quot;&gt;.gitignore&lt;/code&gt; file:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;tools/*
-!tools/packages.config&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;Pinning the version of &lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt; guarantees you’ll be using the same version of &lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt; on your machine and in the build server.&lt;/p&gt;
+&lt;p&gt;Pinning the version of &lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt; guarantees you’ll be using the same version of &lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt; on your machine and on the build servers. This is enforced via the bootstrap scripts for developers’ machines (&lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/master/bootstrap.ps1&quot;&gt;bootstrap.ps1&lt;/a&gt; on &lt;code class=&quot;highlighter-rouge&quot;&gt;Windows&lt;/code&gt;, &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/master/bootstrap.sh&quot;&gt;bootstrap.sh&lt;/a&gt; on &lt;code class=&quot;highlighter-rouge&quot;&gt;Unix&lt;/code&gt;) and in the &lt;code class=&quot;highlighter-rouge&quot;&gt;YAML&lt;/code&gt; files for the build servers.&lt;/p&gt;
 
 &lt;h2 id=&quot;semantic-versioning&quot;&gt;Semantic versioning&lt;/h2&gt;
 
@@ -450,7 +436,7 @@ Child SP       IP Call Site
   &lt;p&gt;Consider a version format of &lt;code class=&quot;highlighter-rouge&quot;&gt;X.Y.Z&lt;/code&gt; (&lt;code class=&quot;highlighter-rouge&quot;&gt;Major.Minor.Patch&lt;/code&gt;). Bug fixes not affecting the API increment the &lt;strong&gt;patch&lt;/strong&gt; version, backwards compatible API additions/changes increment the &lt;strong&gt;minor&lt;/strong&gt; version, and backwards incompatible API changes increment the &lt;strong&gt;major&lt;/strong&gt; version.&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;p&gt;Semantic versioning allows the consumers of your binaries to assess the effort to upgrade to a newer version. Semantic versioning should not be used blindly for all kinds of projects. It makes a lot of sense for a &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; package but it doesn’t for a product or an API for example.&lt;/p&gt;
+&lt;p&gt;Semantic versioning allows the consumers of your binaries to assess the effort to upgrade to a newer version. Semantic versioning should not be used blindly for all kinds of projects. It makes a lot of sense for a &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; package but it doesn’t for a product or an &lt;code class=&quot;highlighter-rouge&quot;&gt;API&lt;/code&gt; for example.&lt;/p&gt;
 
 &lt;h3 id=&quot;versioning-in-net&quot;&gt;Versioning in &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET&lt;/code&gt;&lt;/h3&gt;
 
@@ -463,7 +449,7 @@ Child SP       IP Call Site
 
 &lt;h4 id=&quot;versioning-an-assembly&quot;&gt;Versioning an assembly&lt;/h4&gt;
 
-&lt;p&gt;&lt;a href=&quot;https://stackoverflow.com/a/65062&quot;&gt;These&lt;/a&gt; two &lt;code class=&quot;highlighter-rouge&quot;&gt;StackOverflow&lt;/code&gt; &lt;a href=&quot;https://stackoverflow.com/a/802038&quot;&gt;answers&lt;/a&gt; are great at explaining how to version an assembly.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://stackoverflow.com/a/65062&quot;&gt;These&lt;/a&gt; &lt;a href=&quot;https://stackoverflow.com/a/802038&quot;&gt;two&lt;/a&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;StackOverflow&lt;/code&gt; are great at explaining how to version an assembly.&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;AssemblyVersion&lt;/code&gt;: the only version the &lt;code class=&quot;highlighter-rouge&quot;&gt;CLR&lt;/code&gt; cares about (if you use &lt;a href=&quot;https://docs.microsoft.com/en-us/dotnet/framework/app-domains/strong-named-assemblies&quot;&gt;strong named assemblies&lt;/a&gt;)&lt;/li&gt;
@@ -541,8 +527,6 @@ Child SP       IP Call Site
 
 &lt;p&gt;&lt;img src=&quot;/assets/cake-build/app-veyor-version.png&quot; alt=&quot;AppVeyor version&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;Somehow, I had issues running &lt;code class=&quot;highlighter-rouge&quot;&gt;GitVersion&lt;/code&gt; on &lt;code class=&quot;highlighter-rouge&quot;&gt;Mono&lt;/code&gt; so I invoked the binary directly rather than relying on the built-in &lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt; helper. I didn’t spend too much time digging so don’t take this as an example (I might update this section later if I’m not too lazy).&lt;/p&gt;
-
 &lt;h2 id=&quot;run-the-tests&quot;&gt;Run the tests&lt;/h2&gt;
 
 &lt;p&gt;As &lt;code class=&quot;highlighter-rouge&quot;&gt;Travis CI&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; are running on &lt;code class=&quot;highlighter-rouge&quot;&gt;Linux&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;macOS&lt;/code&gt; they don’t support testing against &lt;code class=&quot;highlighter-rouge&quot;&gt;net461&lt;/code&gt;. Luckily the framework can be enforced using an argument: &lt;code class=&quot;highlighter-rouge&quot;&gt;-framework netcoreapp2.0&lt;/code&gt;.&lt;/p&gt;
@@ -569,7 +553,7 @@ Child SP       IP Call Site
 
 &lt;h3 id=&quot;appveyor&quot;&gt;AppVeyor&lt;/h3&gt;
 
-&lt;p&gt;Again, the integration between &lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt; shines in this area as &lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt; will automatically publish the test results for you (I wondered for a while why I had duplicate test results and then I RTFM).&lt;/p&gt;
+&lt;p&gt;Again, the integration between &lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt; shines in this area as &lt;code class=&quot;highlighter-rouge&quot;&gt;Cake&lt;/code&gt; will automatically publish the test results for you (I wondered why I had duplicate test results until I &lt;a href=&quot;https://en.wikipedia.org/wiki/RTFM&quot;&gt;RTFM&lt;/a&gt;).&lt;/p&gt;
 
 &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt; displays all the tests but you must hover to see the framework used:&lt;/p&gt;
 
@@ -634,8 +618,6 @@ Child SP       IP Call Site
   &lt;span class=&quot;nt&quot;&gt;&amp;lt;/ItemGroup&amp;gt;&lt;/span&gt;
 &lt;span class=&quot;nt&quot;&gt;&amp;lt;/Target&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;p&gt;There is another &lt;a href=&quot;https://github.com/NuGet/Home/issues/4337&quot;&gt;bug&lt;/a&gt; with the current tooling. &lt;code class=&quot;highlighter-rouge&quot;&gt;dotnet pack&lt;/code&gt; does not respect the &lt;code class=&quot;highlighter-rouge&quot;&gt;Version&lt;/code&gt; and ends up generating invalid &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; packages when using same-solution project dependencies. The solution is to run a &lt;code class=&quot;highlighter-rouge&quot;&gt;restore&lt;/code&gt; beforehand with the expected &lt;code class=&quot;highlighter-rouge&quot;&gt;Version&lt;/code&gt; as a parameter.&lt;/p&gt;
-
 &lt;p&gt;The result is the following &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; package:&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/assets/cake-build/package-version.png&quot; alt=&quot;Package version&quot; /&gt;&lt;/p&gt;
@@ -650,7 +632,7 @@ Child SP       IP Call Site
 
 &lt;h2 id=&quot;publish-the-nuget-packages&quot;&gt;Publish the &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; packages&lt;/h2&gt;
 
-&lt;p&gt;On any branches starting with &lt;code class=&quot;highlighter-rouge&quot;&gt;features/&lt;/code&gt;, the &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; packages will be published to a pre-release feed. If the branch is &lt;code class=&quot;highlighter-rouge&quot;&gt;master&lt;/code&gt; it’ll be published to the production feed. This is handled by &lt;code class=&quot;highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt; in this &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/b707a64cf8218092942accfa5b1f570487f34f4e/appveyor.yml#L48-L69&quot;&gt;section&lt;/a&gt; of the configuration.&lt;/p&gt;
+&lt;p&gt;On any branches starting with &lt;code class=&quot;highlighter-rouge&quot;&gt;features/&lt;/code&gt;, the &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; packages will be published to a pre-release feed. If the branch is &lt;code class=&quot;highlighter-rouge&quot;&gt;master&lt;/code&gt; it’ll be published to the production feed. This is handled by &lt;code class=&quot;highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt; in this &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/18ffcf3dfb591519353680f81653c86b8f3966d9/appveyor.yml#L52-L73&quot;&gt;section&lt;/a&gt; of the configuration.&lt;/p&gt;
 
 &lt;p&gt;As this is a demo project both feeds are hosted by &lt;code class=&quot;highlighter-rouge&quot;&gt;MyGet&lt;/code&gt;. For my other projects I use &lt;code class=&quot;highlighter-rouge&quot;&gt;MyGet&lt;/code&gt; to host my &lt;a href=&quot;https://www.myget.org/feed/Packages/gabrielweyer-pre-release&quot;&gt;pre-release feed&lt;/a&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; for my &lt;a href=&quot;https://www.nuget.org/profiles/gabrielweyer&quot;&gt;production feed&lt;/a&gt;.&lt;/p&gt;
 
@@ -660,7 +642,17 @@ Child SP       IP Call Site
 
 &lt;h2 id=&quot;create-a-github-release&quot;&gt;Create a GitHub release&lt;/h2&gt;
 
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt; also creates &lt;code class=&quot;highlighter-rouge&quot;&gt;GitHub&lt;/code&gt; &lt;a href=&quot;/2018/04/22/cake-build/#create-a-github-release&quot;&gt;releases&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt; also creates &lt;code class=&quot;highlighter-rouge&quot;&gt;GitHub&lt;/code&gt; &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/b707a64cf8218092942accfa5b1f570487f34f4e/appveyor.yml#L24-L47&quot;&gt;releases&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;what-about-azure-devops&quot;&gt;What about Azure DevOps&lt;/h2&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Azure DevOps&lt;/code&gt; is the only product that supports &lt;code class=&quot;highlighter-rouge&quot;&gt;Windows&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;Linux&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;macOS&lt;/code&gt;. &lt;code class=&quot;highlighter-rouge&quot;&gt;Microsoft&lt;/code&gt; has been iterating relentlessly and the &lt;code class=&quot;highlighter-rouge&quot;&gt;GitHub&lt;/code&gt; acquisition will likely lead to a tighter integration between the two services.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Azure DevOps&lt;/code&gt; has the most powerful tests results tab:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/cake-build/azure-devops-tests.png&quot; alt=&quot;Azure DevOps Tests&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;One thing I’ve noticed is that builds seem to be slower on the &lt;code class=&quot;highlighter-rouge&quot;&gt;Hosted Ubuntu 1604&lt;/code&gt; agents than on the &lt;code class=&quot;highlighter-rouge&quot;&gt;Hosted VS2017&lt;/code&gt; agents.&lt;/p&gt;
 
 &lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
 
@@ -669,7 +661,7 @@ Child SP       IP Call Site
 &lt;p&gt;Those are the key takeaways:&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;Do &lt;strong&gt;upfront planning on how you want to handle versioning&lt;/strong&gt;. This is the hardest part and the one that will be the hardest to fix later on. Read the &lt;a href=&quot;http://gitversion.readthedocs.io/en/latest/&quot;&gt;GitVersion documentation&lt;/a&gt; in details before making any decision.&lt;/li&gt;
+  &lt;li&gt;Do &lt;strong&gt;upfront planning on how you want to handle versioning&lt;/strong&gt;. This is the hardest part and the one that will be the hardest to fix later on. Read the &lt;a href=&quot;http://gitversion.readthedocs.io/en/latest/&quot;&gt;GitVersion documentation&lt;/a&gt; carefully before making any decision.&lt;/li&gt;
   &lt;li&gt;Do what works for your team. If you didn’t have any issues with auto-incrementing your builds, keep doing so. There is no point bringing additional complexity to fix a problem you don’t have.&lt;/li&gt;
   &lt;li&gt;Don’t assume you’ll be running on &lt;code class=&quot;highlighter-rouge&quot;&gt;Windows&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;Visual Studio Enterprise&lt;/code&gt; installed. Adding cross-platform or other &lt;code class=&quot;highlighter-rouge&quot;&gt;IDE&lt;/code&gt; (&lt;code class=&quot;highlighter-rouge&quot;&gt;Rider&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;Code&lt;/code&gt;…) support from the start will make your life easier down the track.&lt;/li&gt;
 &lt;/ul&gt;

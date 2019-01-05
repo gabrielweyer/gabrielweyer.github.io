@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?201805192045" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?201901050103" type="text/css">
 
     <!-- Fonts -->
     
@@ -158,7 +158,9 @@
           <p class="post-meta">Apr 22, 2018</p>
           <a href="/2018/04/22/cake-build/" class="post-link"><h3 class="h1 post-title">Cake build</h3></a>
           <span class="post-summary">
-            <p>As a developer I’m amazed by the number of free tools and services available. I wanted to create an end-to-end demo of a <code class="highlighter-rouge">CI/CD</code> pipeline that would include:</p>
+            <p><strong>5th of Jan 2019</strong>: a lot has been happening since I initially wrote this post. <code class="highlighter-rouge">Azure DevOps</code> released a free tier for open source projects, the <code class="highlighter-rouge">Cake</code> and <code class="highlighter-rouge">GitVersion</code> contributors have been hard at work to take advantage of the latest features of <code class="highlighter-rouge">.NET Core</code>. So much things have changed that I decided to update this post to reflect the current state of affairs (inclusion of <code class="highlighter-rouge">Azure DevOps</code>, upgrade to <code class="highlighter-rouge">.NET Core 2.2</code>, utilisation of <code class="highlighter-rouge">.NET Core global tools</code> and removing the <code class="highlighter-rouge">Mono</code> requirement on <code class="highlighter-rouge">Unix</code> platforms).</p>
+
+<p>As a developer I’m amazed by the number of free tools and services available. I wanted to create an end-to-end demo of a <code class="highlighter-rouge">CI/CD</code> pipeline that would include:</p>
 
 <ul>
   <li><a href="/2018/04/22/cake-build/#configuration">Trigger a build on commit</a></li>
@@ -170,7 +172,7 @@
   <li><a href="/2018/04/22/cake-build/#create-a-github-release">Create a GitHub release</a></li>
 </ul>
 
-<p>At work I’ve been increasingly using <a href="https://www.visualstudio.com/team-services/">VSTS</a>. The service has come a long way and when deploying to <code class="highlighter-rouge">Azure</code> it’s a no brainer. But for my purpose I wanted anonymous users to have access to a read-only view. I initially selected <a href="https://www.appveyor.com/">AppVeyor</a> as it seems to be the most popular choice for <code class="highlighter-rouge">.NET</code> open-source projects. But while browsing around I discovered than projects were often using more than one platform. <a href="https://travis-ci.org/">Travis CI</a> and <a href="https://circleci.com/">CircleCI</a> seemed to be the two other prevailing options. I decided to leverage the three platforms so that I could highlight their pros and cons.</p>
+<p>For my purpose I wanted anonymous users to have access to a read-only view. I initially selected <a href="https://www.appveyor.com/">AppVeyor</a> as it seems to be the most popular choice for <code class="highlighter-rouge">.NET</code> open-source projects. But while browsing around I discovered than projects were often using more than one platform. <a href="https://travis-ci.org/">Travis CI</a> and <a href="https://circleci.com/">CircleCI</a> seemed to be the two other prevailing options. Since the initial version of this post, <a href="https://azure.microsoft.com/en-au/services/devops/">Azure DevOps</a> has released a free and unlimited plan for open source projects. I decided to leverage the four platforms so that I could highlight their pros and cons.</p>
 
 
              

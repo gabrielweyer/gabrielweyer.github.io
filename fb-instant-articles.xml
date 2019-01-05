@@ -378,7 +378,9 @@ Child SP       IP Call Site
                 <link>https://gabrielweyer.github.io//2018/04/22/cake-build/</link>
                 <content:encoded>
                     <![CDATA[
-                    <p>As a developer I’m amazed by the number of free tools and services available. I wanted to create an end-to-end demo of a <code class="highlighter-rouge">CI/CD</code> pipeline that would include:</p>
+                    <p><strong>5th of Jan 2019</strong>: a lot has been happening since I initially wrote this post. <code class="highlighter-rouge">Azure DevOps</code> released a free tier for open source projects, the <code class="highlighter-rouge">Cake</code> and <code class="highlighter-rouge">GitVersion</code> contributors have been hard at work to take advantage of the latest features of <code class="highlighter-rouge">.NET Core</code>. So much things have changed that I decided to update this post to reflect the current state of affairs (inclusion of <code class="highlighter-rouge">Azure DevOps</code>, upgrade to <code class="highlighter-rouge">.NET Core 2.2</code>, utilisation of <code class="highlighter-rouge">.NET Core global tools</code> and removing the <code class="highlighter-rouge">Mono</code> requirement on <code class="highlighter-rouge">Unix</code> platforms).</p>
+
+<p>As a developer I’m amazed by the number of free tools and services available. I wanted to create an end-to-end demo of a <code class="highlighter-rouge">CI/CD</code> pipeline that would include:</p>
 
 <ul>
   <li><a href="/2018/04/22/cake-build/#configuration">Trigger a build on commit</a></li>
@@ -390,13 +392,13 @@ Child SP       IP Call Site
   <li><a href="/2018/04/22/cake-build/#create-a-github-release">Create a GitHub release</a></li>
 </ul>
 
-<p>At work I’ve been increasingly using <a href="https://www.visualstudio.com/team-services/">VSTS</a>. The service has come a long way and when deploying to <code class="highlighter-rouge">Azure</code> it’s a no brainer. But for my purpose I wanted anonymous users to have access to a read-only view. I initially selected <a href="https://www.appveyor.com/">AppVeyor</a> as it seems to be the most popular choice for <code class="highlighter-rouge">.NET</code> open-source projects. But while browsing around I discovered than projects were often using more than one platform. <a href="https://travis-ci.org/">Travis CI</a> and <a href="https://circleci.com/">CircleCI</a> seemed to be the two other prevailing options. I decided to leverage the three platforms so that I could highlight their pros and cons.<!--more--></p>
+<p>For my purpose I wanted anonymous users to have access to a read-only view. I initially selected <a href="https://www.appveyor.com/">AppVeyor</a> as it seems to be the most popular choice for <code class="highlighter-rouge">.NET</code> open-source projects. But while browsing around I discovered than projects were often using more than one platform. <a href="https://travis-ci.org/">Travis CI</a> and <a href="https://circleci.com/">CircleCI</a> seemed to be the two other prevailing options. Since the initial version of this post, <a href="https://azure.microsoft.com/en-au/services/devops/">Azure DevOps</a> has released a free and unlimited plan for open source projects. I decided to leverage the four platforms so that I could highlight their pros and cons.<!--more--></p>
 
 <h2 id="configuration">Configuration</h2>
 
 <p>The code is hosted on the <code class="highlighter-rouge">GitHub</code> repository <a href="https://github.com/gabrielweyer/cake-build">Cake build</a>. It’s named <a href="https://cakebuild.net/">Cake</a> after my favourite build automation system and the project is using <code class="highlighter-rouge">Cake</code> as its build system.</p>
 
-<p><code class="highlighter-rouge">AppVeyor</code>, <code class="highlighter-rouge">Travis CI</code> and <code class="highlighter-rouge">CircleCI</code> all use <a href="http://yaml.org/">YAML</a> configuration files. This means than your build steps are living in the same space than your code and this presents several benefits:</p>
+<p><code class="highlighter-rouge">AppVeyor</code>, <code class="highlighter-rouge">Azure DevOps</code>, <code class="highlighter-rouge">CircleCI</code> and <code class="highlighter-rouge">Travis CI</code> all use <a href="http://yaml.org/">YAML</a> configuration files. This means that your build steps are living in the same space than your code and this presents several benefits:</p>
 
 <ul>
   <li>Any developer can modify the build</li>
@@ -406,15 +408,16 @@ Child SP       IP Call Site
       <li>It doesn’t matter if something terrible happens to the build server</li>
     </ul>
   </li>
-  <li>Ability to run the build locally for certain platforms</li>
+  <li>Ability to run the build locally on some platforms</li>
 </ul>
 
-<p>I’m sure you’ll be as surprised as I was when you’ll realise how simple the <code class="highlighter-rouge">YAML</code> files are:</p>
+<p>I’m sure you’ll be as surprised as I was when I realised how simple the <code class="highlighter-rouge">YAML</code> files are:</p>
 
 <ul>
-  <li><code class="highlighter-rouge">AppVeyor</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/13b9161596414355f35ffb64ab4aedacb006359f/appveyor.yml">appveyor.yml</a></li>
-  <li><code class="highlighter-rouge">Travis CI</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/13b9161596414355f35ffb64ab4aedacb006359f/.travis.yml">.travis.yml</a></li>
-  <li><code class="highlighter-rouge">CircleCI</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/13b9161596414355f35ffb64ab4aedacb006359f/.circleci/config.yml">.circleci/config.yml</a></li>
+  <li><code class="highlighter-rouge">AppVeyor</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/master/appveyor.yml">appveyor.yml</a></li>
+  <li><code class="highlighter-rouge">Azure DevOps</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/master/azure-pipelines.yml">azure-pipelines.yml</a></li>
+  <li><code class="highlighter-rouge">CircleCI</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/master/.circleci/config.yml">.circleci/config.yml</a></li>
+  <li><code class="highlighter-rouge">Travis CI</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/master/.travis.yml">.travis.yml</a></li>
 </ul>
 
 <h2 id="the-code">The code</h2>
@@ -444,28 +447,11 @@ Child SP       IP Call Site
 
 <h3 id="mono">Mono</h3>
 
-<p>I wanted to run the build pipeline using <code class="highlighter-rouge">.NET Core 2.x</code> exclusively as this is what I target in the codebase but there are still a few blockers:</p>
-
-<ul>
-  <li><code class="highlighter-rouge">Cake</code> itself is targeting <code class="highlighter-rouge">.NET Core 1.0.x</code>. There is a <a href="https://github.com/cake-build/cake/pull/1812">PR</a> porting it to <code class="highlighter-rouge">.NET Core 2</code></li>
-  <li><code class="highlighter-rouge">GitVersion</code> only runs on the <code class="highlighter-rouge">.NET Framework</code>. There is a <a href="https://github.com/GitTools/GitVersion/pull/1269">PR</a> porting it to <code class="highlighter-rouge">.NET Core</code></li>
-  <li><code class="highlighter-rouge">NuGet.exe</code> only runs on the <code class="highlighter-rouge">.NET Framework</code>. As far as I’m aware there is no plan to port it to <code class="highlighter-rouge">.NET Core</code> as we already have support for <code class="highlighter-rouge">NuGet</code> packages in the <code class="highlighter-rouge">.NET Core CLI</code>
-    <ul>
-      <li>The <code class="highlighter-rouge">.NET Core CLI</code> does not yet support the same breadth of scenario than <code class="highlighter-rouge">NuGet.exe</code>. Typically, it does not support restoring packages from a <code class="highlighter-rouge">packages.config</code> which <code class="highlighter-rouge">Cake</code> leverages to install its plugins and modules</li>
-    </ul>
-  </li>
-</ul>
-
-<p>For those reasons I’m relying on <code class="highlighter-rouge">Mono</code> when building on <code class="highlighter-rouge">Linux</code> and <code class="highlighter-rouge">macOS</code>.</p>
+<p><code class="highlighter-rouge">Mono</code> is not required any more when building on <code class="highlighter-rouge">Linux</code> and <code class="highlighter-rouge">macOS</code>. This is a massive achievement from the <a href="https://github.com/cake-build/cake/graphs/contributors">Cake</a> and <a href="https://github.com/GitTools/GitVersion/graphs/contributors">GitVersion</a> contributors. The build step installing <code class="highlighter-rouge">Mono</code> on <code class="highlighter-rouge">CircleCI</code> and <code class="highlighter-rouge">Travis CI</code> never took less than <code class="highlighter-rouge">5</code> minutes and would sometimes take over <code class="highlighter-rouge">10</code> minutes on <code class="highlighter-rouge">Travis CI</code>! As a result the build script has been simplified and is doing less platform specific handling.</p>
 
 <h3 id="pinning-cake-version">Pinning <code class="highlighter-rouge">Cake</code> version</h3>
 
-<p>To <a href="https://cakebuild.net/docs/tutorials/pinning-cake-version">pin</a> the version of <code class="highlighter-rouge">Cake</code>, add the following lines to your <code class="highlighter-rouge">.gitignore</code> file:</p>
-
-<figure class="highlight"><pre><code class="language-text" data-lang="text">tools/*
-!tools/packages.config</code></pre></figure>
-
-<p>Pinning the version of <code class="highlighter-rouge">Cake</code> guarantees you’ll be using the same version of <code class="highlighter-rouge">Cake</code> on your machine and in the build server.</p>
+<p>Pinning the version of <code class="highlighter-rouge">Cake</code> guarantees you’ll be using the same version of <code class="highlighter-rouge">Cake</code> on your machine and on the build servers. This is enforced via the bootstrap scripts for developers’ machines (<a href="https://github.com/gabrielweyer/cake-build/blob/master/bootstrap.ps1">bootstrap.ps1</a> on <code class="highlighter-rouge">Windows</code>, <a href="https://github.com/gabrielweyer/cake-build/blob/master/bootstrap.sh">bootstrap.sh</a> on <code class="highlighter-rouge">Unix</code>) and in the <code class="highlighter-rouge">YAML</code> files for the build servers.</p>
 
 <h2 id="semantic-versioning">Semantic versioning</h2>
 
@@ -475,7 +461,7 @@ Child SP       IP Call Site
   <p>Consider a version format of <code class="highlighter-rouge">X.Y.Z</code> (<code class="highlighter-rouge">Major.Minor.Patch</code>). Bug fixes not affecting the API increment the <strong>patch</strong> version, backwards compatible API additions/changes increment the <strong>minor</strong> version, and backwards incompatible API changes increment the <strong>major</strong> version.</p>
 </blockquote>
 
-<p>Semantic versioning allows the consumers of your binaries to assess the effort to upgrade to a newer version. Semantic versioning should not be used blindly for all kinds of projects. It makes a lot of sense for a <code class="highlighter-rouge">NuGet</code> package but it doesn’t for a product or an API for example.</p>
+<p>Semantic versioning allows the consumers of your binaries to assess the effort to upgrade to a newer version. Semantic versioning should not be used blindly for all kinds of projects. It makes a lot of sense for a <code class="highlighter-rouge">NuGet</code> package but it doesn’t for a product or an <code class="highlighter-rouge">API</code> for example.</p>
 
 <h3 id="versioning-in-net">Versioning in <code class="highlighter-rouge">.NET</code></h3>
 
@@ -488,7 +474,7 @@ Child SP       IP Call Site
 
 <h4 id="versioning-an-assembly">Versioning an assembly</h4>
 
-<p><a href="https://stackoverflow.com/a/65062">These</a> two <code class="highlighter-rouge">StackOverflow</code> <a href="https://stackoverflow.com/a/802038">answers</a> are great at explaining how to version an assembly.</p>
+<p><a href="https://stackoverflow.com/a/65062">These</a> <a href="https://stackoverflow.com/a/802038">two</a> <code class="highlighter-rouge">StackOverflow</code> are great at explaining how to version an assembly.</p>
 
 <ul>
   <li><code class="highlighter-rouge">AssemblyVersion</code>: the only version the <code class="highlighter-rouge">CLR</code> cares about (if you use <a href="https://docs.microsoft.com/en-us/dotnet/framework/app-domains/strong-named-assemblies">strong named assemblies</a>)</li>
@@ -566,8 +552,6 @@ Child SP       IP Call Site
 
 <p><img src="/assets/cake-build/app-veyor-version.png" alt="AppVeyor version" /></p>
 
-<p>Somehow, I had issues running <code class="highlighter-rouge">GitVersion</code> on <code class="highlighter-rouge">Mono</code> so I invoked the binary directly rather than relying on the built-in <code class="highlighter-rouge">Cake</code> helper. I didn’t spend too much time digging so don’t take this as an example (I might update this section later if I’m not too lazy).</p>
-
 <h2 id="run-the-tests">Run the tests</h2>
 
 <p>As <code class="highlighter-rouge">Travis CI</code> and <code class="highlighter-rouge">CircleCI</code> are running on <code class="highlighter-rouge">Linux</code> and <code class="highlighter-rouge">macOS</code> they don’t support testing against <code class="highlighter-rouge">net461</code>. Luckily the framework can be enforced using an argument: <code class="highlighter-rouge">-framework netcoreapp2.0</code>.</p>
@@ -594,7 +578,7 @@ Child SP       IP Call Site
 
 <h3 id="appveyor">AppVeyor</h3>
 
-<p>Again, the integration between <code class="highlighter-rouge">Cake</code> and <code class="highlighter-rouge">AppVeyor</code> shines in this area as <code class="highlighter-rouge">Cake</code> will automatically publish the test results for you (I wondered for a while why I had duplicate test results and then I RTFM).</p>
+<p>Again, the integration between <code class="highlighter-rouge">Cake</code> and <code class="highlighter-rouge">AppVeyor</code> shines in this area as <code class="highlighter-rouge">Cake</code> will automatically publish the test results for you (I wondered why I had duplicate test results until I <a href="https://en.wikipedia.org/wiki/RTFM">RTFM</a>).</p>
 
 <p><code class="highlighter-rouge">AppVeyor</code> displays all the tests but you must hover to see the framework used:</p>
 
@@ -659,8 +643,6 @@ Child SP       IP Call Site
   <span class="nt">&lt;/ItemGroup&gt;</span>
 <span class="nt">&lt;/Target&gt;</span></code></pre></figure>
 
-<p>There is another <a href="https://github.com/NuGet/Home/issues/4337">bug</a> with the current tooling. <code class="highlighter-rouge">dotnet pack</code> does not respect the <code class="highlighter-rouge">Version</code> and ends up generating invalid <code class="highlighter-rouge">NuGet</code> packages when using same-solution project dependencies. The solution is to run a <code class="highlighter-rouge">restore</code> beforehand with the expected <code class="highlighter-rouge">Version</code> as a parameter.</p>
-
 <p>The result is the following <code class="highlighter-rouge">NuGet</code> package:</p>
 
 <p><img src="/assets/cake-build/package-version.png" alt="Package version" /></p>
@@ -675,7 +657,7 @@ Child SP       IP Call Site
 
 <h2 id="publish-the-nuget-packages">Publish the <code class="highlighter-rouge">NuGet</code> packages</h2>
 
-<p>On any branches starting with <code class="highlighter-rouge">features/</code>, the <code class="highlighter-rouge">NuGet</code> packages will be published to a pre-release feed. If the branch is <code class="highlighter-rouge">master</code> it’ll be published to the production feed. This is handled by <code class="highlighter-rouge">AppVeyor</code> in this <a href="https://github.com/gabrielweyer/cake-build/blob/b707a64cf8218092942accfa5b1f570487f34f4e/appveyor.yml#L48-L69">section</a> of the configuration.</p>
+<p>On any branches starting with <code class="highlighter-rouge">features/</code>, the <code class="highlighter-rouge">NuGet</code> packages will be published to a pre-release feed. If the branch is <code class="highlighter-rouge">master</code> it’ll be published to the production feed. This is handled by <code class="highlighter-rouge">AppVeyor</code> in this <a href="https://github.com/gabrielweyer/cake-build/blob/18ffcf3dfb591519353680f81653c86b8f3966d9/appveyor.yml#L52-L73">section</a> of the configuration.</p>
 
 <p>As this is a demo project both feeds are hosted by <code class="highlighter-rouge">MyGet</code>. For my other projects I use <code class="highlighter-rouge">MyGet</code> to host my <a href="https://www.myget.org/feed/Packages/gabrielweyer-pre-release">pre-release feed</a> and <code class="highlighter-rouge">NuGet</code> for my <a href="https://www.nuget.org/profiles/gabrielweyer">production feed</a>.</p>
 
@@ -685,7 +667,17 @@ Child SP       IP Call Site
 
 <h2 id="create-a-github-release">Create a GitHub release</h2>
 
-<p><code class="highlighter-rouge">AppVeyor</code> also creates <code class="highlighter-rouge">GitHub</code> <a href="/2018/04/22/cake-build/#create-a-github-release">releases</a>.</p>
+<p><code class="highlighter-rouge">AppVeyor</code> also creates <code class="highlighter-rouge">GitHub</code> <a href="https://github.com/gabrielweyer/cake-build/blob/b707a64cf8218092942accfa5b1f570487f34f4e/appveyor.yml#L24-L47">releases</a>.</p>
+
+<h2 id="what-about-azure-devops">What about Azure DevOps</h2>
+
+<p><code class="highlighter-rouge">Azure DevOps</code> is the only product that supports <code class="highlighter-rouge">Windows</code>, <code class="highlighter-rouge">Linux</code> and <code class="highlighter-rouge">macOS</code>. <code class="highlighter-rouge">Microsoft</code> has been iterating relentlessly and the <code class="highlighter-rouge">GitHub</code> acquisition will likely lead to a tighter integration between the two services.</p>
+
+<p><code class="highlighter-rouge">Azure DevOps</code> has the most powerful tests results tab:</p>
+
+<p><img src="/assets/cake-build/azure-devops-tests.png" alt="Azure DevOps Tests" /></p>
+
+<p>One thing I’ve noticed is that builds seem to be slower on the <code class="highlighter-rouge">Hosted Ubuntu 1604</code> agents than on the <code class="highlighter-rouge">Hosted VS2017</code> agents.</p>
 
 <h2 id="conclusion">Conclusion</h2>
 
@@ -694,7 +686,7 @@ Child SP       IP Call Site
 <p>Those are the key takeaways:</p>
 
 <ul>
-  <li>Do <strong>upfront planning on how you want to handle versioning</strong>. This is the hardest part and the one that will be the hardest to fix later on. Read the <a href="http://gitversion.readthedocs.io/en/latest/">GitVersion documentation</a> in details before making any decision.</li>
+  <li>Do <strong>upfront planning on how you want to handle versioning</strong>. This is the hardest part and the one that will be the hardest to fix later on. Read the <a href="http://gitversion.readthedocs.io/en/latest/">GitVersion documentation</a> carefully before making any decision.</li>
   <li>Do what works for your team. If you didn’t have any issues with auto-incrementing your builds, keep doing so. There is no point bringing additional complexity to fix a problem you don’t have.</li>
   <li>Don’t assume you’ll be running on <code class="highlighter-rouge">Windows</code> with <code class="highlighter-rouge">Visual Studio Enterprise</code> installed. Adding cross-platform or other <code class="highlighter-rouge">IDE</code> (<code class="highlighter-rouge">Rider</code>, <code class="highlighter-rouge">Code</code>…) support from the start will make your life easier down the track.</li>
 </ul>
