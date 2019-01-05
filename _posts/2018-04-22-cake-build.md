@@ -5,10 +5,13 @@ title: Cake build
 categories:
 - CI/CD
 tags:
-- Appveyor
+- AppVeyor
 - Travis CI
 - CircleCI
+- Azure DevOps
 ---
+
+**5th of Jan 2019**: a lot has been happening since I initially wrote this post. `Azure DevOps` released a free tier for open source projects, the `Cake` and `GitVersion` contributors have been hard at work to take advantage of the latest features of `.NET Core`. So much things have changed that I decided to update this post to reflect the current state of affairs (inclusion of `Azure DevOps`, upgrade to `.NET Core 2.2`, utilisation of `.NET Core global tools` and removing the `Mono` requirement on `Unix` platforms).
 
 As a developer I'm amazed by the number of free tools and services available. I wanted to create an end-to-end demo of a `CI/CD` pipeline that would include:
 
@@ -20,25 +23,26 @@ As a developer I'm amazed by the number of free tools and services available. I 
 - [Publish the NuGet packages][publish-nuget-packages]
 - [Create a GitHub release][create-github-release]
 
-At work I've been increasingly using [VSTS][vsts]. The service has come a long way and when deploying to `Azure` it's a no brainer. But for my purpose I wanted anonymous users to have access to a read-only view. I initially selected [AppVeyor][app-veyor] as it seems to be the most popular choice for `.NET` open-source projects. But while browsing around I discovered than projects were often using more than one platform. [Travis CI][travis-ci] and [CircleCI][circle-ci] seemed to be the two other prevailing options. I decided to leverage the three platforms so that I could highlight their pros and cons.<!--more-->
+For my purpose I wanted anonymous users to have access to a read-only view. I initially selected [AppVeyor][app-veyor] as it seems to be the most popular choice for `.NET` open-source projects. But while browsing around I discovered than projects were often using more than one platform. [Travis CI][travis-ci] and [CircleCI][circle-ci] seemed to be the two other prevailing options. Since the initial version of this post, [Azure DevOps][azure-devops] has released a free and unlimited plan for open source projects. I decided to leverage the four platforms so that I could highlight their pros and cons.<!--more-->
 
 ## Configuration
 
 The code is hosted on the `GitHub` repository [Cake build][cake-build]. It's named [Cake][cake] after my favourite build automation system and the project is using `Cake` as its build system.
 
-`AppVeyor`, `Travis CI` and `CircleCI` all use [YAML][yaml] configuration files. This means than your build steps are living in the same space than your code and this presents several benefits:
+`AppVeyor`, `Azure DevOps`, `CircleCI` and `Travis CI` all use [YAML][yaml] configuration files. This means that your build steps are living in the same space than your code and this presents several benefits:
 
 - Any developer can modify the build
 - The project is self-contained
   - Developers don't have to search where the build is located
   - It doesn't matter if something terrible happens to the build server
-- Ability to run the build locally for certain platforms
+- Ability to run the build locally on some platforms
 
-I'm sure you'll be as surprised as I was when you'll realise how simple the `YAML` files are:
+I'm sure you'll be as surprised as I was when I realised how simple the `YAML` files are:
 
 - `AppVeyor`: [appveyor.yml][app-veyor-config]
-- `Travis CI`: [.travis.yml][travis-ci-config]
+- `Azure DevOps`: [azure-pipelines.yml][azure-devops-config]
 - `CircleCI`: [.circleci/config.yml][circle-ci-config]
+- `Travis CI`: [.travis.yml][travis-ci-config]
 
 ## The code
 
@@ -56,25 +60,11 @@ The project is useless. What is important is that it describes a real-life scena
 
 ### Mono
 
-I wanted to run the build pipeline using `.NET Core 2.x` exclusively as this is what I target in the codebase but there are still a few blockers:
-
-- `Cake` itself is targeting `.NET Core 1.0.x`. There is a [PR][cake-dotnet-core-pr] porting it to `.NET Core 2`
-- `GitVersion` only runs on the `.NET Framework`. There is a [PR][git-version-dotnet-core-pr] porting it to `.NET Core`
-- `NuGet.exe` only runs on the `.NET Framework`. As far as I'm aware there is no plan to port it to `.NET Core` as we already have support for `NuGet` packages in the `.NET Core CLI`
-  - The `.NET Core CLI` does not yet support the same breadth of scenario than `NuGet.exe`. Typically, it does not support restoring packages from a `packages.config` which `Cake` leverages to install its plugins and modules
-
-For those reasons I'm relying on `Mono` when building on `Linux` and `macOS`.
+`Mono` is not required any more when building on `Linux` and `macOS`. This is a massive achievement from the [Cake][cake-contributors] and [GitVersion][gitversion-contributors] contributors. The build step installing `Mono` on `CircleCI` and `Travis CI` never took less than `5` minutes and would sometimes take over `10` minutes on `Travis CI`! As a result the build script has been simplified and is doing less platform specific handling.
 
 ### Pinning `Cake` version
 
-To [pin][pinning-cake-version] the version of `Cake`, add the following lines to your `.gitignore` file:
-
-{% highlight text %}
-tools/*
-!tools/packages.config
-{% endhighlight %}
-
-Pinning the version of `Cake` guarantees you'll be using the same version of `Cake` on your machine and in the build server.
+Pinning the version of `Cake` guarantees you'll be using the same version of `Cake` on your machine and on the build servers. This is enforced via the bootstrap scripts for developers' machines ([bootstrap.ps1][bootstrap-windows] on `Windows`, [bootstrap.sh][bootstrap-unix] on `Unix`) and in the `YAML` files for the build servers.
 
 ## Semantic versioning
 
@@ -82,7 +72,7 @@ As I'm releasing packages I decided to use [semantic versioning][sem-ver].
 
 > Consider a version format of `X.Y.Z` (`Major.Minor.Patch`). Bug fixes not affecting the API increment the **patch** version, backwards compatible API additions/changes increment the **minor** version, and backwards incompatible API changes increment the **major** version.
 
-Semantic versioning allows the consumers of your binaries to assess the effort to upgrade to a newer version. Semantic versioning should not be used blindly for all kinds of projects. It makes a lot of sense for a `NuGet` package but it doesn't for a product or an API for example.
+Semantic versioning allows the consumers of your binaries to assess the effort to upgrade to a newer version. Semantic versioning should not be used blindly for all kinds of projects. It makes a lot of sense for a `NuGet` package but it doesn't for a product or an `API` for example.
 
 ### Versioning in `.NET`
 
@@ -93,7 +83,7 @@ In `.NET` we use four properties to handle versioning:
 
 #### Versioning an assembly
 
-[These][dll-versions-1] two `StackOverflow` [answers][dll-versions-2] are great at explaining how to version an assembly.
+[These][dll-versions-1] [two][dll-versions-2] `StackOverflow` are great at explaining how to version an assembly.
 
 - `AssemblyVersion`: the only version the `CLR` cares about (if you use [strong named assemblies][strong-named-assemblies])
 
@@ -161,8 +151,6 @@ As an aside `Cake` allows you to [set][cake-app-veyor-build] the `AppVeyor` buil
 
 ![AppVeyor version]({{ "/assets/cake-build/app-veyor-version.png" | prepend: site.baseurl }})
 
-Somehow, I had issues running `GitVersion` on `Mono` so I invoked the binary directly rather than relying on the built-in `Cake` helper. I didn't spend too much time digging so don't take this as an example (I might update this section later if I'm not too lazy).
-
 ## Run the tests
 
 As `Travis CI` and `CircleCI` are running on `Linux` and `macOS` they don't support testing against `net461`. Luckily the framework can be enforced using an argument: `-framework netcoreapp2.0`.
@@ -189,7 +177,7 @@ I decided not to invest more time on this as `CircleCI` has zero documentation a
 
 ### AppVeyor
 
-Again, the integration between `Cake` and `AppVeyor` shines in this area as `Cake` will automatically publish the test results for you (I wondered for a while why I had duplicate test results and then I RTFM).
+Again, the integration between `Cake` and `AppVeyor` shines in this area as `Cake` will automatically publish the test results for you (I wondered why I had duplicate test results until I [RTFM][rtfm]).
 
 `AppVeyor` displays all the tests but you must hover to see the framework used:
 
@@ -254,8 +242,6 @@ Luckily [this issue][project-reference-dll-issue] provides a workaround. All the
 </Target>
 {% endhighlight %}
 
-There is another [bug][same-solution-project] with the current tooling. `dotnet pack` does not respect the `Version` and ends up generating invalid `NuGet` packages when using same-solution project dependencies. The solution is to run a `restore` beforehand with the expected `Version` as a parameter.
-
 The result is the following `NuGet` package:
 
 ![Package version]({{ "/assets/cake-build/package-version.png" | prepend: site.baseurl }})
@@ -282,7 +268,17 @@ Strangely enough `Travis CI` does not support artifacts out of the box. You must
 
 ## Create a GitHub release
 
-`AppVeyor` also creates `GitHub` [releases][create-github-release].
+`AppVeyor` also creates `GitHub` [releases][appveyor-create-github-release].
+
+## What about Azure DevOps
+
+`Azure DevOps` is the only product that supports `Windows`, `Linux` and `macOS`. `Microsoft` has been iterating relentlessly and the `GitHub` acquisition will likely lead to a tighter integration between the two services.
+
+`Azure DevOps` has the most powerful tests results tab:
+
+![Azure DevOps Tests]({{ "/assets/cake-build/azure-devops-tests.png" | prepend: site.baseurl }})
+
+One thing I've noticed is that builds seem to be slower on the `Hosted Ubuntu 1604` agents than on the `Hosted VS2017` agents.
 
 ## Conclusion
 
@@ -290,26 +286,23 @@ This is one possible workflow only. I've glossed over many details and taken som
 
 Those are the key takeaways:
 
-- Do **upfront planning on how you want to handle versioning**. This is the hardest part and the one that will be the hardest to fix later on. Read the [GitVersion documentation][git-version-docs] in details before making any decision.
+- Do **upfront planning on how you want to handle versioning**. This is the hardest part and the one that will be the hardest to fix later on. Read the [GitVersion documentation][git-version-docs] carefully before making any decision.
 - Do what works for your team. If you didn't have any issues with auto-incrementing your builds, keep doing so. There is no point bringing additional complexity to fix a problem you don't have.
 - Don't assume you'll be running on `Windows` with `Visual Studio Enterprise` installed. Adding cross-platform or other `IDE` (`Rider`, `Code`...) support from the start will make your life easier down the track.
 
 [sem-ver]: https://semver.org/
-[vsts]: https://www.visualstudio.com/team-services/
+[azure-devops]: https://azure.microsoft.com/en-au/services/devops/
 [app-veyor]: https://www.appveyor.com/
 [travis-ci]: https://travis-ci.org/
 [circle-ci]: https://circleci.com/
 [cake-build]: https://github.com/gabrielweyer/cake-build
 [cake]: https://cakebuild.net/
 [yaml]: http://yaml.org/
-[app-veyor-config]: https://github.com/gabrielweyer/cake-build/blob/13b9161596414355f35ffb64ab4aedacb006359f/appveyor.yml
-[travis-ci-config]: https://github.com/gabrielweyer/cake-build/blob/13b9161596414355f35ffb64ab4aedacb006359f/.travis.yml
-[circle-ci-config]: https://github.com/gabrielweyer/cake-build/blob/13b9161596414355f35ffb64ab4aedacb006359f/.circleci/config.yml
+[app-veyor-config]: https://github.com/gabrielweyer/cake-build/blob/master/appveyor.yml
+[travis-ci-config]: https://github.com/gabrielweyer/cake-build/blob/master/.travis.yml
+[circle-ci-config]: https://github.com/gabrielweyer/cake-build/blob/master/.circleci/config.yml
 [nuget-org]: https://www.nuget.org/
 [git-version]: https://github.com/GitTools/GitVersion
-[cake-dotnet-core-pr]: https://github.com/cake-build/cake/pull/1812
-[git-version-dotnet-core-pr]: https://github.com/GitTools/GitVersion/pull/1269
-[pinning-cake-version]: https://cakebuild.net/docs/tutorials/pinning-cake-version
 [github-flow]: https://guides.github.com/introduction/flow/
 [trunk-based-development]: https://trunkbaseddevelopment.com/
 [nuget-package-versioning]: https://docs.microsoft.com/en-us/nuget/reference/package-versioning
@@ -326,13 +319,18 @@ Those are the key takeaways:
 [pack-issues]: https://github.com/NuGet/Home/issues/6285
 [project-reference-dll-issue]: https://github.com/NuGet/Home/issues/3891
 [private-assets]: https://docs.microsoft.com/en-us/dotnet/core/tools/csproj#includeassets-excludeassets-and-privateassets
-[same-solution-project]: https://github.com/NuGet/Home/issues/4337
-[publish-packages]: https://github.com/gabrielweyer/cake-build/blob/b707a64cf8218092942accfa5b1f570487f34f4e/appveyor.yml#L48-L69
+[publish-packages]: https://github.com/gabrielweyer/cake-build/blob/18ffcf3dfb591519353680f81653c86b8f3966d9/appveyor.yml#L52-L73
 [nuget-feed]: https://www.nuget.org/profiles/gabrielweyer
 [myget-feed]: https://www.myget.org/feed/Packages/gabrielweyer-pre-release
 [symbols]: https://msdn.microsoft.com/en-us/library/windows/desktop/ee416588(v=vs.85).aspx
-[create-github-release]: https://github.com/gabrielweyer/cake-build/blob/b707a64cf8218092942accfa5b1f570487f34f4e/appveyor.yml#L24-L47
+[appveyor-create-github-release]: https://github.com/gabrielweyer/cake-build/blob/b707a64cf8218092942accfa5b1f570487f34f4e/appveyor.yml#L24-L47
 [git-version-docs]: http://gitversion.readthedocs.io/en/latest/
+[azure-devops-config]: https://github.com/gabrielweyer/cake-build/blob/master/azure-pipelines.yml
+[cake-contributors]: https://github.com/cake-build/cake/graphs/contributors
+[gitversion-contributors]: https://github.com/GitTools/GitVersion/graphs/contributors
+[bootstrap-windows]: https://github.com/gabrielweyer/cake-build/blob/master/bootstrap.ps1
+[bootstrap-unix]: https://github.com/gabrielweyer/cake-build/blob/master/bootstrap.sh
+[rtfm]: https://en.wikipedia.org/wiki/RTFM
 
 [trigger-build-commit]: {{ site.baseurl }}{% post_url 2018-04-22-cake-build %}#configuration
 [use-semantic-versioning]: {{ site.baseurl }}{% post_url 2018-04-22-cake-build %}#semantic-versioning
