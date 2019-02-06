@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?201901050103" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?201902061628" type="text/css">
 
     <!-- Fonts -->
     
@@ -113,6 +113,29 @@
     <div class="posts">
       
         <div class="post py3">
+          <p class="post-meta">Feb 8, 2018</p>
+          <a href="/2018/02/08/singleton-http-client/" class="post-link"><h3 class="h1 post-title">Singleton HTTP Client</h3></a>
+          <span class="post-summary">
+            <p>Even though the <code class="highlighter-rouge">class</code> <code class="highlighter-rouge">HttpClient</code> implements <code class="highlighter-rouge">IDisposable</code> it is supposed to be used as a singleton as stated in the <a href="https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpclient?view=netcore-2.0#Remarks">API reference</a>:</p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">HttpClient</code> is intended to be instantiated once and re-used throughout the life of an application. Instantiating an <code class="highlighter-rouge">HttpClient</code> class for every request will exhaust the number of sockets available under heavy loads. This will result in <code class="highlighter-rouge">SocketException</code> errors.</p>
+</blockquote>
+
+<p>The accepted best practice is to have one <code class="highlighter-rouge">HttpClient</code> per HTTP endpoint you’re interacting with. This will not only yield better performance it also allows to encapsulate endpoint specific logic (such as setting headers).</p>
+
+<p>Now the question is: how do you configure your <code class="highlighter-rouge">IoC</code> container to resolve the expected <code class="highlighter-rouge">HttpClient</code> instance? This used to require a cumbersome registration but <code class="highlighter-rouge">.NET Core 2.1</code> will ship with the <a href="https://github.com/aspnet/HttpClientFactory">HttpClientFactory</a> making our life much easier.</p>
+
+
+             
+            
+            
+              <a href="/2018/02/08/singleton-http-client/">Continue reading</a>
+            
+          </span>
+        </div>
+      
+        <div class="post py3">
           <p class="post-meta">Jan 28, 2018</p>
           <a href="/2018/01/28/simple-routing-elastic-beanstalk-worker/" class="post-link"><h3 class="h1 post-title">Simple Routing for Elastic Beanstalk Worker tier</h3></a>
           <span class="post-summary">
@@ -177,25 +200,6 @@
           </span>
         </div>
       
-        <div class="post py3">
-          <p class="post-meta">Jun 13, 2016</p>
-          <a href="/2016/06/13/bein-sports-connect/" class="post-link"><h3 class="h1 post-title">beIN SPORTS CONNECT</h3></a>
-          <span class="post-summary">
-            <p>I like football, even with the time difference I try to watch at least the World Cup and the European Championship. I watched the last World Cup on <a href="http://www.sbs.com.au/">SBS</a> but this time around they only managed to secure a handful of games. As they’re a public service it makes sense after all that they wouldn’t buy the rights for all the games. A quick search on Google indicated that <a href="http://www.beinsportsconnect.com.au/home">beIN SPORTS CONNECT</a> is the way to go in Australia - I will refer to this service as beIN for the rest of this post.</p>
-
-<h1 id="subscribing">Subscribing</h1>
-
-<p>As the pricing seems reasonable I decided to go ahead. The page is loaded over HTTPS so we start well but to my surprise the form contains a <strong>password remainder</strong> field. Password remainders are a bad practice as users tend to fill them with their password (when allowed) or with a hint that is an obvious give away.</p>
-
-
-             
-            
-            
-              <a href="/2016/06/13/bein-sports-connect/">Continue reading</a>
-            
-          </span>
-        </div>
-      
     </div>
 
     
@@ -212,7 +216,7 @@
       <a class="pagination-item" href="/page4">Older</a>
     
   </div>
-  <div class="pagination-meta">Page 3 of 4</div>
+  <div class="pagination-meta">Page 3 of 5</div>
 </div>
 
 

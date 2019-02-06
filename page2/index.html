@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?201901050103" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?201902061628" type="text/css">
 
     <!-- Fonts -->
     
@@ -113,6 +113,33 @@
     <div class="posts">
       
         <div class="post py3">
+          <p class="post-meta">Apr 7, 2018</p>
+          <a href="/2018/04/07/advanced-dotnet-debugging-1/" class="post-link"><h3 class="h1 post-title">Advanced .NET Debugging #1</h3></a>
+          <span class="post-summary">
+            <p>After eyeing it for a while I finally decided to buy <a href="https://www.goodreads.com/book/show/7306509-advanced-net-debugging">Advanced .NET Debugging</a> by Mario Hewardt. I’ve been studying <code class="highlighter-rouge">WinDbg</code> for some time and consider myself somewhere between beginner and intermediate level. To my dismay I got stuck on the first excercise! Luckily I didn’t give up and finally stumbled on a blog post that unblocked me. This series has for goal to make <a href="https://www.goodreads.com/book/show/7306509-advanced-net-debugging">Advanced .NET Debugging</a> more accessible to people - quite like me - that haven’t grasped all the concepts yet.</p>
+
+<h2 id="prerequisites">Prerequisites</h2>
+
+<ul>
+  <li>A hex viewer
+    <ul>
+      <li>I used the <a href="https://marketplace.visualstudio.com/items?itemName=slevesque.vscode-hexdump">hexdump for VSCode</a> Visual Studio Code extension</li>
+    </ul>
+  </li>
+  <li><a href="https://github.com/gabrielweyer/nuggets/blob/master/windbg/README.md#download-and-install-windbg">WinDbg</a></li>
+  <li>Windows</li>
+</ul>
+
+
+             
+            
+            
+              <a href="/2018/04/07/advanced-dotnet-debugging-1/">Continue reading</a>
+            
+          </span>
+        </div>
+      
+        <div class="post py3">
           <p class="post-meta">Mar 24, 2018</p>
           <a href="/2018/03/24/testing-anti-patterns-1/" class="post-link"><h3 class="h1 post-title">Testing anti-patterns #1</h3></a>
           <span class="post-summary">
@@ -170,29 +197,6 @@
           </span>
         </div>
       
-        <div class="post py3">
-          <p class="post-meta">Feb 8, 2018</p>
-          <a href="/2018/02/08/singleton-http-client/" class="post-link"><h3 class="h1 post-title">Singleton HTTP Client</h3></a>
-          <span class="post-summary">
-            <p>Even though the <code class="highlighter-rouge">class</code> <code class="highlighter-rouge">HttpClient</code> implements <code class="highlighter-rouge">IDisposable</code> it is supposed to be used as a singleton as stated in the <a href="https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpclient?view=netcore-2.0#Remarks">API reference</a>:</p>
-
-<blockquote>
-  <p><code class="highlighter-rouge">HttpClient</code> is intended to be instantiated once and re-used throughout the life of an application. Instantiating an <code class="highlighter-rouge">HttpClient</code> class for every request will exhaust the number of sockets available under heavy loads. This will result in <code class="highlighter-rouge">SocketException</code> errors.</p>
-</blockquote>
-
-<p>The accepted best practice is to have one <code class="highlighter-rouge">HttpClient</code> per HTTP endpoint you’re interacting with. This will not only yield better performance it also allows to encapsulate endpoint specific logic (such as setting headers).</p>
-
-<p>Now the question is: how do you configure your <code class="highlighter-rouge">IoC</code> container to resolve the expected <code class="highlighter-rouge">HttpClient</code> instance? This used to require a cumbersome registration but <code class="highlighter-rouge">.NET Core 2.1</code> will ship with the <a href="https://github.com/aspnet/HttpClientFactory">HttpClientFactory</a> making our life much easier.</p>
-
-
-             
-            
-            
-              <a href="/2018/02/08/singleton-http-client/">Continue reading</a>
-            
-          </span>
-        </div>
-      
     </div>
 
     
@@ -209,7 +213,7 @@
       <a class="pagination-item" href="/page3">Older</a>
     
   </div>
-  <div class="pagination-meta">Page 2 of 4</div>
+  <div class="pagination-meta">Page 2 of 5</div>
 </div>
 
 

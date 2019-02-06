@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?201901050103" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?201902061628" type="text/css">
 
     <!-- Fonts -->
     
@@ -113,6 +113,23 @@
     <div class="posts">
       
         <div class="post py3">
+          <p class="post-meta">Feb 7, 2019</p>
+          <a href="/2019/02/07/azure-vm-pricing/" class="post-link"><h3 class="h1 post-title">Azure VM pricing</h3></a>
+          <span class="post-summary">
+            <p>I was recently faced with an interesting problem. A company wanted to cost the migration of thousands of <code class="highlighter-rouge">VMs</code> to <code class="highlighter-rouge">Azure</code> using a <a href="https://docs.microsoft.com/en-us/azure/architecture/cloud-adoption/digital-estate/5-rs-of-rationalization#rehost">lift and shift</a> approach (also known as rehost). Due to the short deadline, we were not able to get our hands on detailed data. All we were provided with was a machine name, <code class="highlighter-rouge">CPU</code> cores count, <code class="highlighter-rouge">RAM</code> and a description field that was sometimes populated. Utilisation, storage and network usage were notably missing. We knew we couldn’t cost the migration accurately due to these unknowns, but we had enough data to cost the <code class="highlighter-rouge">VMs</code> themselves as we had access to <code class="highlighter-rouge">CPU</code> cores count and <code class="highlighter-rouge">RAM</code>. I must also add that the <code class="highlighter-rouge">VMs</code> varied greatly in their hardware specifications.</p>
+
+<p>Microsoft offers a <a href="https://azure.microsoft.com/en-us/pricing/calculator/?service=virtual-machines">pricing calculator</a> but it only supports manual input which disqualified it for our use case. A few <code class="highlighter-rouge">Microsoft</code> employees wrote web applications automating the pricing of <code class="highlighter-rouge">VMs</code> by importing <code class="highlighter-rouge">Excel</code> spreadsheets or <code class="highlighter-rouge">CSV</code> files. The ones I tried only offered <code class="highlighter-rouge">USD</code> as a currency and choked for anything bigger than a few hundred <code class="highlighter-rouge">VMs</code>. The output file was using a <code class="highlighter-rouge">en-us</code> culture so it had to be post-processed before being open in <code class="highlighter-rouge">Excel</code>. I didn’t have the time to review and select a commercial solution (<a href="https://azure.microsoft.com/en-us/services/azure-migrate/">Azure Migrate</a> requires to create a <code class="highlighter-rouge">VM</code> on-premises which was not possible). At the end of the day I came up with a semi-automated process that did the trick, but I felt that not much work would be required to empower teams to price <code class="highlighter-rouge">VMs</code>.</p>
+
+
+             
+            
+            
+              <a href="/2019/02/07/azure-vm-pricing/">Continue reading</a>
+            
+          </span>
+        </div>
+      
+        <div class="post py3">
           <p class="post-meta">May 19, 2018</p>
           <a href="/2018/05/19/advanced-dotnet-debugging-2/" class="post-link"><h3 class="h1 post-title">Advanced .NET Debugging #2</h3></a>
           <span class="post-summary">
@@ -183,33 +200,6 @@
           </span>
         </div>
       
-        <div class="post py3">
-          <p class="post-meta">Apr 7, 2018</p>
-          <a href="/2018/04/07/advanced-dotnet-debugging-1/" class="post-link"><h3 class="h1 post-title">Advanced .NET Debugging #1</h3></a>
-          <span class="post-summary">
-            <p>After eyeing it for a while I finally decided to buy <a href="https://www.goodreads.com/book/show/7306509-advanced-net-debugging">Advanced .NET Debugging</a> by Mario Hewardt. I’ve been studying <code class="highlighter-rouge">WinDbg</code> for some time and consider myself somewhere between beginner and intermediate level. To my dismay I got stuck on the first excercise! Luckily I didn’t give up and finally stumbled on a blog post that unblocked me. This series has for goal to make <a href="https://www.goodreads.com/book/show/7306509-advanced-net-debugging">Advanced .NET Debugging</a> more accessible to people - quite like me - that haven’t grasped all the concepts yet.</p>
-
-<h2 id="prerequisites">Prerequisites</h2>
-
-<ul>
-  <li>A hex viewer
-    <ul>
-      <li>I used the <a href="https://marketplace.visualstudio.com/items?itemName=slevesque.vscode-hexdump">hexdump for VSCode</a> Visual Studio Code extension</li>
-    </ul>
-  </li>
-  <li><a href="https://github.com/gabrielweyer/nuggets/blob/master/windbg/README.md#download-and-install-windbg">WinDbg</a></li>
-  <li>Windows</li>
-</ul>
-
-
-             
-            
-            
-              <a href="/2018/04/07/advanced-dotnet-debugging-1/">Continue reading</a>
-            
-          </span>
-        </div>
-      
     </div>
 
     
@@ -224,7 +214,7 @@
       <a class="pagination-item" href="/page2">Older</a>
     
   </div>
-  <div class="pagination-meta">Page 1 of 4</div>
+  <div class="pagination-meta">Page 1 of 5</div>
 </div>
 
 

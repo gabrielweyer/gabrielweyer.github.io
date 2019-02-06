@@ -7,6 +7,80 @@
     <atom:link href="https://gabrielweyer.github.io//feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
+        <title>Azure VM pricing</title>
+        <description>&lt;p&gt;I was recently faced with an interesting problem. A company wanted to cost the migration of thousands of &lt;code class=&quot;highlighter-rouge&quot;&gt;VMs&lt;/code&gt; to &lt;code class=&quot;highlighter-rouge&quot;&gt;Azure&lt;/code&gt; using a &lt;a href=&quot;https://docs.microsoft.com/en-us/azure/architecture/cloud-adoption/digital-estate/5-rs-of-rationalization#rehost&quot;&gt;lift and shift&lt;/a&gt; approach (also known as rehost). Due to the short deadline, we were not able to get our hands on detailed data. All we were provided with was a machine name, &lt;code class=&quot;highlighter-rouge&quot;&gt;CPU&lt;/code&gt; cores count, &lt;code class=&quot;highlighter-rouge&quot;&gt;RAM&lt;/code&gt; and a description field that was sometimes populated. Utilisation, storage and network usage were notably missing. We knew we couldn’t cost the migration accurately due to these unknowns, but we had enough data to cost the &lt;code class=&quot;highlighter-rouge&quot;&gt;VMs&lt;/code&gt; themselves as we had access to &lt;code class=&quot;highlighter-rouge&quot;&gt;CPU&lt;/code&gt; cores count and &lt;code class=&quot;highlighter-rouge&quot;&gt;RAM&lt;/code&gt;. I must also add that the &lt;code class=&quot;highlighter-rouge&quot;&gt;VMs&lt;/code&gt; varied greatly in their hardware specifications.&lt;/p&gt;
+
+&lt;p&gt;Microsoft offers a &lt;a href=&quot;https://azure.microsoft.com/en-us/pricing/calculator/?service=virtual-machines&quot;&gt;pricing calculator&lt;/a&gt; but it only supports manual input which disqualified it for our use case. A few &lt;code class=&quot;highlighter-rouge&quot;&gt;Microsoft&lt;/code&gt; employees wrote web applications automating the pricing of &lt;code class=&quot;highlighter-rouge&quot;&gt;VMs&lt;/code&gt; by importing &lt;code class=&quot;highlighter-rouge&quot;&gt;Excel&lt;/code&gt; spreadsheets or &lt;code class=&quot;highlighter-rouge&quot;&gt;CSV&lt;/code&gt; files. The ones I tried only offered &lt;code class=&quot;highlighter-rouge&quot;&gt;USD&lt;/code&gt; as a currency and choked for anything bigger than a few hundred &lt;code class=&quot;highlighter-rouge&quot;&gt;VMs&lt;/code&gt;. The output file was using a &lt;code class=&quot;highlighter-rouge&quot;&gt;en-us&lt;/code&gt; culture so it had to be post-processed before being open in &lt;code class=&quot;highlighter-rouge&quot;&gt;Excel&lt;/code&gt;. I didn’t have the time to review and select a commercial solution (&lt;a href=&quot;https://azure.microsoft.com/en-us/services/azure-migrate/&quot;&gt;Azure Migrate&lt;/a&gt; requires to create a &lt;code class=&quot;highlighter-rouge&quot;&gt;VM&lt;/code&gt; on-premises which was not possible). At the end of the day I came up with a semi-automated process that did the trick, but I felt that not much work would be required to empower teams to price &lt;code class=&quot;highlighter-rouge&quot;&gt;VMs&lt;/code&gt;.&lt;!--more--&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;requirements&quot;&gt;Requirements&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Support multiple currencies&lt;/li&gt;
+  &lt;li&gt;Support multiple cultures&lt;/li&gt;
+  &lt;li&gt;Ability to automate refreshing of the pricing&lt;/li&gt;
+  &lt;li&gt;Timeboxed to a weekend&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;Note&lt;/strong&gt;: you can find the code on &lt;a href=&quot;https://github.com/gabrielweyer/azure-vm-pricing#readme&quot;&gt;GitHub&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;what-i-came-up-with&quot;&gt;What I came up with&lt;/h2&gt;
+
+&lt;p&gt;My first goal was to retrieve the pricing from &lt;code class=&quot;highlighter-rouge&quot;&gt;Azure&lt;/code&gt;. I initially considered the &lt;a href=&quot;https://docs.microsoft.com/en-us/previous-versions/azure/reference/mt219005(v=azure.100)&quot;&gt;Resource RateCard&lt;/a&gt; (part of the &lt;code class=&quot;highlighter-rouge&quot;&gt;Billing API&lt;/code&gt;) but this banner didn’t fill me with confidence:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/azure-vm-pricing/resource-ratecard.png&quot; alt=&quot;Resource RateCard&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;Billing API&lt;/code&gt; requires authentication and parameters to be passed in, which would have increased the complexity of the solution. I knew one place would have mostly up-to-date pricing: the &lt;a href=&quot;https://azure.microsoft.com/en-au/pricing/details/virtual-machines/windows/&quot;&gt;Virtual Machines Pricing&lt;/a&gt; page. This page displays all the available instances for a specific region. It is also possible to select a culture, currency and operating system. There is one problem though: the data is available as &lt;code class=&quot;highlighter-rouge&quot;&gt;HTML&lt;/code&gt; markup instead of an &lt;code class=&quot;highlighter-rouge&quot;&gt;API&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;puppeteer&quot;&gt;Puppeteer&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://pptr.dev/&quot;&gt;Puppeteer&lt;/a&gt; allows you to control &lt;code class=&quot;highlighter-rouge&quot;&gt;Chrome&lt;/code&gt; or as the project puts it:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Puppeteer is a Node library which provides a high-level API to control Chrome or Chromium over the DevTools Protocol. Puppeteer runs headless by default, but can be configured to run full (non-headless) Chrome or Chromium.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;It feels more natural to write a crawler in &lt;code class=&quot;highlighter-rouge&quot;&gt;JavaScript&lt;/code&gt; (&lt;code class=&quot;highlighter-rouge&quot;&gt;JavaScript&lt;/code&gt; is the language of the web after all). According to my limited &lt;a href=&quot;https://github.com/gabrielweyer/ui-tests&quot;&gt;experience&lt;/a&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;Puppeteer&lt;/code&gt; is also significantly faster than &lt;code class=&quot;highlighter-rouge&quot;&gt;Selenium Web Driver&lt;/code&gt;. I didn’t bother creating a &lt;code class=&quot;highlighter-rouge&quot;&gt;npm&lt;/code&gt; package so you’ll have to clone the &lt;a href=&quot;https://github.com/gabrielweyer/azure-vm-pricing#parser&quot;&gt;repository&lt;/a&gt; and follow the instructions. This is the kind of output you can expect from the tool:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-json&quot; data-lang=&quot;json&quot;&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;instance&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;B1S&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;vCpu&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;ram&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;payAsYouGo&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;0.028&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;oneYearReserved&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;0.019&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;threeYearReserved&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;0.014&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;threeYearReservedWithAzureHybridBenefit&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;0.009&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;Many&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;more&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;instances&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;I made the assumption that a single culture and currency will be used through a pricing session and this is why I only encoded the region and operating system in the &lt;a href=&quot;https://github.com/gabrielweyer/azure-vm-pricing#parser-output&quot;&gt;generated file names&lt;/a&gt;. Calling this tool can easily be automated as it doesn’t require any configuration and generate files on disk. You could run it at regular intervals and publish the artefacts.&lt;/p&gt;
+
+&lt;p&gt;Once we’ve got our hands on the pricing, all we need to do is size the &lt;code class=&quot;highlighter-rouge&quot;&gt;VMs&lt;/code&gt; and cost them.&lt;/p&gt;
+
+&lt;h3 id=&quot;coster&quot;&gt;Coster&lt;/h3&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;Coster&lt;/code&gt; is a &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET Core&lt;/code&gt; console application. Again, I didn’t bother pushing a &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; package so you’ll have to build from &lt;a href=&quot;https://github.com/gabrielweyer/azure-vm-pricing#coster&quot;&gt;source&lt;/a&gt;. You’ll need the pricing files generated by the &lt;code class=&quot;highlighter-rouge&quot;&gt;Parser&lt;/code&gt;. The &lt;code class=&quot;highlighter-rouge&quot;&gt;Coster&lt;/code&gt; is expecting a &lt;code class=&quot;highlighter-rouge&quot;&gt;CSV&lt;/code&gt; file with the following format:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csv&quot; data-lang=&quot;csv&quot;&gt;Region,Name,CPU,RAM,Operating System
+australia-southeast,SuperName,8,64,windows&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Once done, the &lt;code class=&quot;highlighter-rouge&quot;&gt;Coster&lt;/code&gt; will write a &lt;code class=&quot;highlighter-rouge&quot;&gt;CSV&lt;/code&gt; file:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csv&quot; data-lang=&quot;csv&quot;&gt;Region,Name,Operating System,Instance,CPU,RAM,Pay as You Go,One Year Reserved,Three Year Reserved,Three Year Reserved with Azure Hybrid Benefit
+australia-southeast,SuperName,windows,E8 v3,8,64,1.006,0.74334,0.60803,0.24003&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+
+&lt;p&gt;Let me know if you’re using these tools and I’ll tidy up and publish packages on &lt;code class=&quot;highlighter-rouge&quot;&gt;npm&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt;. I can’t say I’ve tested it extensively so be ready for some rough edges!&lt;/p&gt;
+
+</description>
+        <pubDate>Thu, 07 Feb 2019 09:25:27 +1100</pubDate>
+        <link>https://gabrielweyer.github.io//2019/02/07/azure-vm-pricing/</link>
+        <guid isPermaLink="true">https://gabrielweyer.github.io//2019/02/07/azure-vm-pricing/</guid>
+      </item>
+    
+      <item>
         <title>Advanced .NET Debugging #2</title>
         <description>&lt;p&gt;I’m continuing to read the excellent &lt;a href=&quot;https://www.goodreads.com/book/show/7306509-advanced-net-debugging&quot;&gt;Advanced .NET Debugging&lt;/a&gt; by Mario Hewardt. Last time I looked at &lt;a href=&quot;/2018/04/07/advanced-dotnet-debugging-1/&quot;&gt;finding the entry point of a native image&lt;/a&gt;. This time around I’ll be investigating the launch of a &lt;strong&gt;managed&lt;/strong&gt; image by &lt;code class=&quot;highlighter-rouge&quot;&gt;Windows&lt;/code&gt;.&lt;/p&gt;
 
@@ -1728,102 +1802,6 @@ Host: localhost:5000&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
         <pubDate>Sun, 28 Jan 2018 20:24:33 +0000</pubDate>
         <link>https://gabrielweyer.github.io//2018/01/28/simple-routing-elastic-beanstalk-worker/</link>
         <guid isPermaLink="true">https://gabrielweyer.github.io//2018/01/28/simple-routing-elastic-beanstalk-worker/</guid>
-      </item>
-    
-      <item>
-        <title>Links Insights #1</title>
-        <description>&lt;p&gt;Every now and then I stumble upon a brilliant post on Internet, I share some of those links on my &lt;a href=&quot;https://www.diigo.com/user/gabrielweyer&quot;&gt;Diigo profile&lt;/a&gt; but the format is very succinct. I decided to start a new experiment and instead write full blog posts about those links. The first reason is quite selfish as I would like to keep a record of what I thought was interesting and why, I also hope to empower the reader so that she can decide if she wants to read the full post as some of them are lengthy.&lt;/p&gt;
-
-&lt;p&gt;I’m considering limiting each of those post to up to three links as to not require too much time from the reader.&lt;/p&gt;
-
-&lt;p&gt;This is inspired by the excellent work that Chris Alcock and Michael Wolfenden are doing with respectively &lt;a href=&quot;http://blog.cwa.me.uk/&quot;&gt;The Morning Brew&lt;/a&gt; and &lt;a href=&quot;https://michael-wolfenden.github.io/&quot;&gt;The Wolf Report&lt;/a&gt;. Don’t be surprised if I end up &lt;del&gt;stealing&lt;/del&gt; borrowing some links from them.&lt;/p&gt;
-
-&lt;p&gt;Without further ado let me get started with the first links.&lt;!--more--&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;how-to-be-a-programmer-a-short-comprehensive-and-personal-summary&quot;&gt;How To Be a Programmer: A Short, Comprehensive, and Personal Summary&lt;/h2&gt;
-
-&lt;p&gt;&lt;strong&gt;Link&lt;/strong&gt;: &lt;a href=&quot;https://www.doc.ic.ac.uk/~susan/475/HowToBeAProgrammer.pdf&quot;&gt;https://www.doc.ic.ac.uk/~susan/475/HowToBeAProgrammer.pdf&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;This is a 40 pages long PDF but contains some invaluable lessons especially if you’ve been in the field for only a few years.&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;A classic mistake is to use a hash table as a cache and forget to remove the references in the hash table. Since the reference remains, the referent is uncollectable but useless. This is called a memory leak.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;This is a mistake I’ve seen across almost all companies I’ve consulted for. I never managed to understand why dev teams adopted this anti-pattern as it has only drawbacks and is not simpler to write than a barebone caching system.&lt;/p&gt;
-
-&lt;p&gt;In the .NET word it’s often implemented via a &lt;code class=&quot;highlighter-rouge&quot;&gt;static private Dictionary&lt;/code&gt;. Developers tend to use objects as key without understanding the requirements around equality but the main issue is that there is rarely code to remove keys which then requires an app pool restart (in a web app) in order to get rid of the stale key! This is compounded by the fact that sessions are often stored in process too and will be wiped out by an app pool restart.&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Caching is hard, only introduce caching if you need to (based on performance measurements and performance targets)&lt;/li&gt;
-  &lt;li&gt;Use the &lt;a href=&quot;https://docs.microsoft.com/en-us/dotnet/framework/performance/caching-in-net-framework-applications&quot;&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;System.Runtime.Caching&lt;/code&gt;&lt;/a&gt; namespace for in process caching&lt;/li&gt;
-  &lt;li&gt;Cache data for the smallest amount of time you can get away with&lt;/li&gt;
-  &lt;li&gt;Have an API allowing you to interact with your caching system&lt;/li&gt;
-  &lt;li&gt;Consider using a distributed caching system (&lt;a href=&quot;https://redis.io/&quot;&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Redis&lt;/code&gt;&lt;/a&gt; is great for this workload)&lt;/li&gt;
-  &lt;li&gt;When using a distributed caching system, consider using a short lived in process cache&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Never, ever, rest any hopes on vapor. Vapor is any alleged software that has been promised but is not yet available.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;This situation happened in one of my previous engagement. The feature we were developing was tightly integrated with a product being built by a startup. Their CEO flew down to our office, we listed the API endpoints we required and development started straight away. We even had a support engineer assigned to us!&lt;/p&gt;
-
-&lt;p&gt;Two things started to happen:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Already working features would break suddenly. After getting some support it would turn out that they pushed a new release that broke the feature. They would then deploy a patch which would break another feature!&lt;/li&gt;
-  &lt;li&gt;The core feature of this system was to poll third party services for created or modified entities. During our testing we noticed that entities were being missed frequently and we had to trigger the system manually for anything to happen. We raised those concerns and the startup promised to improve the reliability.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;We were developing at a faster pace and started to mock more and more dependencies. The release date was approaching and we had no confidence the integration would work. The product we were working on had long release cycles and was deployed by our customers on their own infrastructure, a failure would have been catastrophic. It was finally decided to test the reliability of our provider, we also included one of their competitor. After a few days of collecting data the verdict came in and things weren’t looking good, even though the competitor captured 100% of the entities we created our provider missed almost 30% of them!&lt;/p&gt;
-
-&lt;p&gt;The CTO decided to scrap the integration on the spot and we ended up throwing away half of the code base.&lt;/p&gt;
-
-&lt;p&gt;What we did right was to investigate the unknowns early on in the project. Instead of building our infrastructure we developed a small proof of concept and were able to get a contrived end-to-end execution. The lesson that I learned is that you should define a SLA for your provider from day one and measure it.&lt;/p&gt;
-
-&lt;h2 id=&quot;how-to-write-a-git-commit-message&quot;&gt;How to Write a Git Commit Message&lt;/h2&gt;
-
-&lt;p&gt;&lt;strong&gt;Link&lt;/strong&gt;: &lt;a href=&quot;https://chris.beams.io/posts/git-commit/&quot;&gt;https://chris.beams.io/posts/git-commit/&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;This is an amazing post, I’ve started to apply those rules a few months ago and my commit messages are so much better now.&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Use the body to explain what and why vs. how&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://chris.beams.io/posts/git-commit/#why-not-how&quot;&gt;Giving context in the body&lt;/a&gt; is critical as often when fixing a bug I can see how it has been introduced but I have no idea why the change was made - even after reading the story associated with it! Please spend a few minutes explaining why and how a change was made, in 6 months or one year someone will be grateful. This someone might even be you!&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Wrap the body at 72 characters&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;I used to write my commit messages inline with the &lt;code class=&quot;highlighter-rouge&quot;&gt;-m&lt;/code&gt; argument. After reading this &lt;a href=&quot;https://chris.beams.io/posts/git-commit/#wrap-72&quot;&gt;rule&lt;/a&gt; I realized I needed an editor. I started to use &lt;a href=&quot;https://notepad-plus-plus.org/&quot;&gt;Notepad++&lt;/a&gt; by configuring Git this way:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;git config &lt;span class=&quot;nt&quot;&gt;--global&lt;/span&gt; core.editor &lt;span class=&quot;s2&quot;&gt;&quot;'C:&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\P&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;rogram Files (x86)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\N&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;otepad++&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;otepad++.exe' -multiInst -notabbar -nosession -noPlugin&quot;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;Notepad++ accepts &lt;a href=&quot;https://docs.notepad-plus-plus.org/index.php/Command_Line_Switches&quot;&gt;command line switches&lt;/a&gt; but there is no switch to set the text width. Git has a setting enforcing the text width but it does not work with Notepad++. The good news is that Git can also use notepad and the text width will be enforced:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;git config &lt;span class=&quot;nt&quot;&gt;--global&lt;/span&gt; core.editor notepad
-git config &lt;span class=&quot;nt&quot;&gt;--global&lt;/span&gt; format.commitMessageColumns 72&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;But the text will be wrapped &lt;strong&gt;after&lt;/strong&gt; you save your commit message leading to a less than desirable result:&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;/assets/links-insights-1/wrap-notepad.gif&quot;&gt;&lt;img src=&quot;/assets/links-insights-1/wrap-notepad.gif&quot; alt=&quot;wrap-notepad&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;A better solution is to use vim instead:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;git config &lt;span class=&quot;nt&quot;&gt;--global&lt;/span&gt; core.editor vim
-git config &lt;span class=&quot;nt&quot;&gt;--global&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--unset&lt;/span&gt; format.commitMessageColumns&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;&lt;a href=&quot;/assets/links-insights-1/wrap-vim.gif&quot;&gt;&lt;img src=&quot;/assets/links-insights-1/wrap-vim.gif&quot; alt=&quot;wrap-vim&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;I did not hit Enter while typing the body of this commit message, instead vim wrapped it for me automatically. If you want to learn more about configuring Git on Windows I wrote a &lt;a href=&quot;https://github.com/gabrielweyer/nuggets/blob/master/git/git.md&quot;&gt;tutorial&lt;/a&gt; to get you started.&lt;/p&gt;
-
-</description>
-        <pubDate>Sat, 27 Jan 2018 02:10:07 +0000</pubDate>
-        <link>https://gabrielweyer.github.io//2018/01/27/links-insights-1/</link>
-        <guid isPermaLink="true">https://gabrielweyer.github.io//2018/01/27/links-insights-1/</guid>
       </item>
     
   </channel>

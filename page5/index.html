@@ -13,7 +13,7 @@
     <meta name="author" content="">
     
     
-    <link rel="canonical" href="https://gabrielweyer.github.io//404.html">
+    <link rel="canonical" href="https://gabrielweyer.github.io//page5/">
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
@@ -39,7 +39,7 @@
     <meta property="og:type" content="article">
     <meta property="og:title" content="A somewhat technical blog">
     <meta property="og:description" content="My name is Gabriel Weyer. I’m a software developer and currently based in Melbourne, Australia. I blog about technology.">
-    <meta property="og:url" content="https://gabrielweyer.github.io//404.html">
+    <meta property="og:url" content="https://gabrielweyer.github.io//page5/">
     <meta property="og:site_name" content="A somewhat technical blog">
 
     <!-- Twitter Card -->
@@ -50,7 +50,7 @@
     
     <meta name="twitter:title" content="A somewhat technical blog" />
     <meta name="twitter:description" content="My name is Gabriel Weyer. I’m a software developer and currently based in Melbourne, Australia. I blog about technology." />
-    <meta name="twitter:url" content="https://gabrielweyer.github.io//404.html" />
+    <meta name="twitter:url" content="https://gabrielweyer.github.io//page5/" />
 
     <!-- Icons -->
     <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
@@ -72,8 +72,10 @@
 </head>
 
 <body class="site">
-    
-  <div class="site-wrap center">
+  
+	
+
+  <div class="site-wrap">
     <header class="site-header px2 px-responsive">
   <div class="mt2 wrap">
     <div class="measure">
@@ -104,13 +106,60 @@
 
     <div class="post p2 p-responsive wrap" role="main">
       <div class="measure">
-        <h1 id="404">404</h1>
+        
 
-<p>Sorry, we can’t seem to find this page’s pixylls.</p>
+<div class="home">
+  
+    <div class="posts">
+      
+        <div class="post py3">
+          <p class="post-meta">Jan 7, 2014</p>
+          <a href="/2014/01/07/why-you-should-not-use-chrome-extensions/" class="post-link"><h3 class="h1 post-title">Why You Should Not Use Chrome Extensions</h3></a>
+          <span class="post-summary">
+            <p>Google Chrome Extensions have been <a href="http://en.wikipedia.org/wiki/Google_Chrome#Extensions">launched</a> officially in January 2010. Their goal is to extend the browser by providing additional features, for example you could add a weather extension and then be able to see the weather’s forecast in your city in one click. Extensions have become widely popular and you’re now wondering what could be the issue with them.</p>
 
-<div class="mt3">
-  <a href="/" class="button button-blue button-big">Home</a>
-  <a href="/contact/" class="button button-blue button-big">Contact</a>
+<h1 id="much-more-power-than-expected">Much more power than expected</h1>
+
+<p>Google <a href="/assets/2014-01-07-why-you-should-not-use-chrome-extensions/ads-13.png">uses</a> a system of <a href="https://support.google.com/chrome_webstore/answer/186213?hl=en&amp;rd=1">permissions</a> to determine what an extension will be able to do once installed. Those permissions are divided into three alert levels: high, medium and low. So far, so good? Not really, even the low level allows an extension to harvest your browsing history and the content of your clipboard.</p>
+
+<p>Extensions are built using JavaScript and HTML. Those are the exact same technologies used on websites. I’m sure you’re aware how modern websites refresh part of their content without reloading the whole page. Extensions can do this too: nothing is preventing a low level alert extension to detect that you’re pasting your email and password on Facebook in order to login. Then the extension can send the collected information to a remote server.</p>
+
+<p>In this case the exploit is fairly limited, you need the user to be copying / pasting the email and password for this to work (the extension would also collect everything that the user is copying and pasting). Whats about the medium and high level alert? This is where the real fun start, at this level of trust extensions can do whatever they want!</p>
+
+<p>A medium alert level extension can generate HTML elements on a page. It could perfectly hide a login form, replace it by it’s own, harvest your credentials and submit the hidden login form. A high alert level extension can do similar things but on your computer! This means that it could take your picture via your webcam, browse your hard drive looking for interesting files…</p>
+
+<p>You would think that all of this is hypothetical and Google would certainly remove any malicious extension, but in this case you would be wrong.</p>
+
+
+             
+            
+            
+              <a href="/2014/01/07/why-you-should-not-use-chrome-extensions/">Continue reading</a>
+            
+          </span>
+        </div>
+      
+    </div>
+
+    
+<div class="pagination clearfix mb1 mt4">
+  <div class="left">
+    
+      
+        <a class="pagination-item" href="/page4">Newer</a>
+      
+    
+  </div>
+  <div class="right">
+    
+      <span class="pagination-item disabled">Older</span>
+    
+  </div>
+  <div class="pagination-meta">Page 5 of 5</div>
+</div>
+
+
+  
 </div>
 
       </div>

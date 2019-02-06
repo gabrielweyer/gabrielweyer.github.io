@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Azure VM pricing &#8211; A somewhat technical blog</title>
+    <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="My name is Gabriel Weyer. I’m a software developer and currently based in Melbourne, Australia. I blog about technology.">
+    <meta name="robots" content="all">
+    <meta name="author" content="">
+    
+    <meta name="keywords" content="Azure">
+    <link rel="canonical" href="https://gabrielweyer.github.io//2019/02/07/azure-vm-pricing/">
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for A somewhat technical blog" href="/feed.xml" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/pixyll.css?201902061628" type="text/css">
+
+    <!-- Fonts -->
+    
+    <link href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Lato:900,300' rel='stylesheet' type='text/css'>
+    
+    
+
+    <!-- MathJax -->
+    
+
+    <!-- Verifications -->
+    
+    
+
+    <!-- Open Graph -->
+    <!-- From: https://github.com/mmistakes/hpstr-jekyll-theme/blob/master/_includes/head.html -->
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Azure VM pricing">
+    <meta property="og:description" content="My name is Gabriel Weyer. I’m a software developer and currently based in Melbourne, Australia. I blog about technology.">
+    <meta property="og:url" content="https://gabrielweyer.github.io//2019/02/07/azure-vm-pricing/">
+    <meta property="og:site_name" content="A somewhat technical blog">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    
+        <meta name="twitter:site" content="@gabrielweyer" />
+        <meta name="twitter:creator" content="@gabrielweyer" />
+    
+    <meta name="twitter:title" content="Azure VM pricing" />
+    <meta name="twitter:description" content="My name is Gabriel Weyer. I’m a software developer and currently based in Melbourne, Australia. I blog about technology." />
+    <meta name="twitter:url" content="https://gabrielweyer.github.io//2019/02/07/azure-vm-pricing/" />
+
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="/favicon-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+
+    
+</head>
+
+<body class="site">
+  
+	
+
+  <div class="site-wrap">
+    <header class="site-header px2 px-responsive">
+  <div class="mt2 wrap">
+    <div class="measure">
+      <a href="/" class="site-title">A somewhat technical blog</a>
+      <nav class="site-nav">
+        
+
+
+
+
+    
+    
+    
+    
+        <a href="/about/">About</a>
+    
+
+    
+
+
+      </nav>
+      <div class="clearfix"></div>
+      
+    </div>
+  </div>
+</header>
+
+
+    <div class="post p2 p-responsive wrap" role="main">
+      <div class="measure">
+        
+
+
+<div class="post-header mb2">
+  <h1>Azure VM pricing</h1>
+  <span class="post-meta">Feb 7, 2019</span><br>
+  
+  <span class="post-meta small">
+  
+    3 minute read
+  
+  </span>
+</div>
+
+<article class="post-content">
+  <p>I was recently faced with an interesting problem. A company wanted to cost the migration of thousands of <code class="highlighter-rouge">VMs</code> to <code class="highlighter-rouge">Azure</code> using a <a href="https://docs.microsoft.com/en-us/azure/architecture/cloud-adoption/digital-estate/5-rs-of-rationalization#rehost">lift and shift</a> approach (also known as rehost). Due to the short deadline, we were not able to get our hands on detailed data. All we were provided with was a machine name, <code class="highlighter-rouge">CPU</code> cores count, <code class="highlighter-rouge">RAM</code> and a description field that was sometimes populated. Utilisation, storage and network usage were notably missing. We knew we couldn’t cost the migration accurately due to these unknowns, but we had enough data to cost the <code class="highlighter-rouge">VMs</code> themselves as we had access to <code class="highlighter-rouge">CPU</code> cores count and <code class="highlighter-rouge">RAM</code>. I must also add that the <code class="highlighter-rouge">VMs</code> varied greatly in their hardware specifications.</p>
+
+<p>Microsoft offers a <a href="https://azure.microsoft.com/en-us/pricing/calculator/?service=virtual-machines">pricing calculator</a> but it only supports manual input which disqualified it for our use case. A few <code class="highlighter-rouge">Microsoft</code> employees wrote web applications automating the pricing of <code class="highlighter-rouge">VMs</code> by importing <code class="highlighter-rouge">Excel</code> spreadsheets or <code class="highlighter-rouge">CSV</code> files. The ones I tried only offered <code class="highlighter-rouge">USD</code> as a currency and choked for anything bigger than a few hundred <code class="highlighter-rouge">VMs</code>. The output file was using a <code class="highlighter-rouge">en-us</code> culture so it had to be post-processed before being open in <code class="highlighter-rouge">Excel</code>. I didn’t have the time to review and select a commercial solution (<a href="https://azure.microsoft.com/en-us/services/azure-migrate/">Azure Migrate</a> requires to create a <code class="highlighter-rouge">VM</code> on-premises which was not possible). At the end of the day I came up with a semi-automated process that did the trick, but I felt that not much work would be required to empower teams to price <code class="highlighter-rouge">VMs</code>.<!--more--></p>
+
+<h2 id="requirements">Requirements</h2>
+
+<ul>
+  <li>Support multiple currencies</li>
+  <li>Support multiple cultures</li>
+  <li>Ability to automate refreshing of the pricing</li>
+  <li>Timeboxed to a weekend</li>
+</ul>
+
+<p><strong>Note</strong>: you can find the code on <a href="https://github.com/gabrielweyer/azure-vm-pricing#readme">GitHub</a>.</p>
+
+<h2 id="what-i-came-up-with">What I came up with</h2>
+
+<p>My first goal was to retrieve the pricing from <code class="highlighter-rouge">Azure</code>. I initially considered the <a href="https://docs.microsoft.com/en-us/previous-versions/azure/reference/mt219005(v=azure.100)">Resource RateCard</a> (part of the <code class="highlighter-rouge">Billing API</code>) but this banner didn’t fill me with confidence:</p>
+
+<p><img src="/assets/azure-vm-pricing/resource-ratecard.png" alt="Resource RateCard" /></p>
+
+<p>The <code class="highlighter-rouge">Billing API</code> requires authentication and parameters to be passed in, which would have increased the complexity of the solution. I knew one place would have mostly up-to-date pricing: the <a href="https://azure.microsoft.com/en-au/pricing/details/virtual-machines/windows/">Virtual Machines Pricing</a> page. This page displays all the available instances for a specific region. It is also possible to select a culture, currency and operating system. There is one problem though: the data is available as <code class="highlighter-rouge">HTML</code> markup instead of an <code class="highlighter-rouge">API</code>.</p>
+
+<h3 id="puppeteer">Puppeteer</h3>
+
+<p><a href="https://pptr.dev/">Puppeteer</a> allows you to control <code class="highlighter-rouge">Chrome</code> or as the project puts it:</p>
+
+<blockquote>
+  <p>Puppeteer is a Node library which provides a high-level API to control Chrome or Chromium over the DevTools Protocol. Puppeteer runs headless by default, but can be configured to run full (non-headless) Chrome or Chromium.</p>
+</blockquote>
+
+<p>It feels more natural to write a crawler in <code class="highlighter-rouge">JavaScript</code> (<code class="highlighter-rouge">JavaScript</code> is the language of the web after all). According to my limited <a href="https://github.com/gabrielweyer/ui-tests">experience</a>, <code class="highlighter-rouge">Puppeteer</code> is also significantly faster than <code class="highlighter-rouge">Selenium Web Driver</code>. I didn’t bother creating a <code class="highlighter-rouge">npm</code> package so you’ll have to clone the <a href="https://github.com/gabrielweyer/azure-vm-pricing#parser">repository</a> and follow the instructions. This is the kind of output you can expect from the tool:</p>
+
+<figure class="highlight"><pre><code class="language-json" data-lang="json"><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"instance"</span><span class="p">:</span><span class="w"> </span><span class="s2">"B1S"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"vCpu"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"ram"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"payAsYouGo"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.028</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"oneYearReserved"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.019</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"threeYearReserved"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.014</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"threeYearReservedWithAzureHybridBenefit"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.009</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">//</span><span class="w"> </span><span class="err">Many</span><span class="w"> </span><span class="err">more</span><span class="w"> </span><span class="err">instances</span><span class="w">
+</span><span class="p">]</span></code></pre></figure>
+
+<p>I made the assumption that a single culture and currency will be used through a pricing session and this is why I only encoded the region and operating system in the <a href="https://github.com/gabrielweyer/azure-vm-pricing#parser-output">generated file names</a>. Calling this tool can easily be automated as it doesn’t require any configuration and generate files on disk. You could run it at regular intervals and publish the artefacts.</p>
+
+<p>Once we’ve got our hands on the pricing, all we need to do is size the <code class="highlighter-rouge">VMs</code> and cost them.</p>
+
+<h3 id="coster">Coster</h3>
+
+<p>The <code class="highlighter-rouge">Coster</code> is a <code class="highlighter-rouge">.NET Core</code> console application. Again, I didn’t bother pushing a <code class="highlighter-rouge">NuGet</code> package so you’ll have to build from <a href="https://github.com/gabrielweyer/azure-vm-pricing#coster">source</a>. You’ll need the pricing files generated by the <code class="highlighter-rouge">Parser</code>. The <code class="highlighter-rouge">Coster</code> is expecting a <code class="highlighter-rouge">CSV</code> file with the following format:</p>
+
+<figure class="highlight"><pre><code class="language-csv" data-lang="csv">Region,Name,CPU,RAM,Operating System
+australia-southeast,SuperName,8,64,windows</code></pre></figure>
+
+<p>Once done, the <code class="highlighter-rouge">Coster</code> will write a <code class="highlighter-rouge">CSV</code> file:</p>
+
+<figure class="highlight"><pre><code class="language-csv" data-lang="csv">Region,Name,Operating System,Instance,CPU,RAM,Pay as You Go,One Year Reserved,Three Year Reserved,Three Year Reserved with Azure Hybrid Benefit
+australia-southeast,SuperName,windows,E8 v3,8,64,1.006,0.74334,0.60803,0.24003</code></pre></figure>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>Let me know if you’re using these tools and I’ll tidy up and publish packages on <code class="highlighter-rouge">npm</code> and <code class="highlighter-rouge">NuGet</code>. I can’t say I’ve tested it extensively so be ready for some rough edges!</p>
+
+
+</article>
+
+
+
+
+
+
+
+
+
+
+
+
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="center">
+  <div class="measure">
+    <small>
+      Theme crafted with &lt;3 by <a href="http://johnotander.com">John Otander</a> (<a href="https://twitter.com/4lpine">@4lpine</a>).<br>
+      &lt;/&gt; available on <a href="https://github.com/johnotander/pixyll">GitHub</a>.
+    </small>
+  </div>
+</footer>
+
+
+</body>
+</html>
