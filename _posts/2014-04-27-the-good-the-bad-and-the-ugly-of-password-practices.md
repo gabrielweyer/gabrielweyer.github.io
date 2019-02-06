@@ -2,6 +2,7 @@
 date: 2014-04-27 09:17:31+00:00
 layout: post
 title: The Good, the Bad and the Ugly of password practices
+summary: Name calling services with poor password policies.
 categories:
 - Security
 tags:

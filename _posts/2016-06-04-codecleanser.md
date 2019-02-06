@@ -2,8 +2,10 @@
 date: 2016-06-04 00:41:48+00:00
 layout: post
 title: CodeCleanser
+summary: A tool whose purpose is to transform C# generated from a DLL so that it can then be determined if two DLLs are semantically identical.
 categories:
 - C#
+- OSS
 tags:
 - Roslyn
 ---

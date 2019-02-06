@@ -2,6 +2,7 @@
 date: 2014-12-07 06:16:14+00:00
 layout: post
 title: 'Barnes and Noble: a tale of poor security practices'
+summary: Barnes & Noble has a pretty lax approach of security.
 categories:
 - Security
 ---

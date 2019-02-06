@@ -2,6 +2,7 @@
 date: 2018-04-22 09:57:02+10:00
 layout: post
 title: Cake build
+summary: Demonstrates a basic build of a .NET Core NuGet package using https://cakebuild.net/.
 categories:
 - CI/CD
 tags:

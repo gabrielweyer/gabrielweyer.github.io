@@ -2,6 +2,7 @@
 date: 2018-03-09 21:51:53+00:00
 layout: post
 title: 'WinDbg #1 - The static root'
+summary: Pinpointing a static GC root with WindDbg and SOS.
 categories:
 - WinDbg
 ---

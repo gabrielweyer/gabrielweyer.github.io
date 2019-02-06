@@ -2,6 +2,7 @@
 date: 2018-01-27 02:10:07+00:00
 layout: post
 title: 'Links Insights #1'
+sumamry: 2 links I found interesting.
 categories:
 - Links Insights
 tags:

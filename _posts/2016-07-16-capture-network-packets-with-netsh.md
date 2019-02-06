@@ -2,6 +2,9 @@
 date: 2016-07-16 09:20:07+00:00
 layout: post
 title: Capture network packets with netsh
+summary: Troubleshoot a broken Certification Authority with netsh.
+tags:
+- netsh
 ---
 
 Another day, another "interesting" issue at a customer. After deploying our product we were left with a partially working web application. The product has been developed over many years and is a mix of ASP Classic, Web Forms, MVC and Web API. In this case ASP Classic pages were broken and would throw an error.

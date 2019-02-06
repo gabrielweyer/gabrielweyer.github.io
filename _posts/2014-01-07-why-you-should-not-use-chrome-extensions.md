@@ -2,6 +2,7 @@
 date: 2014-01-07 09:13:53+00:00
 layout: post
 title: Why You Should Not Use Chrome Extensions
+summary: Popular Chrome Extensions insert ads and send your browsing habits to 3rd parties.
 categories:
 - Security
 tags:

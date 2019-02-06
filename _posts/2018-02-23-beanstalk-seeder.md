@@ -2,6 +2,7 @@
 date: 2018-02-23 23:40:46+00:00
 layout: post
 title: Beanstalk Seeder
+summary: Emulates the SQS Daemon surrounding an Elastic Beanstalk Worker Tier so that you can replicate the interaction between a Web Tier and a Worker Tier on your machine.
 categories:
 - OSS
 tags:

@@ -2,6 +2,7 @@
 date: 2018-04-07 13:17:02+10:00
 layout: post
 title: 'Advanced .NET Debugging #1'
+summary: Finding the entry point of a native image.
 categories:
 - WinDbg
 - Advanced .NET Debugging

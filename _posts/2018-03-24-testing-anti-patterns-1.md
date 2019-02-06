@@ -2,6 +2,7 @@
 date: 2018-03-24 06:36:53+00:00
 layout: post
 title: 'Testing anti-patterns #1'
+summary: List 6 testing anti-patterns.
 categories:
 - Testing
 - Testing anti-patterns

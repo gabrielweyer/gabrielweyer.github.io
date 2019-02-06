@@ -2,6 +2,7 @@
 date: 2016-06-13 10:46:32+00:00
 layout: post
 title: beIN SPORTS CONNECT
+summary: beIN has pretty poor security practices.
 categories:
 - Security
 ---

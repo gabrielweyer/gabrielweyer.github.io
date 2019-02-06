@@ -2,6 +2,7 @@
 date: 2018-02-08 20:34:06+00:00
 layout: post
 title: Singleton HTTP Client
+summary: Use a singleton HTTP Client for better performance.
 categories:
 - C#
 tags:

@@ -2,8 +2,10 @@
 date: 2019-02-07 09:25:27+11:00
 layout: post
 title: 'Azure VM pricing'
+summary: Mass-pricing of VMs on Azure based on CPU cores count and memory.
 categories:
 - Azure
+- OSS
 tags:
 - Lift and shift
 - Rehost

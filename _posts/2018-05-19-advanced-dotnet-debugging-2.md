@@ -2,6 +2,7 @@
 date: 2018-05-19 11:58:34+10:00
 layout: post
 title: 'Advanced .NET Debugging #2'
+summary: How is Windows launching a managed image?
 categories:
 - Advanced .NET Debugging
 ---

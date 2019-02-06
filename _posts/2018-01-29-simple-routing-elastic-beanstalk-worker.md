@@ -2,6 +2,7 @@
 date: 2018-01-28 20:24:33+00:00
 layout: post
 title: Simple Routing for Elastic Beanstalk Worker tier
+summary: Allows to route a SQS message to a specific endpoint on the Elastic Beanstalk Worker instead of having a single endpoint handling all the messages.
 categories:
 - OSS
 tags:
