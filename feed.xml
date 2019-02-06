@@ -75,14 +75,14 @@ australia-southeast,SuperName,windows,E8 v3,8,64,1.006,0.74334,0.60803,0.24003&l
 &lt;p&gt;Let me know if you’re using these tools and I’ll tidy up and publish packages on &lt;code class=&quot;highlighter-rouge&quot;&gt;npm&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt;. I can’t say I’ve tested it extensively so be ready for some rough edges!&lt;/p&gt;
 
 </description>
-        <pubDate>Thu, 07 Feb 2019 09:25:27 +1100</pubDate>
-        <link>https://gabrielweyer.github.io//2019/02/07/azure-vm-pricing/</link>
-        <guid isPermaLink="true">https://gabrielweyer.github.io//2019/02/07/azure-vm-pricing/</guid>
+        <pubDate>Wed, 06 Feb 2019 16:25:27 -0600</pubDate>
+        <link>https://gabrielweyer.github.io//2019/02/06/azure-vm-pricing/</link>
+        <guid isPermaLink="true">https://gabrielweyer.github.io//2019/02/06/azure-vm-pricing/</guid>
       </item>
     
       <item>
         <title>Advanced .NET Debugging #2</title>
-        <description>&lt;p&gt;I’m continuing to read the excellent &lt;a href=&quot;https://www.goodreads.com/book/show/7306509-advanced-net-debugging&quot;&gt;Advanced .NET Debugging&lt;/a&gt; by Mario Hewardt. Last time I looked at &lt;a href=&quot;/2018/04/07/advanced-dotnet-debugging-1/&quot;&gt;finding the entry point of a native image&lt;/a&gt;. This time around I’ll be investigating the launch of a &lt;strong&gt;managed&lt;/strong&gt; image by &lt;code class=&quot;highlighter-rouge&quot;&gt;Windows&lt;/code&gt;.&lt;/p&gt;
+        <description>&lt;p&gt;I’m continuing to read the excellent &lt;a href=&quot;https://www.goodreads.com/book/show/7306509-advanced-net-debugging&quot;&gt;Advanced .NET Debugging&lt;/a&gt; by Mario Hewardt. Last time I looked at &lt;a href=&quot;/2018/04/06/advanced-dotnet-debugging-1/&quot;&gt;finding the entry point of a native image&lt;/a&gt;. This time around I’ll be investigating the launch of a &lt;strong&gt;managed&lt;/strong&gt; image by &lt;code class=&quot;highlighter-rouge&quot;&gt;Windows&lt;/code&gt;.&lt;/p&gt;
 
 &lt;h2 id=&quot;prerequisites&quot;&gt;Prerequisites&lt;/h2&gt;
 
@@ -107,7 +107,7 @@ australia-southeast,SuperName,windows,E8 v3,8,64,1.006,0.74334,0.60803,0.24003&l
 
 &lt;h2 id=&quot;finding-the-addressofentrypoint&quot;&gt;Finding the &lt;code class=&quot;highlighter-rouge&quot;&gt;AddressOfEntryPoint&lt;/code&gt;&lt;/h2&gt;
 
-&lt;p&gt;I recommend you first read the &lt;a href=&quot;/2018/04/07/advanced-dotnet-debugging-1/&quot;&gt;previous post&lt;/a&gt; in this series as it explains core concepts such as &lt;a href=&quot;/2018/04/07/advanced-dotnet-debugging-1/#endianness&quot;&gt;endianness&lt;/a&gt; and &lt;a href=&quot;/2018/04/07/advanced-dotnet-debugging-1/#relative-virtual-address&quot;&gt;Relative Virtual Address&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;I recommend you first read the &lt;a href=&quot;/2018/04/06/advanced-dotnet-debugging-1/&quot;&gt;previous post&lt;/a&gt; in this series as it explains core concepts such as &lt;a href=&quot;/2018/04/06/advanced-dotnet-debugging-1/#endianness&quot;&gt;endianness&lt;/a&gt; and &lt;a href=&quot;/2018/04/06/advanced-dotnet-debugging-1/#relative-virtual-address&quot;&gt;Relative Virtual Address&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Last time I highlighted a formula to compute the &lt;code class=&quot;highlighter-rouge&quot;&gt;AddressOfEntryPoint&lt;/code&gt; file offset:&lt;/p&gt;
 
@@ -204,9 +204,9 @@ australia-southeast,SuperName,windows,E8 v3,8,64,1.006,0.74334,0.60803,0.24003&l
 &lt;p&gt;I’ve demonstrated how to find the entry point of a &lt;strong&gt;x86&lt;/strong&gt; managed image but in reality &lt;code class=&quot;highlighter-rouge&quot;&gt;Windows&lt;/code&gt; knows how to execute a managed image just by looking at the &lt;strong&gt;CLI header&lt;/strong&gt;. In the case of &lt;strong&gt;x64&lt;/strong&gt; managed image the entry point is not even present!&lt;/p&gt;
 
 </description>
-        <pubDate>Sat, 19 May 2018 11:58:34 +1000</pubDate>
-        <link>https://gabrielweyer.github.io//2018/05/19/advanced-dotnet-debugging-2/</link>
-        <guid isPermaLink="true">https://gabrielweyer.github.io//2018/05/19/advanced-dotnet-debugging-2/</guid>
+        <pubDate>Fri, 18 May 2018 20:58:34 -0500</pubDate>
+        <link>https://gabrielweyer.github.io//2018/05/18/advanced-dotnet-debugging-2/</link>
+        <guid isPermaLink="true">https://gabrielweyer.github.io//2018/05/18/advanced-dotnet-debugging-2/</guid>
       </item>
     
       <item>
@@ -420,9 +420,9 @@ Child SP       IP Call Site
 &lt;p&gt;Once again &lt;code class=&quot;highlighter-rouge&quot;&gt;WinDbg&lt;/code&gt; has delivered the goods. I write up my findings and communicate them to my colleagues. It’s 4:30 PM and the build server is still not fixed, I decide to call it a day.&lt;/p&gt;
 
 </description>
-        <pubDate>Sat, 05 May 2018 08:59:01 +1000</pubDate>
-        <link>https://gabrielweyer.github.io//2018/05/05/windbg-2-blocked-async/</link>
-        <guid isPermaLink="true">https://gabrielweyer.github.io//2018/05/05/windbg-2-blocked-async/</guid>
+        <pubDate>Fri, 04 May 2018 17:59:01 -0500</pubDate>
+        <link>https://gabrielweyer.github.io//2018/05/04/windbg-2-blocked-async/</link>
+        <guid isPermaLink="true">https://gabrielweyer.github.io//2018/05/04/windbg-2-blocked-async/</guid>
       </item>
     
       <item>
@@ -432,13 +432,13 @@ Child SP       IP Call Site
 &lt;p&gt;As a developer I’m amazed by the number of free tools and services available. I wanted to create an end-to-end demo of a &lt;code class=&quot;highlighter-rouge&quot;&gt;CI/CD&lt;/code&gt; pipeline that would include:&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;/2018/04/22/cake-build/#configuration&quot;&gt;Trigger a build on commit&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;/2018/04/22/cake-build/#semantic-versioning&quot;&gt;Use semantic versioning&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;/2018/04/22/cake-build/#run-the-tests&quot;&gt;Run tests&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;/2018/04/22/cake-build/#publish-the-test-results&quot;&gt;Publish test results&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;/2018/04/22/cake-build/#create-nuget-packages&quot;&gt;Create NuGet packages&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;/2018/04/22/cake-build/#publish-the-nuget-packages&quot;&gt;Publish the NuGet packages&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;/2018/04/22/cake-build/#create-a-github-release&quot;&gt;Create a GitHub release&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;/2018/04/21/cake-build/#configuration&quot;&gt;Trigger a build on commit&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;/2018/04/21/cake-build/#semantic-versioning&quot;&gt;Use semantic versioning&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;/2018/04/21/cake-build/#run-the-tests&quot;&gt;Run tests&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;/2018/04/21/cake-build/#publish-the-test-results&quot;&gt;Publish test results&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;/2018/04/21/cake-build/#create-nuget-packages&quot;&gt;Create NuGet packages&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;/2018/04/21/cake-build/#publish-the-nuget-packages&quot;&gt;Publish the NuGet packages&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;/2018/04/21/cake-build/#create-a-github-release&quot;&gt;Create a GitHub release&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;For my purpose I wanted anonymous users to have access to a read-only view. I initially selected &lt;a href=&quot;https://www.appveyor.com/&quot;&gt;AppVeyor&lt;/a&gt; as it seems to be the most popular choice for &lt;code class=&quot;highlighter-rouge&quot;&gt;.NET&lt;/code&gt; open-source projects. But while browsing around I discovered than projects were often using more than one platform. &lt;a href=&quot;https://travis-ci.org/&quot;&gt;Travis CI&lt;/a&gt; and &lt;a href=&quot;https://circleci.com/&quot;&gt;CircleCI&lt;/a&gt; seemed to be the two other prevailing options. Since the initial version of this post, &lt;a href=&quot;https://azure.microsoft.com/en-au/services/devops/&quot;&gt;Azure DevOps&lt;/a&gt; has released a free and unlimited plan for open source projects. I decided to leverage the four platforms so that I could highlight their pros and cons.&lt;!--more--&gt;&lt;/p&gt;
@@ -741,9 +741,9 @@ Child SP       IP Call Site
 &lt;/ul&gt;
 
 </description>
-        <pubDate>Sun, 22 Apr 2018 09:57:02 +1000</pubDate>
-        <link>https://gabrielweyer.github.io//2018/04/22/cake-build/</link>
-        <guid isPermaLink="true">https://gabrielweyer.github.io//2018/04/22/cake-build/</guid>
+        <pubDate>Sat, 21 Apr 2018 18:57:02 -0500</pubDate>
+        <link>https://gabrielweyer.github.io//2018/04/21/cake-build/</link>
+        <guid isPermaLink="true">https://gabrielweyer.github.io//2018/04/21/cake-build/</guid>
       </item>
     
       <item>
@@ -858,9 +858,9 @@ notepad!__mainCRTStartup:
 &lt;p&gt;I hope this post clarified how to find the entry point of a native Windows executable.&lt;/p&gt;
 
 </description>
-        <pubDate>Sat, 07 Apr 2018 13:17:02 +1000</pubDate>
-        <link>https://gabrielweyer.github.io//2018/04/07/advanced-dotnet-debugging-1/</link>
-        <guid isPermaLink="true">https://gabrielweyer.github.io//2018/04/07/advanced-dotnet-debugging-1/</guid>
+        <pubDate>Fri, 06 Apr 2018 22:17:02 -0500</pubDate>
+        <link>https://gabrielweyer.github.io//2018/04/06/advanced-dotnet-debugging-1/</link>
+        <guid isPermaLink="true">https://gabrielweyer.github.io//2018/04/06/advanced-dotnet-debugging-1/</guid>
       </item>
     
       <item>
@@ -974,7 +974,7 @@ Actual:   False&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 &lt;p&gt;&lt;strong&gt;Ask yourself&lt;/strong&gt;: Can I break this test by altering the correctness of the production code?&lt;/p&gt;
 
 </description>
-        <pubDate>Sat, 24 Mar 2018 06:36:53 +0000</pubDate>
+        <pubDate>Sat, 24 Mar 2018 01:36:53 -0500</pubDate>
         <link>https://gabrielweyer.github.io//2018/03/24/testing-anti-patterns-1/</link>
         <guid isPermaLink="true">https://gabrielweyer.github.io//2018/03/24/testing-anti-patterns-1/</guid>
       </item>
@@ -1012,7 +1012,7 @@ Actual:   False&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;If you’re as lazy as me you can leverage &lt;a href=&quot;https://docs.microsoft.com/en-us/windows/wsl/install-win10&quot;&gt;Windows Subsystem for Linux&lt;/a&gt;:&lt;/p&gt;
 
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;i &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;seq 1 20&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;curl &lt;span class=&quot;s2&quot;&gt;&quot;http://localhost:5000/feed/me&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;i &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;seq &lt;/span&gt;1 20&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;curl &lt;span class=&quot;s2&quot;&gt;&quot;http://localhost:5000/feed/me&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;&lt;img src=&quot;/assets/windbg-1/hungry-process.png&quot; alt=&quot;Hungry process&quot; /&gt;&lt;/p&gt;
 
@@ -1417,7 +1417,7 @@ NumStaticFields:     1
 &lt;p&gt;Until next time!&lt;/p&gt;
 
 </description>
-        <pubDate>Fri, 09 Mar 2018 21:51:53 +0000</pubDate>
+        <pubDate>Fri, 09 Mar 2018 15:51:53 -0600</pubDate>
         <link>https://gabrielweyer.github.io//2018/03/09/windbg-1-static-root/</link>
         <guid isPermaLink="true">https://gabrielweyer.github.io//2018/03/09/windbg-1-static-root/</guid>
       </item>
@@ -1501,7 +1501,7 @@ NumStaticFields:     1
 &lt;p&gt;I also wanted to point out that &lt;code class=&quot;highlighter-rouge&quot;&gt;Beanstalk Seeder&lt;/code&gt; is platform agnostic. It doesn’t matter if you’re developing using &lt;code class=&quot;highlighter-rouge&quot;&gt;Node.js&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;Go&lt;/code&gt; or any other of the &lt;a href=&quot;https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/concepts.platforms.html&quot;&gt;Elastic Beanstalk supported platforms&lt;/a&gt;, all you need to do is install the latest &lt;a href=&quot;https://www.microsoft.com/net/download/windows&quot;&gt;.NET Core runtime&lt;/a&gt; (available on &lt;code class=&quot;highlighter-rouge&quot;&gt;Windows&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;macOS&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;Linux&lt;/code&gt;).&lt;/p&gt;
 
 </description>
-        <pubDate>Fri, 23 Feb 2018 23:40:46 +0000</pubDate>
+        <pubDate>Fri, 23 Feb 2018 17:40:46 -0600</pubDate>
         <link>https://gabrielweyer.github.io//2018/02/23/beanstalk-seeder/</link>
         <guid isPermaLink="true">https://gabrielweyer.github.io//2018/02/23/beanstalk-seeder/</guid>
       </item>
@@ -1610,7 +1610,7 @@ NumStaticFields:     1
 &lt;p&gt;I haven’t looked at the implementation of &lt;code class=&quot;highlighter-rouge&quot;&gt;HttpClientFactory&lt;/code&gt; yet but I suspect the end result will be fairly similar to what I demonstrated above. If you still have doubts about using a singleton &lt;code class=&quot;highlighter-rouge&quot;&gt;HttpClient&lt;/code&gt; I recommend you to perf test it. At a previous customer I developped an API that was calling other HTTP endpoints, I increased the throughput by a factor of &lt;code class=&quot;highlighter-rouge&quot;&gt;10&lt;/code&gt; by changing a single thing: I made the &lt;code class=&quot;highlighter-rouge&quot;&gt;HttpClient&lt;/code&gt; a singleton rather than a per-request scope.&lt;/p&gt;
 
 </description>
-        <pubDate>Thu, 08 Feb 2018 20:34:06 +0000</pubDate>
+        <pubDate>Thu, 08 Feb 2018 14:34:06 -0600</pubDate>
         <link>https://gabrielweyer.github.io//2018/02/08/singleton-http-client/</link>
         <guid isPermaLink="true">https://gabrielweyer.github.io//2018/02/08/singleton-http-client/</guid>
       </item>
@@ -1799,7 +1799,7 @@ Host: localhost:5000&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 &lt;p&gt;I wrote a detailed guide in the &lt;a href=&quot;https://github.com/gabrielweyer/simple-routing&quot;&gt;GitHub repository&lt;/a&gt;. Give it a try and let me know if it works for you.&lt;/p&gt;
 
 </description>
-        <pubDate>Sun, 28 Jan 2018 20:24:33 +0000</pubDate>
+        <pubDate>Sun, 28 Jan 2018 14:24:33 -0600</pubDate>
         <link>https://gabrielweyer.github.io//2018/01/28/simple-routing-elastic-beanstalk-worker/</link>
         <guid isPermaLink="true">https://gabrielweyer.github.io//2018/01/28/simple-routing-elastic-beanstalk-worker/</guid>
       </item>

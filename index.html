@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?201902061628" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?201902061647" type="text/css">
 
     <!-- Fonts -->
     
@@ -113,8 +113,8 @@
     <div class="posts">
       
         <div class="post py3">
-          <p class="post-meta">Feb 7, 2019</p>
-          <a href="/2019/02/07/azure-vm-pricing/" class="post-link"><h3 class="h1 post-title">Azure VM pricing</h3></a>
+          <p class="post-meta">Feb 6, 2019</p>
+          <a href="/2019/02/06/azure-vm-pricing/" class="post-link"><h3 class="h1 post-title">Azure VM pricing</h3></a>
           <span class="post-summary">
             <p>I was recently faced with an interesting problem. A company wanted to cost the migration of thousands of <code class="highlighter-rouge">VMs</code> to <code class="highlighter-rouge">Azure</code> using a <a href="https://docs.microsoft.com/en-us/azure/architecture/cloud-adoption/digital-estate/5-rs-of-rationalization#rehost">lift and shift</a> approach (also known as rehost). Due to the short deadline, we were not able to get our hands on detailed data. All we were provided with was a machine name, <code class="highlighter-rouge">CPU</code> cores count, <code class="highlighter-rouge">RAM</code> and a description field that was sometimes populated. Utilisation, storage and network usage were notably missing. We knew we couldn’t cost the migration accurately due to these unknowns, but we had enough data to cost the <code class="highlighter-rouge">VMs</code> themselves as we had access to <code class="highlighter-rouge">CPU</code> cores count and <code class="highlighter-rouge">RAM</code>. I must also add that the <code class="highlighter-rouge">VMs</code> varied greatly in their hardware specifications.</p>
 
@@ -124,16 +124,16 @@
              
             
             
-              <a href="/2019/02/07/azure-vm-pricing/">Continue reading</a>
+              <a href="/2019/02/06/azure-vm-pricing/">Continue reading</a>
             
           </span>
         </div>
       
         <div class="post py3">
-          <p class="post-meta">May 19, 2018</p>
-          <a href="/2018/05/19/advanced-dotnet-debugging-2/" class="post-link"><h3 class="h1 post-title">Advanced .NET Debugging #2</h3></a>
+          <p class="post-meta">May 18, 2018</p>
+          <a href="/2018/05/18/advanced-dotnet-debugging-2/" class="post-link"><h3 class="h1 post-title">Advanced .NET Debugging #2</h3></a>
           <span class="post-summary">
-            <p>I’m continuing to read the excellent <a href="https://www.goodreads.com/book/show/7306509-advanced-net-debugging">Advanced .NET Debugging</a> by Mario Hewardt. Last time I looked at <a href="/2018/04/07/advanced-dotnet-debugging-1/">finding the entry point of a native image</a>. This time around I’ll be investigating the launch of a <strong>managed</strong> image by <code class="highlighter-rouge">Windows</code>.</p>
+            <p>I’m continuing to read the excellent <a href="https://www.goodreads.com/book/show/7306509-advanced-net-debugging">Advanced .NET Debugging</a> by Mario Hewardt. Last time I looked at <a href="/2018/04/06/advanced-dotnet-debugging-1/">finding the entry point of a native image</a>. This time around I’ll be investigating the launch of a <strong>managed</strong> image by <code class="highlighter-rouge">Windows</code>.</p>
 
 <h2 id="prerequisites">Prerequisites</h2>
 
@@ -149,14 +149,14 @@
              
             
             
-              <a href="/2018/05/19/advanced-dotnet-debugging-2/">Continue reading</a>
+              <a href="/2018/05/18/advanced-dotnet-debugging-2/">Continue reading</a>
             
           </span>
         </div>
       
         <div class="post py3">
-          <p class="post-meta">May 5, 2018</p>
-          <a href="/2018/05/05/windbg-2-blocked-async/" class="post-link"><h3 class="h1 post-title">WinDbg #2 - The blocked async</h3></a>
+          <p class="post-meta">May 4, 2018</p>
+          <a href="/2018/05/04/windbg-2-blocked-async/" class="post-link"><h3 class="h1 post-title">WinDbg #2 - The blocked async</h3></a>
           <span class="post-summary">
             <p>Today’s exercise is not an exercise! The investigation I’m about to describe was triggered by a production outage affecting multiple <code class="highlighter-rouge">API</code>s - albeit not at the same time - at a customer. For obvious reasons I’ll not be able to share the code and will have to alter / obfuscate some of the commands’ results. I still think this is a valuable exercise as it is a classic example of an easy to make mistake leading to a catastrophic result.</p>
 
@@ -166,27 +166,27 @@
              
             
             
-              <a href="/2018/05/05/windbg-2-blocked-async/">Continue reading</a>
+              <a href="/2018/05/04/windbg-2-blocked-async/">Continue reading</a>
             
           </span>
         </div>
       
         <div class="post py3">
-          <p class="post-meta">Apr 22, 2018</p>
-          <a href="/2018/04/22/cake-build/" class="post-link"><h3 class="h1 post-title">Cake build</h3></a>
+          <p class="post-meta">Apr 21, 2018</p>
+          <a href="/2018/04/21/cake-build/" class="post-link"><h3 class="h1 post-title">Cake build</h3></a>
           <span class="post-summary">
             <p><strong>5th of Jan 2019</strong>: a lot has been happening since I initially wrote this post. <code class="highlighter-rouge">Azure DevOps</code> released a free tier for open source projects, the <code class="highlighter-rouge">Cake</code> and <code class="highlighter-rouge">GitVersion</code> contributors have been hard at work to take advantage of the latest features of <code class="highlighter-rouge">.NET Core</code>. So much things have changed that I decided to update this post to reflect the current state of affairs (inclusion of <code class="highlighter-rouge">Azure DevOps</code>, upgrade to <code class="highlighter-rouge">.NET Core 2.2</code>, utilisation of <code class="highlighter-rouge">.NET Core global tools</code> and removing the <code class="highlighter-rouge">Mono</code> requirement on <code class="highlighter-rouge">Unix</code> platforms).</p>
 
 <p>As a developer I’m amazed by the number of free tools and services available. I wanted to create an end-to-end demo of a <code class="highlighter-rouge">CI/CD</code> pipeline that would include:</p>
 
 <ul>
-  <li><a href="/2018/04/22/cake-build/#configuration">Trigger a build on commit</a></li>
-  <li><a href="/2018/04/22/cake-build/#semantic-versioning">Use semantic versioning</a></li>
-  <li><a href="/2018/04/22/cake-build/#run-the-tests">Run tests</a></li>
-  <li><a href="/2018/04/22/cake-build/#publish-the-test-results">Publish test results</a></li>
-  <li><a href="/2018/04/22/cake-build/#create-nuget-packages">Create NuGet packages</a></li>
-  <li><a href="/2018/04/22/cake-build/#publish-the-nuget-packages">Publish the NuGet packages</a></li>
-  <li><a href="/2018/04/22/cake-build/#create-a-github-release">Create a GitHub release</a></li>
+  <li><a href="/2018/04/21/cake-build/#configuration">Trigger a build on commit</a></li>
+  <li><a href="/2018/04/21/cake-build/#semantic-versioning">Use semantic versioning</a></li>
+  <li><a href="/2018/04/21/cake-build/#run-the-tests">Run tests</a></li>
+  <li><a href="/2018/04/21/cake-build/#publish-the-test-results">Publish test results</a></li>
+  <li><a href="/2018/04/21/cake-build/#create-nuget-packages">Create NuGet packages</a></li>
+  <li><a href="/2018/04/21/cake-build/#publish-the-nuget-packages">Publish the NuGet packages</a></li>
+  <li><a href="/2018/04/21/cake-build/#create-a-github-release">Create a GitHub release</a></li>
 </ul>
 
 <p>For my purpose I wanted anonymous users to have access to a read-only view. I initially selected <a href="https://www.appveyor.com/">AppVeyor</a> as it seems to be the most popular choice for <code class="highlighter-rouge">.NET</code> open-source projects. But while browsing around I discovered than projects were often using more than one platform. <a href="https://travis-ci.org/">Travis CI</a> and <a href="https://circleci.com/">CircleCI</a> seemed to be the two other prevailing options. Since the initial version of this post, <a href="https://azure.microsoft.com/en-au/services/devops/">Azure DevOps</a> has released a free and unlimited plan for open source projects. I decided to leverage the four platforms so that I could highlight their pros and cons.</p>
@@ -195,7 +195,7 @@
              
             
             
-              <a href="/2018/04/22/cake-build/">Continue reading</a>
+              <a href="/2018/04/21/cake-build/">Continue reading</a>
             
           </span>
         </div>

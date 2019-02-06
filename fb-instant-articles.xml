@@ -10,7 +10,7 @@
         
             <item>
                 <title>Azure VM pricing</title>
-                <link>https://gabrielweyer.github.io//2019/02/07/azure-vm-pricing/</link>
+                <link>https://gabrielweyer.github.io//2019/02/06/azure-vm-pricing/</link>
                 <content:encoded>
                     <![CDATA[
                     <p>I was recently faced with an interesting problem. A company wanted to cost the migration of thousands of <code class="highlighter-rouge">VMs</code> to <code class="highlighter-rouge">Azure</code> using a <a href="https://docs.microsoft.com/en-us/azure/architecture/cloud-adoption/digital-estate/5-rs-of-rationalization#rehost">lift and shift</a> approach (also known as rehost). Due to the short deadline, we were not able to get our hands on detailed data. All we were provided with was a machine name, <code class="highlighter-rouge">CPU</code> cores count, <code class="highlighter-rouge">RAM</code> and a description field that was sometimes populated. Utilisation, storage and network usage were notably missing. We knew we couldn’t cost the migration accurately due to these unknowns, but we had enough data to cost the <code class="highlighter-rouge">VMs</code> themselves as we had access to <code class="highlighter-rouge">CPU</code> cores count and <code class="highlighter-rouge">RAM</code>. I must also add that the <code class="highlighter-rouge">VMs</code> varied greatly in their hardware specifications.</p>
@@ -82,11 +82,11 @@ australia-southeast,SuperName,windows,E8 v3,8,64,1.006,0.74334,0.60803,0.24003</
 
                     ]]>
                 </content:encoded>
-                <guid isPermaLink="false">/2019/02/07/azure-vm-pricing/</guid>
+                <guid isPermaLink="false">/2019/02/06/azure-vm-pricing/</guid>
                 <description>
                     
                 </description>
-                <pubDate>Thu, 07 Feb 2019 09:25:27 +1100</pubDate>
+                <pubDate>Wed, 06 Feb 2019 16:25:27 -0600</pubDate>
                 <author></author>
             </item>
         
@@ -94,10 +94,10 @@ australia-southeast,SuperName,windows,E8 v3,8,64,1.006,0.74334,0.60803,0.24003</
         
             <item>
                 <title>Advanced .NET Debugging #2</title>
-                <link>https://gabrielweyer.github.io//2018/05/19/advanced-dotnet-debugging-2/</link>
+                <link>https://gabrielweyer.github.io//2018/05/18/advanced-dotnet-debugging-2/</link>
                 <content:encoded>
                     <![CDATA[
-                    <p>I’m continuing to read the excellent <a href="https://www.goodreads.com/book/show/7306509-advanced-net-debugging">Advanced .NET Debugging</a> by Mario Hewardt. Last time I looked at <a href="/2018/04/07/advanced-dotnet-debugging-1/">finding the entry point of a native image</a>. This time around I’ll be investigating the launch of a <strong>managed</strong> image by <code class="highlighter-rouge">Windows</code>.</p>
+                    <p>I’m continuing to read the excellent <a href="https://www.goodreads.com/book/show/7306509-advanced-net-debugging">Advanced .NET Debugging</a> by Mario Hewardt. Last time I looked at <a href="/2018/04/06/advanced-dotnet-debugging-1/">finding the entry point of a native image</a>. This time around I’ll be investigating the launch of a <strong>managed</strong> image by <code class="highlighter-rouge">Windows</code>.</p>
 
 <h2 id="prerequisites">Prerequisites</h2>
 
@@ -122,7 +122,7 @@ australia-southeast,SuperName,windows,E8 v3,8,64,1.006,0.74334,0.60803,0.24003</
 
 <h2 id="finding-the-addressofentrypoint">Finding the <code class="highlighter-rouge">AddressOfEntryPoint</code></h2>
 
-<p>I recommend you first read the <a href="/2018/04/07/advanced-dotnet-debugging-1/">previous post</a> in this series as it explains core concepts such as <a href="/2018/04/07/advanced-dotnet-debugging-1/#endianness">endianness</a> and <a href="/2018/04/07/advanced-dotnet-debugging-1/#relative-virtual-address">Relative Virtual Address</a>.</p>
+<p>I recommend you first read the <a href="/2018/04/06/advanced-dotnet-debugging-1/">previous post</a> in this series as it explains core concepts such as <a href="/2018/04/06/advanced-dotnet-debugging-1/#endianness">endianness</a> and <a href="/2018/04/06/advanced-dotnet-debugging-1/#relative-virtual-address">Relative Virtual Address</a>.</p>
 
 <p>Last time I highlighted a formula to compute the <code class="highlighter-rouge">AddressOfEntryPoint</code> file offset:</p>
 
@@ -221,11 +221,11 @@ australia-southeast,SuperName,windows,E8 v3,8,64,1.006,0.74334,0.60803,0.24003</
 
                     ]]>
                 </content:encoded>
-                <guid isPermaLink="false">/2018/05/19/advanced-dotnet-debugging-2/</guid>
+                <guid isPermaLink="false">/2018/05/18/advanced-dotnet-debugging-2/</guid>
                 <description>
                     
                 </description>
-                <pubDate>Sat, 19 May 2018 11:58:34 +1000</pubDate>
+                <pubDate>Fri, 18 May 2018 20:58:34 -0500</pubDate>
                 <author></author>
             </item>
         
@@ -233,7 +233,7 @@ australia-southeast,SuperName,windows,E8 v3,8,64,1.006,0.74334,0.60803,0.24003</
         
             <item>
                 <title>WinDbg #2 - The blocked async</title>
-                <link>https://gabrielweyer.github.io//2018/05/05/windbg-2-blocked-async/</link>
+                <link>https://gabrielweyer.github.io//2018/05/04/windbg-2-blocked-async/</link>
                 <content:encoded>
                     <![CDATA[
                     <p>Today’s exercise is not an exercise! The investigation I’m about to describe was triggered by a production outage affecting multiple <code class="highlighter-rouge">API</code>s - albeit not at the same time - at a customer. For obvious reasons I’ll not be able to share the code and will have to alter / obfuscate some of the commands’ results. I still think this is a valuable exercise as it is a classic example of an easy to make mistake leading to a catastrophic result.</p>
@@ -447,11 +447,11 @@ Child SP       IP Call Site
 
                     ]]>
                 </content:encoded>
-                <guid isPermaLink="false">/2018/05/05/windbg-2-blocked-async/</guid>
+                <guid isPermaLink="false">/2018/05/04/windbg-2-blocked-async/</guid>
                 <description>
                     
                 </description>
-                <pubDate>Sat, 05 May 2018 08:59:01 +1000</pubDate>
+                <pubDate>Fri, 04 May 2018 17:59:01 -0500</pubDate>
                 <author></author>
             </item>
         
@@ -459,7 +459,7 @@ Child SP       IP Call Site
         
             <item>
                 <title>Cake build</title>
-                <link>https://gabrielweyer.github.io//2018/04/22/cake-build/</link>
+                <link>https://gabrielweyer.github.io//2018/04/21/cake-build/</link>
                 <content:encoded>
                     <![CDATA[
                     <p><strong>5th of Jan 2019</strong>: a lot has been happening since I initially wrote this post. <code class="highlighter-rouge">Azure DevOps</code> released a free tier for open source projects, the <code class="highlighter-rouge">Cake</code> and <code class="highlighter-rouge">GitVersion</code> contributors have been hard at work to take advantage of the latest features of <code class="highlighter-rouge">.NET Core</code>. So much things have changed that I decided to update this post to reflect the current state of affairs (inclusion of <code class="highlighter-rouge">Azure DevOps</code>, upgrade to <code class="highlighter-rouge">.NET Core 2.2</code>, utilisation of <code class="highlighter-rouge">.NET Core global tools</code> and removing the <code class="highlighter-rouge">Mono</code> requirement on <code class="highlighter-rouge">Unix</code> platforms).</p>
@@ -467,13 +467,13 @@ Child SP       IP Call Site
 <p>As a developer I’m amazed by the number of free tools and services available. I wanted to create an end-to-end demo of a <code class="highlighter-rouge">CI/CD</code> pipeline that would include:</p>
 
 <ul>
-  <li><a href="/2018/04/22/cake-build/#configuration">Trigger a build on commit</a></li>
-  <li><a href="/2018/04/22/cake-build/#semantic-versioning">Use semantic versioning</a></li>
-  <li><a href="/2018/04/22/cake-build/#run-the-tests">Run tests</a></li>
-  <li><a href="/2018/04/22/cake-build/#publish-the-test-results">Publish test results</a></li>
-  <li><a href="/2018/04/22/cake-build/#create-nuget-packages">Create NuGet packages</a></li>
-  <li><a href="/2018/04/22/cake-build/#publish-the-nuget-packages">Publish the NuGet packages</a></li>
-  <li><a href="/2018/04/22/cake-build/#create-a-github-release">Create a GitHub release</a></li>
+  <li><a href="/2018/04/21/cake-build/#configuration">Trigger a build on commit</a></li>
+  <li><a href="/2018/04/21/cake-build/#semantic-versioning">Use semantic versioning</a></li>
+  <li><a href="/2018/04/21/cake-build/#run-the-tests">Run tests</a></li>
+  <li><a href="/2018/04/21/cake-build/#publish-the-test-results">Publish test results</a></li>
+  <li><a href="/2018/04/21/cake-build/#create-nuget-packages">Create NuGet packages</a></li>
+  <li><a href="/2018/04/21/cake-build/#publish-the-nuget-packages">Publish the NuGet packages</a></li>
+  <li><a href="/2018/04/21/cake-build/#create-a-github-release">Create a GitHub release</a></li>
 </ul>
 
 <p>For my purpose I wanted anonymous users to have access to a read-only view. I initially selected <a href="https://www.appveyor.com/">AppVeyor</a> as it seems to be the most popular choice for <code class="highlighter-rouge">.NET</code> open-source projects. But while browsing around I discovered than projects were often using more than one platform. <a href="https://travis-ci.org/">Travis CI</a> and <a href="https://circleci.com/">CircleCI</a> seemed to be the two other prevailing options. Since the initial version of this post, <a href="https://azure.microsoft.com/en-au/services/devops/">Azure DevOps</a> has released a free and unlimited plan for open source projects. I decided to leverage the four platforms so that I could highlight their pros and cons.<!--more--></p>
@@ -778,11 +778,11 @@ Child SP       IP Call Site
 
                     ]]>
                 </content:encoded>
-                <guid isPermaLink="false">/2018/04/22/cake-build/</guid>
+                <guid isPermaLink="false">/2018/04/21/cake-build/</guid>
                 <description>
                     
                 </description>
-                <pubDate>Sun, 22 Apr 2018 09:57:02 +1000</pubDate>
+                <pubDate>Sat, 21 Apr 2018 18:57:02 -0500</pubDate>
                 <author></author>
             </item>
         
@@ -790,7 +790,7 @@ Child SP       IP Call Site
         
             <item>
                 <title>Advanced .NET Debugging #1</title>
-                <link>https://gabrielweyer.github.io//2018/04/07/advanced-dotnet-debugging-1/</link>
+                <link>https://gabrielweyer.github.io//2018/04/06/advanced-dotnet-debugging-1/</link>
                 <content:encoded>
                     <![CDATA[
                     <p>After eyeing it for a while I finally decided to buy <a href="https://www.goodreads.com/book/show/7306509-advanced-net-debugging">Advanced .NET Debugging</a> by Mario Hewardt. I’ve been studying <code class="highlighter-rouge">WinDbg</code> for some time and consider myself somewhere between beginner and intermediate level. To my dismay I got stuck on the first excercise! Luckily I didn’t give up and finally stumbled on a blog post that unblocked me. This series has for goal to make <a href="https://www.goodreads.com/book/show/7306509-advanced-net-debugging">Advanced .NET Debugging</a> more accessible to people - quite like me - that haven’t grasped all the concepts yet.</p>
@@ -905,11 +905,11 @@ notepad!__mainCRTStartup:
 
                     ]]>
                 </content:encoded>
-                <guid isPermaLink="false">/2018/04/07/advanced-dotnet-debugging-1/</guid>
+                <guid isPermaLink="false">/2018/04/06/advanced-dotnet-debugging-1/</guid>
                 <description>
                     
                 </description>
-                <pubDate>Sat, 07 Apr 2018 13:17:02 +1000</pubDate>
+                <pubDate>Fri, 06 Apr 2018 22:17:02 -0500</pubDate>
                 <author></author>
             </item>
         
@@ -1035,7 +1035,7 @@ Actual:   False</code></pre></figure>
                 <description>
                     
                 </description>
-                <pubDate>Sat, 24 Mar 2018 06:36:53 +0000</pubDate>
+                <pubDate>Sat, 24 Mar 2018 01:36:53 -0500</pubDate>
                 <author></author>
             </item>
         
@@ -1077,7 +1077,7 @@ Actual:   False</code></pre></figure>
 
 <p>If you’re as lazy as me you can leverage <a href="https://docs.microsoft.com/en-us/windows/wsl/install-win10">Windows Subsystem for Linux</a>:</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="k">for </span>i <span class="k">in</span> <span class="sb">`</span>seq 1 20<span class="sb">`</span><span class="p">;</span> <span class="k">do </span>curl <span class="s2">"http://localhost:5000/feed/me"</span><span class="p">;</span> <span class="k">done</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="k">for </span>i <span class="k">in</span> <span class="sb">`</span><span class="nb">seq </span>1 20<span class="sb">`</span><span class="p">;</span> <span class="k">do </span>curl <span class="s2">"http://localhost:5000/feed/me"</span><span class="p">;</span> <span class="k">done</span></code></pre></figure>
 
 <p><img src="/assets/windbg-1/hungry-process.png" alt="Hungry process" /></p>
 
@@ -1488,7 +1488,7 @@ NumStaticFields:     1
                 <description>
                     
                 </description>
-                <pubDate>Fri, 09 Mar 2018 21:51:53 +0000</pubDate>
+                <pubDate>Fri, 09 Mar 2018 15:51:53 -0600</pubDate>
                 <author></author>
             </item>
         
@@ -1582,7 +1582,7 @@ NumStaticFields:     1
                 <description>
                     
                 </description>
-                <pubDate>Fri, 23 Feb 2018 23:40:46 +0000</pubDate>
+                <pubDate>Fri, 23 Feb 2018 17:40:46 -0600</pubDate>
                 <author></author>
             </item>
         
@@ -1701,7 +1701,7 @@ NumStaticFields:     1
                 <description>
                     
                 </description>
-                <pubDate>Thu, 08 Feb 2018 20:34:06 +0000</pubDate>
+                <pubDate>Thu, 08 Feb 2018 14:34:06 -0600</pubDate>
                 <author></author>
             </item>
         
@@ -1900,7 +1900,7 @@ Host: localhost:5000</code></pre></figure>
                 <description>
                     
                 </description>
-                <pubDate>Sun, 28 Jan 2018 20:24:33 +0000</pubDate>
+                <pubDate>Sun, 28 Jan 2018 14:24:33 -0600</pubDate>
                 <author></author>
             </item>
         
@@ -1908,7 +1908,7 @@ Host: localhost:5000</code></pre></figure>
         
             <item>
                 <title>Links Insights #1</title>
-                <link>https://gabrielweyer.github.io//2018/01/27/links-insights-1/</link>
+                <link>https://gabrielweyer.github.io//2018/01/26/links-insights-1/</link>
                 <content:encoded>
                     <![CDATA[
                     <p>Every now and then I stumble upon a brilliant post on Internet, I share some of those links on my <a href="https://www.diigo.com/user/gabrielweyer">Diigo profile</a> but the format is very succinct. I decided to start a new experiment and instead write full blog posts about those links. The first reason is quite selfish as I would like to keep a record of what I thought was interesting and why, I also hope to empower the reader so that she can decide if she wants to read the full post as some of them are lengthy.</p>
@@ -2002,11 +2002,11 @@ git config <span class="nt">--global</span> <span class="nt">--unset</span> form
 
                     ]]>
                 </content:encoded>
-                <guid isPermaLink="false">/2018/01/27/links-insights-1/</guid>
+                <guid isPermaLink="false">/2018/01/26/links-insights-1/</guid>
                 <description>
                     
                 </description>
-                <pubDate>Sat, 27 Jan 2018 02:10:07 +0000</pubDate>
+                <pubDate>Fri, 26 Jan 2018 20:10:07 -0600</pubDate>
                 <author></author>
             </item>
         
@@ -2063,7 +2063,7 @@ git config <span class="nt">--global</span> <span class="nt">--unset</span> form
 
 <p>Now that we know that <strong>trace</strong> is available we need to start capturing the packets and reproduce the problem. Launch an <strong>elevated</strong> command prompt and type:</p>
 
-<figure class="highlight"><pre><code class="language-posh" data-lang="posh">netsh trace <span class="nb">start </span><span class="nv">tracefile</span><span class="o">=</span><span class="s2">"C:\tmp\traces\classic.etl"</span> <span class="nv">scenario</span><span class="o">=</span>internetclient <span class="nv">capture</span><span class="o">=</span>yes <span class="nv">maxsize</span><span class="o">=</span>200 <span class="nv">filemode</span><span class="o">=</span>circular <span class="nv">overwrite</span><span class="o">=</span>yes</code></pre></figure>
+<figure class="highlight"><pre><code class="language-posh" data-lang="posh">netsh trace <span class="nb">start </span><span class="nv">tracefile</span><span class="o">=</span><span class="s2">"C:\tmp\traces\classic.etl"</span> <span class="nv">scenario</span><span class="o">=</span>internetclient <span class="nv">capture</span><span class="o">=</span><span class="nb">yes </span><span class="nv">maxsize</span><span class="o">=</span>200 <span class="nv">filemode</span><span class="o">=</span>circular <span class="nv">overwrite</span><span class="o">=</span><span class="nb">yes</span></code></pre></figure>
 
 <p><strong>Note</strong>: the path needs to exist beforehand.</p>
 
@@ -2123,7 +2123,7 @@ git config <span class="nt">--global</span> <span class="nt">--unset</span> form
                 <description>
                     
                 </description>
-                <pubDate>Sat, 16 Jul 2016 09:20:07 +0000</pubDate>
+                <pubDate>Sat, 16 Jul 2016 04:20:07 -0500</pubDate>
                 <author></author>
             </item>
         
@@ -2185,7 +2185,7 @@ git config <span class="nt">--global</span> <span class="nt">--unset</span> form
                 <description>
                     
                 </description>
-                <pubDate>Mon, 13 Jun 2016 10:46:32 +0000</pubDate>
+                <pubDate>Mon, 13 Jun 2016 05:46:32 -0500</pubDate>
                 <author></author>
             </item>
         
@@ -2193,7 +2193,7 @@ git config <span class="nt">--global</span> <span class="nt">--unset</span> form
         
             <item>
                 <title>CodeCleanser</title>
-                <link>https://gabrielweyer.github.io//2016/06/04/codecleanser/</link>
+                <link>https://gabrielweyer.github.io//2016/06/03/codecleanser/</link>
                 <content:encoded>
                     <![CDATA[
                     <p>Recently I came up with an interesting issue at a customer. A governmental agency contacted us and informed us that due to a Windows update we could experience intermittent issue when trying to communicate with them. All I knew at this stage was that the issue would manifest itself when trying to upload a document and that the integration is done via DLLs that are wrapping a few web services.</p>
@@ -2319,11 +2319,11 @@ git config <span class="nt">--global</span> <span class="nt">--unset</span> form
 
                     ]]>
                 </content:encoded>
-                <guid isPermaLink="false">/2016/06/04/codecleanser/</guid>
+                <guid isPermaLink="false">/2016/06/03/codecleanser/</guid>
                 <description>
                     
                 </description>
-                <pubDate>Sat, 04 Jun 2016 00:41:48 +0000</pubDate>
+                <pubDate>Fri, 03 Jun 2016 19:41:48 -0500</pubDate>
                 <author></author>
             </item>
         
@@ -2399,7 +2399,7 @@ git config <span class="nt">--global</span> <span class="nt">--unset</span> form
                 <description>
                     
                 </description>
-                <pubDate>Sun, 07 Dec 2014 06:16:14 +0000</pubDate>
+                <pubDate>Sun, 07 Dec 2014 00:16:14 -0600</pubDate>
                 <author></author>
             </item>
         
@@ -2634,7 +2634,7 @@ git config <span class="nt">--global</span> <span class="nt">--unset</span> form
                 <description>
                     
                 </description>
-                <pubDate>Sun, 27 Apr 2014 09:17:31 +0000</pubDate>
+                <pubDate>Sun, 27 Apr 2014 04:17:31 -0500</pubDate>
                 <author></author>
             </item>
         
@@ -2736,7 +2736,7 @@ git config <span class="nt">--global</span> <span class="nt">--unset</span> form
                 <description>
                     
                 </description>
-                <pubDate>Tue, 07 Jan 2014 09:13:53 +0000</pubDate>
+                <pubDate>Tue, 07 Jan 2014 03:13:53 -0600</pubDate>
                 <author></author>
             </item>
         
