@@ -9,7 +9,7 @@ Source for my [blog][blog].
 ## Development
 
 ```posh
-docker run --rm --volume="$($PWD):/srv/jekyll" -p 4000:4000 -it jekyll/jekyll:3.6.2 jekyll serve --force_polling --incremental --drafts
+docker run --rm --volume="$($PWD):/srv/jekyll" -p 4000:4000 -it jekyll/jekyll:3.8.5 jekyll serve --force_polling --incremental --drafts
 ```
 
 - `--force_polling --incremental` will regenerate the page you're working on.
