@@ -14,24 +14,27 @@ tags:
 
 I was recently faced with an interesting problem. A company wanted to cost the migration of thousands of `VMs` to `Azure` using a [lift and shift][rehost] approach (also known as rehost). Due to the short deadline, we were not able to get our hands on detailed data. All we were provided with was a machine name, `CPU` cores count, `RAM` and a description field that was sometimes populated. Utilisation, storage and network usage were notably missing. We knew we couldn't cost the migration accurately due to these unknowns, but we had enough data to cost the `VMs` themselves as we had access to `CPU` cores count and `RAM`. I must also add that the `VMs` varied greatly in their hardware specifications.
 
-Microsoft offers a [pricing calculator][pricing-calculator] but it only supports manual input which disqualified it for our use case. A few `Microsoft` employees wrote web applications automating the pricing of `VMs` by importing `Excel` spreadsheets or `CSV` files. The ones I tried only offered `USD` as a currency and choked for anything bigger than a few hundred `VMs`. The output file was using a `en-us` culture so it had to be post-processed before being open in `Excel`. I didn't have the time to review and select a commercial solution ([Azure Migrate][azure-migrate] requires to create a `VM` on-premises which was not possible). At the end of the day I came up with a semi-automated process that did the trick, but I felt that not much work would be required to empower teams to price `VMs`.<!--more-->
+`Microsoft` offers a [pricing calculator][pricing-calculator] but it only supports manual input which disqualified it for our use case. A few `Microsoft` employees wrote web applications automating the pricing of `VMs` by importing `Excel` spreadsheets or `CSV` files. The ones I tried only offered `USD` as a currency and choked for anything bigger than a few hundred `VMs`. The output file was using a `en-us` culture so it had to be post-processed before being open in `Excel`. I didn't have the time to review and select a commercial solution ([Azure Migrate][azure-migrate] requires to create a `VM` on-premises which was not possible). At the end of the day I came up with a semi-automated process that did the trick, but I felt that not much work would be required to empower teams to price `VMs` based on a limited data set.<!--more-->
 
 ## Requirements
 
-- Support multiple currencies
-- Support multiple cultures
+I wanted to build something that would fit my use case (`AUD` and `en-au`) but could also be used by people anywhere:
+
+- Support thousands of `VMs`
+- Support all currencies
+- Support all cultures
 - Ability to automate refreshing of the pricing
-- Timeboxed to a weekend
+- ~~Timeboxed to a weekend~~
 
 **Note**: you can find the code on [GitHub][azure-vm-pricing].
 
 ## What I came up with
 
-My first goal was to retrieve the pricing from `Azure`. I initially considered the [Resource RateCard][resource-ratecard] (part of the `Billing API`) but this banner didn't fill me with confidence:
+My first goal was to retrieve the pricing from `Azure`. I initially considered the [Resource RateCard][resource-ratecard] (part of the `Billing API`) but the banner below didn't fill me with confidence:
 
 ![Resource RateCard]({{ "/assets/azure-vm-pricing/resource-ratecard.png" | prepend: site.baseurl }})
 
-The `Billing API` requires authentication and parameters to be passed in, which would have increased the complexity of the solution. I knew one place would have mostly up-to-date pricing: the [Virtual Machines Pricing][virtual-machines-pricing] page. This page displays all the available instances for a specific region. It is also possible to select a culture, currency and operating system. There is one problem though: the data is available as `HTML` markup instead of an `API`.
+The `Billing API` requires authentication and parameters to be passed in, which would have increased the complexity of the solution. I knew one place would have mostly up-to-date pricing: the [Virtual Machines Pricing][virtual-machines-pricing] page. This page displays all the available instances for a specific region. It is also possible to select a culture, currency and operating system. There was one problem though: the data is available as `HTML` markup instead of an `API`.
 
 ### Puppeteer
 
@@ -56,13 +59,13 @@ It feels more natural to write a crawler in `JavaScript` (`JavaScript` is the la
 ]
 {% endhighlight %}
 
-I made the assumption that a single culture and currency will be used through a pricing session and this is why I only encoded the region and operating system in the [generated file names][azure-vm-pricing-parser-output]. Calling this tool can easily be automated as it doesn't require any configuration and generate files on disk. You could run it at regular intervals and publish the artefacts.
+I made the assumption that a single culture and currency will be used through a pricing session and this is why I only encoded the region and operating system in the [generated file names][azure-vm-pricing-parser-output]. Calling this tool can easily be automated as it doesn't require any configuration and generates files on disk. You could run it at regular intervals and publish the artefacts.
 
 Once we've got our hands on the pricing, all we need to do is size the `VMs` and cost them.
 
 ### Coster
 
-The `Coster` is a `.NET Core` console application. Again, I didn't bother pushing a `NuGet` package so you'll have to build from [source][azure-vm-pricing-coster]. You'll need the pricing files generated by the `Parser`. The `Coster` is expecting a `CSV` file with the following format:
+The `Coster` is a `.NET Core` console application. Again, I didn't bother pushing a `NuGet` package so you'll have to build from [source][azure-vm-pricing-coster]. You'll need the pricing files generated by the `Parser`. The input expected by the `Coster` is a `CSV` file with the following format:
 
 {% highlight csv %}
 Region,Name,CPU,RAM,Operating System
@@ -78,7 +81,7 @@ australia-southeast,SuperName,windows,E8 v3,8,64,1.006,0.74334,0.60803,0.24003
 
 ## Conclusion
 
-Let me know if you're using these tools and I'll tidy up and publish packages on `npm` and `NuGet`. I can't say I've tested it extensively so be ready for some rough edges!
+Let me know if you're using these tools and I'll tidy up and publish packages on `npm` and `NuGet`. I can't say I've tested them extensively so be ready for some rough edges!
 
 [rehost]: https://docs.microsoft.com/en-us/azure/architecture/cloud-adoption/digital-estate/5-rs-of-rationalization#rehost
 [pricing-calculator]: https://azure.microsoft.com/en-us/pricing/calculator/?service=virtual-machines
