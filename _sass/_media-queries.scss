@@ -48,6 +48,10 @@
   html {
     font-size: 18px;
   }
+
+  .site-header .site-title .site-sub-title {
+    display: inline;
+  }
 }
 
 @media screen and (min-width: $viewport-large) {

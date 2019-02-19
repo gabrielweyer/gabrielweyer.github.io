@@ -17,10 +17,10 @@ title: A somewhat technical blog
 email: gabrielweyer@gmail.com
 author: Gabriel Weyer
 description: >- # this means to ignore newlines until "baseurl:"
-  My name is Gabriel Weyer. I’m a software developer and currently based
+  My name is Gabriel Weyer. I’m a software developer based
   in Melbourne, Australia. I blog about technology.
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://gabrielweyer.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://gabrielweyer.github.io" # the base hostname & protocol for your site, e.g. https://example.com
 date_format: "%b %-d, %Y"
 header_pages:
   - 01_about.md

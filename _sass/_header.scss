@@ -14,6 +14,10 @@
   font-size: $h2;
 }
 
+.site-header .site-title .site-sub-title {
+  display: none;
+}
+
 .site-nav {
   margin-top: $space-2;
 }
