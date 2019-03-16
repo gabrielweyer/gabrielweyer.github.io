@@ -21,7 +21,7 @@ docker run --rm --volume="$($PWD):/srv/jekyll" -p 4000:4000 -it jekyll/jekyll:3.
 - Always work in the `develop` branch
 - Once you're done: `git push origin develop`
 
-[blog]: https://gabrielweyer.github.io/
+[blog]: https://gabrielweyer.net/
 [circle-ci]: https://circleci.com/gh/gabrielweyer/gabrielweyer.github.io
 [circle-ci-shield]: https://circleci.com/gh/gabrielweyer/gabrielweyer.github.io/tree/develop.svg?style=shield
 [working-with-drafts]: https://jekyllrb.com/docs/drafts/
