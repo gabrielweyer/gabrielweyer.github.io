@@ -3,8 +3,8 @@
   <channel>
     <title>Gabriel Weyer - A somewhat technical blog</title>
     <description>My name is Gabriel Weyer. I’m a software developer based in Melbourne, Australia. I blog about technology.</description>
-    <link>https://gabrielweyer.github.io/</link>
-    <atom:link href="https://gabrielweyer.github.io/feed.xml" rel="self" type="application/rss+xml" />
+    <link>https://gabrielweyer.net/</link>
+    <atom:link href="https://gabrielweyer.net/feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
         <title>Azure VM pricing</title>
@@ -79,8 +79,8 @@ australia-southeast,SuperName,windows,E8 v3,8,64,1.006,0.74334,0.60803,0.24003&l
 
 </description>
         <pubDate>Wed, 06 Feb 2019 16:25:27 -0600</pubDate>
-        <link>https://gabrielweyer.github.io/2019/02/06/azure-vm-pricing/</link>
-        <guid isPermaLink="true">https://gabrielweyer.github.io/2019/02/06/azure-vm-pricing/</guid>
+        <link>https://gabrielweyer.net/2019/02/06/azure-vm-pricing/</link>
+        <guid isPermaLink="true">https://gabrielweyer.net/2019/02/06/azure-vm-pricing/</guid>
       </item>
     
       <item>
@@ -208,8 +208,8 @@ australia-southeast,SuperName,windows,E8 v3,8,64,1.006,0.74334,0.60803,0.24003&l
 
 </description>
         <pubDate>Fri, 18 May 2018 20:58:34 -0500</pubDate>
-        <link>https://gabrielweyer.github.io/2018/05/18/advanced-dotnet-debugging-2/</link>
-        <guid isPermaLink="true">https://gabrielweyer.github.io/2018/05/18/advanced-dotnet-debugging-2/</guid>
+        <link>https://gabrielweyer.net/2018/05/18/advanced-dotnet-debugging-2/</link>
+        <guid isPermaLink="true">https://gabrielweyer.net/2018/05/18/advanced-dotnet-debugging-2/</guid>
       </item>
     
       <item>
@@ -424,8 +424,8 @@ Child SP       IP Call Site
 
 </description>
         <pubDate>Fri, 04 May 2018 17:59:01 -0500</pubDate>
-        <link>https://gabrielweyer.github.io/2018/05/04/windbg-2-blocked-async/</link>
-        <guid isPermaLink="true">https://gabrielweyer.github.io/2018/05/04/windbg-2-blocked-async/</guid>
+        <link>https://gabrielweyer.net/2018/05/04/windbg-2-blocked-async/</link>
+        <guid isPermaLink="true">https://gabrielweyer.net/2018/05/04/windbg-2-blocked-async/</guid>
       </item>
     
       <item>
@@ -745,8 +745,8 @@ Child SP       IP Call Site
 
 </description>
         <pubDate>Sat, 21 Apr 2018 18:57:02 -0500</pubDate>
-        <link>https://gabrielweyer.github.io/2018/04/21/cake-build/</link>
-        <guid isPermaLink="true">https://gabrielweyer.github.io/2018/04/21/cake-build/</guid>
+        <link>https://gabrielweyer.net/2018/04/21/cake-build/</link>
+        <guid isPermaLink="true">https://gabrielweyer.net/2018/04/21/cake-build/</guid>
       </item>
     
       <item>
@@ -862,8 +862,8 @@ notepad!__mainCRTStartup:
 
 </description>
         <pubDate>Fri, 06 Apr 2018 22:17:02 -0500</pubDate>
-        <link>https://gabrielweyer.github.io/2018/04/06/advanced-dotnet-debugging-1/</link>
-        <guid isPermaLink="true">https://gabrielweyer.github.io/2018/04/06/advanced-dotnet-debugging-1/</guid>
+        <link>https://gabrielweyer.net/2018/04/06/advanced-dotnet-debugging-1/</link>
+        <guid isPermaLink="true">https://gabrielweyer.net/2018/04/06/advanced-dotnet-debugging-1/</guid>
       </item>
     
       <item>
@@ -978,8 +978,8 @@ Actual:   False&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 </description>
         <pubDate>Sat, 24 Mar 2018 01:36:53 -0500</pubDate>
-        <link>https://gabrielweyer.github.io/2018/03/24/testing-anti-patterns-1/</link>
-        <guid isPermaLink="true">https://gabrielweyer.github.io/2018/03/24/testing-anti-patterns-1/</guid>
+        <link>https://gabrielweyer.net/2018/03/24/testing-anti-patterns-1/</link>
+        <guid isPermaLink="true">https://gabrielweyer.net/2018/03/24/testing-anti-patterns-1/</guid>
       </item>
     
       <item>
@@ -1421,8 +1421,8 @@ NumStaticFields:     1
 
 </description>
         <pubDate>Fri, 09 Mar 2018 15:51:53 -0600</pubDate>
-        <link>https://gabrielweyer.github.io/2018/03/09/windbg-1-static-root/</link>
-        <guid isPermaLink="true">https://gabrielweyer.github.io/2018/03/09/windbg-1-static-root/</guid>
+        <link>https://gabrielweyer.net/2018/03/09/windbg-1-static-root/</link>
+        <guid isPermaLink="true">https://gabrielweyer.net/2018/03/09/windbg-1-static-root/</guid>
       </item>
     
       <item>
@@ -1505,8 +1505,8 @@ NumStaticFields:     1
 
 </description>
         <pubDate>Fri, 23 Feb 2018 17:40:46 -0600</pubDate>
-        <link>https://gabrielweyer.github.io/2018/02/23/beanstalk-seeder/</link>
-        <guid isPermaLink="true">https://gabrielweyer.github.io/2018/02/23/beanstalk-seeder/</guid>
+        <link>https://gabrielweyer.net/2018/02/23/beanstalk-seeder/</link>
+        <guid isPermaLink="true">https://gabrielweyer.net/2018/02/23/beanstalk-seeder/</guid>
       </item>
     
       <item>
@@ -1614,8 +1614,8 @@ NumStaticFields:     1
 
 </description>
         <pubDate>Thu, 08 Feb 2018 14:34:06 -0600</pubDate>
-        <link>https://gabrielweyer.github.io/2018/02/08/singleton-http-client/</link>
-        <guid isPermaLink="true">https://gabrielweyer.github.io/2018/02/08/singleton-http-client/</guid>
+        <link>https://gabrielweyer.net/2018/02/08/singleton-http-client/</link>
+        <guid isPermaLink="true">https://gabrielweyer.net/2018/02/08/singleton-http-client/</guid>
       </item>
     
       <item>
@@ -1803,8 +1803,8 @@ Host: localhost:5000&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 </description>
         <pubDate>Sun, 28 Jan 2018 14:24:33 -0600</pubDate>
-        <link>https://gabrielweyer.github.io/2018/01/28/simple-routing-elastic-beanstalk-worker/</link>
-        <guid isPermaLink="true">https://gabrielweyer.github.io/2018/01/28/simple-routing-elastic-beanstalk-worker/</guid>
+        <link>https://gabrielweyer.net/2018/01/28/simple-routing-elastic-beanstalk-worker/</link>
+        <guid isPermaLink="true">https://gabrielweyer.net/2018/01/28/simple-routing-elastic-beanstalk-worker/</guid>
       </item>
     
   </channel>

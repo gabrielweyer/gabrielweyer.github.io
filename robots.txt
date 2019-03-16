@@ -1,1 +1,1 @@
-Sitemap: https://gabrielweyer.github.io/sitemap.xml
+Sitemap: https://gabrielweyer.net/sitemap.xml

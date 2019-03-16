@@ -2,7 +2,7 @@
 <rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title></title>
-    <link>https://gabrielweyer.github.io</link>
+    <link>https://gabrielweyer.net</link>
     <description>
       My name is Gabriel Weyer. I’m a software developer based in Melbourne, Australia. I blog about technology.
     </description>
@@ -10,7 +10,7 @@
         
             <item>
                 <title>Azure VM pricing</title>
-                <link>https://gabrielweyer.github.io/2019/02/06/azure-vm-pricing/</link>
+                <link>https://gabrielweyer.net/2019/02/06/azure-vm-pricing/</link>
                 <content:encoded>
                     <![CDATA[
                     <p>I was recently faced with an interesting problem. A company wanted to cost the migration of thousands of <code class="highlighter-rouge">VMs</code> to <code class="highlighter-rouge">Azure</code> using a <a href="https://docs.microsoft.com/en-us/azure/architecture/cloud-adoption/digital-estate/5-rs-of-rationalization#rehost">lift and shift</a> approach (also known as rehost). Due to the short deadline, we were not able to get our hands on detailed data. All we were provided with was a machine name, <code class="highlighter-rouge">CPU</code> cores count, <code class="highlighter-rouge">RAM</code> and a description field that was sometimes populated. Utilisation, storage and network usage were notably missing. We knew we couldn’t cost the migration accurately due to these unknowns, but we had enough data to cost the <code class="highlighter-rouge">VMs</code> themselves as we had access to <code class="highlighter-rouge">CPU</code> cores count and <code class="highlighter-rouge">RAM</code>. I must also add that the <code class="highlighter-rouge">VMs</code> varied greatly in their hardware specifications.</p>
@@ -99,7 +99,7 @@ australia-southeast,SuperName,windows,E8 v3,8,64,1.006,0.74334,0.60803,0.24003</
         
             <item>
                 <title>Advanced .NET Debugging #2</title>
-                <link>https://gabrielweyer.github.io/2018/05/18/advanced-dotnet-debugging-2/</link>
+                <link>https://gabrielweyer.net/2018/05/18/advanced-dotnet-debugging-2/</link>
                 <content:encoded>
                     <![CDATA[
                     <p>I’m continuing to read the excellent <a href="https://www.goodreads.com/book/show/7306509-advanced-net-debugging">Advanced .NET Debugging</a> by Mario Hewardt. Last time I looked at <a href="/2018/04/06/advanced-dotnet-debugging-1/">finding the entry point of a native image</a>. This time around I’ll be investigating the launch of a <strong>managed</strong> image by <code class="highlighter-rouge">Windows</code>.</p>
@@ -240,7 +240,7 @@ australia-southeast,SuperName,windows,E8 v3,8,64,1.006,0.74334,0.60803,0.24003</
         
             <item>
                 <title>WinDbg #2 - The blocked async</title>
-                <link>https://gabrielweyer.github.io/2018/05/04/windbg-2-blocked-async/</link>
+                <link>https://gabrielweyer.net/2018/05/04/windbg-2-blocked-async/</link>
                 <content:encoded>
                     <![CDATA[
                     <p>Today’s exercise is not an exercise! The investigation I’m about to describe was triggered by a production outage affecting multiple <code class="highlighter-rouge">API</code>s - albeit not at the same time - at a customer. For obvious reasons I’ll not be able to share the code and will have to alter / obfuscate some of the commands’ results. I still think this is a valuable exercise as it is a classic example of an easy to make mistake leading to a catastrophic result.</p>
@@ -468,7 +468,7 @@ Child SP       IP Call Site
         
             <item>
                 <title>Cake build</title>
-                <link>https://gabrielweyer.github.io/2018/04/21/cake-build/</link>
+                <link>https://gabrielweyer.net/2018/04/21/cake-build/</link>
                 <content:encoded>
                     <![CDATA[
                     <p><strong>5th of Jan 2019</strong>: a lot has been happening since I initially wrote this post. <code class="highlighter-rouge">Azure DevOps</code> released a free tier for open source projects, the <code class="highlighter-rouge">Cake</code> and <code class="highlighter-rouge">GitVersion</code> contributors have been hard at work to take advantage of the latest features of <code class="highlighter-rouge">.NET Core</code>. So much things have changed that I decided to update this post to reflect the current state of affairs (inclusion of <code class="highlighter-rouge">Azure DevOps</code>, upgrade to <code class="highlighter-rouge">.NET Core 2.2</code>, utilisation of <code class="highlighter-rouge">.NET Core global tools</code> and removing the <code class="highlighter-rouge">Mono</code> requirement on <code class="highlighter-rouge">Unix</code> platforms).</p>
@@ -801,7 +801,7 @@ Child SP       IP Call Site
         
             <item>
                 <title>Advanced .NET Debugging #1</title>
-                <link>https://gabrielweyer.github.io/2018/04/06/advanced-dotnet-debugging-1/</link>
+                <link>https://gabrielweyer.net/2018/04/06/advanced-dotnet-debugging-1/</link>
                 <content:encoded>
                     <![CDATA[
                     <p>After eyeing it for a while I finally decided to buy <a href="https://www.goodreads.com/book/show/7306509-advanced-net-debugging">Advanced .NET Debugging</a> by Mario Hewardt. I’ve been studying <code class="highlighter-rouge">WinDbg</code> for some time and consider myself somewhere between beginner and intermediate level. To my dismay I got stuck on the first excercise! Luckily I didn’t give up and finally stumbled on a blog post that unblocked me. This series has for goal to make <a href="https://www.goodreads.com/book/show/7306509-advanced-net-debugging">Advanced .NET Debugging</a> more accessible to people - quite like me - that haven’t grasped all the concepts yet.</p>
@@ -930,7 +930,7 @@ notepad!__mainCRTStartup:
         
             <item>
                 <title>Testing anti-patterns #1</title>
-                <link>https://gabrielweyer.github.io/2018/03/24/testing-anti-patterns-1/</link>
+                <link>https://gabrielweyer.net/2018/03/24/testing-anti-patterns-1/</link>
                 <content:encoded>
                     <![CDATA[
                     <p>I often ask candidates to define a good unit test. This is the starting point of a conversation around testing strategies and delivering value. Over the years I’ve heard opinions ranging from <code class="highlighter-rouge">the 100% coverage</code>, passing by <code class="highlighter-rouge">testing is for testers</code>, all the way to <code class="highlighter-rouge">we don't do automated testing</code>. If the notion of a <em>good test</em> can be subjective, it is easier to identify a <strong>bad</strong> test. Bloggers have written about this topic at length but I thought I would try paraphrasing the same content hoping nobody would notice.</p>
@@ -1058,7 +1058,7 @@ Actual:   False</code></pre></figure>
         
             <item>
                 <title>WinDbg #1 - The static root</title>
-                <link>https://gabrielweyer.github.io/2018/03/09/windbg-1-static-root/</link>
+                <link>https://gabrielweyer.net/2018/03/09/windbg-1-static-root/</link>
                 <content:encoded>
                     <![CDATA[
                     <p>This new series is an attempt to improve my <code class="highlighter-rouge">WinDbg</code> skills. The concept is to create faulty applications and troubleshoot the issue using <code class="highlighter-rouge">WinDbg</code> pretending that I have no prior knowledge of the code.</p>
@@ -1513,7 +1513,7 @@ NumStaticFields:     1
         
             <item>
                 <title>Beanstalk Seeder</title>
-                <link>https://gabrielweyer.github.io/2018/02/23/beanstalk-seeder/</link>
+                <link>https://gabrielweyer.net/2018/02/23/beanstalk-seeder/</link>
                 <content:encoded>
                     <![CDATA[
                     <p><code class="highlighter-rouge">Elastic Beanstalk</code> is a great platform, it offers both a <code class="highlighter-rouge">Web</code> tier and a <code class="highlighter-rouge">Worker</code> tier. I recently wrote about <a href="/2018/01/28/simple-routing-elastic-beanstalk-worker/">Simple Routing</a> one of my library that allows you to route a <code class="highlighter-rouge">SQS</code> message to a specific endpoint on the <code class="highlighter-rouge">Worker</code>.</p>
@@ -1609,7 +1609,7 @@ NumStaticFields:     1
         
             <item>
                 <title>Singleton HTTP Client</title>
-                <link>https://gabrielweyer.github.io/2018/02/08/singleton-http-client/</link>
+                <link>https://gabrielweyer.net/2018/02/08/singleton-http-client/</link>
                 <content:encoded>
                     <![CDATA[
                     <p>Even though the <code class="highlighter-rouge">class</code> <code class="highlighter-rouge">HttpClient</code> implements <code class="highlighter-rouge">IDisposable</code> it is supposed to be used as a singleton as stated in the <a href="https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpclient?view=netcore-2.0#Remarks">API reference</a>:</p>
@@ -1730,7 +1730,7 @@ NumStaticFields:     1
         
             <item>
                 <title>Simple Routing for Elastic Beanstalk Worker tier</title>
-                <link>https://gabrielweyer.github.io/2018/01/28/simple-routing-elastic-beanstalk-worker/</link>
+                <link>https://gabrielweyer.net/2018/01/28/simple-routing-elastic-beanstalk-worker/</link>
                 <content:encoded>
                     <![CDATA[
                     <p><code class="highlighter-rouge">Elastic Beanstalk</code> offers both a <code class="highlighter-rouge">Web</code> tier and a <code class="highlighter-rouge">Worker</code> tier. This allows developers to build reasonably complex applications without having to maintain moving pieces. Offloading heavy-duty workloads to the worker in order to keep the web tier responsive is as easy as putting a message on a queue.</p>
@@ -1931,7 +1931,7 @@ Host: localhost:5000</code></pre></figure>
         
             <item>
                 <title>Links Insights #1</title>
-                <link>https://gabrielweyer.github.io/2018/01/26/links-insights-1/</link>
+                <link>https://gabrielweyer.net/2018/01/26/links-insights-1/</link>
                 <content:encoded>
                     <![CDATA[
                     <p>Every now and then I stumble upon a brilliant post on Internet, I share some of those links on my <a href="https://www.diigo.com/user/gabrielweyer">Diigo profile</a> but the format is very succinct. I decided to start a new experiment and instead write full blog posts about those links. The first reason is quite selfish as I would like to keep a record of what I thought was interesting and why, I also hope to empower the reader so that she can decide if she wants to read the full post as some of them are lengthy.</p>
@@ -2037,7 +2037,7 @@ git config <span class="nt">--global</span> <span class="nt">--unset</span> form
         
             <item>
                 <title>Capture network packets with netsh</title>
-                <link>https://gabrielweyer.github.io/2016/07/16/capture-network-packets-with-netsh/</link>
+                <link>https://gabrielweyer.net/2016/07/16/capture-network-packets-with-netsh/</link>
                 <content:encoded>
                     <![CDATA[
                     <p>Another day, another “interesting” issue at a customer. After deploying our product we were left with a partially working web application. The product has been developed over many years and is a mix of ASP Classic, Web Forms, MVC and Web API. In this case ASP Classic pages were broken and would throw an error.</p>
@@ -2156,7 +2156,7 @@ git config <span class="nt">--global</span> <span class="nt">--unset</span> form
         
             <item>
                 <title>beIN SPORTS CONNECT</title>
-                <link>https://gabrielweyer.github.io/2016/06/13/bein-sports-connect/</link>
+                <link>https://gabrielweyer.net/2016/06/13/bein-sports-connect/</link>
                 <content:encoded>
                     <![CDATA[
                     <p>I like football, even with the time difference I try to watch at least the World Cup and the European Championship. I watched the last World Cup on <a href="http://www.sbs.com.au/">SBS</a> but this time around they only managed to secure a handful of games. As they’re a public service it makes sense after all that they wouldn’t buy the rights for all the games. A quick search on Google indicated that <a href="http://www.beinsportsconnect.com.au/home">beIN SPORTS CONNECT</a> is the way to go in Australia - I will refer to this service as beIN for the rest of this post.</p>
@@ -2220,7 +2220,7 @@ git config <span class="nt">--global</span> <span class="nt">--unset</span> form
         
             <item>
                 <title>CodeCleanser</title>
-                <link>https://gabrielweyer.github.io/2016/06/03/codecleanser/</link>
+                <link>https://gabrielweyer.net/2016/06/03/codecleanser/</link>
                 <content:encoded>
                     <![CDATA[
                     <p>Recently I came up with an interesting issue at a customer. A governmental agency contacted us and informed us that due to a Windows update we could experience intermittent issue when trying to communicate with them. All I knew at this stage was that the issue would manifest itself when trying to upload a document and that the integration is done via DLLs that are wrapping a few web services.</p>
@@ -2360,7 +2360,7 @@ git config <span class="nt">--global</span> <span class="nt">--unset</span> form
         
             <item>
                 <title>Barnes and Noble: a tale of poor security practices</title>
-                <link>https://gabrielweyer.github.io/2014/12/07/barnes-and-noble-a-tale-of-poor-security-practices/</link>
+                <link>https://gabrielweyer.net/2014/12/07/barnes-and-noble-a-tale-of-poor-security-practices/</link>
                 <content:encoded>
                     <![CDATA[
                     <p>Being the happy owner of a Kindle I usually buy my ebooks on Amazon. They have a very large selection to choose from and normally sell all the latest releases. To my surprise they only had “<a href="(http://us.macmillan.com/enigmaofchina/qiuxiaolong)">Enigma of China</a>” from Qiu Xialong in paperback and hardcover formats. <a href="http://store.kobobooks.com/en-US/Search/Query?query=Enigma%20of%20China&amp;dontModifyQuery=True">Kobo</a> didn’t have it at all but after searching for a while I found out that Barnes &amp; Noble sold it as a <a href="http://www.barnesandnoble.com/w/enigma-of-china-qiu-xiaolong/1114701902?ean=9781250025814">NOOK Book</a> for $10.</p>
@@ -2438,7 +2438,7 @@ git config <span class="nt">--global</span> <span class="nt">--unset</span> form
         
             <item>
                 <title>The Good, the Bad and the Ugly of password practices</title>
-                <link>https://gabrielweyer.github.io/2014/04/27/the-good-the-bad-and-the-ugly-of-password-practices/</link>
+                <link>https://gabrielweyer.net/2014/04/27/the-good-the-bad-and-the-ugly-of-password-practices/</link>
                 <content:encoded>
                     <![CDATA[
                     <p>Internet has taken a preponderant place in our lives and most of us regularly purchase goods on Internet or use Internet banking. The access to the services we use is protected by a password and humans are not good at managing passwords:</p>
@@ -2675,7 +2675,7 @@ git config <span class="nt">--global</span> <span class="nt">--unset</span> form
         
             <item>
                 <title>Why You Should Not Use Chrome Extensions</title>
-                <link>https://gabrielweyer.github.io/2014/01/07/why-you-should-not-use-chrome-extensions/</link>
+                <link>https://gabrielweyer.net/2014/01/07/why-you-should-not-use-chrome-extensions/</link>
                 <content:encoded>
                     <![CDATA[
                     <p>Google Chrome Extensions have been <a href="http://en.wikipedia.org/wiki/Google_Chrome#Extensions">launched</a> officially in January 2010. Their goal is to extend the browser by providing additional features, for example you could add a weather extension and then be able to see the weather’s forecast in your city in one click. Extensions have become widely popular and you’re now wondering what could be the issue with them.</p>
