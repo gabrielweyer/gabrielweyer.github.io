@@ -151,7 +151,6 @@ exclude:
   - "vendor/cache/"
   - "vendor/gems/"
   - "vendor/ruby/"
-  - "deploy.ps1"
   - "README.md"
   - "LICENSE"
 
