@@ -20,6 +20,7 @@ description: >- # this means to ignore newlines until "baseurl:"
   My name is Gabriel Weyer. I’m a software developer based
   in Melbourne, Australia. I blog about technology.
 baseurl: "" # the subpath of your site, e.g. /blog
+lang: en
 url: "https://gabrielweyer.net" # the base hostname & protocol for your site, e.g. https://example.com
 date_format: "%b %-d, %Y"
 header_pages:
