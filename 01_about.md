@@ -7,7 +7,9 @@ tags: about
 
 {{ site.description }}
 
-### Public Speaking
+I like building, supporting and operating products. While `C#` and `ASP.NET Core` are the tools I'm the most proficient with, I enjoy front-end development too. I've a keen interest in Continuous Integration and Deployment, testing, logging, cloud, distributed systems, security and troubleshooting.
+
+## Public Speaking
 
 **.NET Core 3 / ASP.NET Core 3** - talked at [Visual Studio 2019 Launch Event][vs-2019-launch-event] in April 2019.
 
@@ -19,7 +21,7 @@ tags: about
 
 **Running Docker in production** - gave this presentation with my co-speaker Martin Booth at *DDD Melbourne* 2015, *ALT.NET Melbourne* meetup in [November 2015][alt-net-docker-production] and the *Docker Melbourne* meetup in [December 2015][docker-docker-production].
 
-### Open-source
+## Open-source
 
 I [contribute][github-profile] to open-source as a way to show my gratitude for all the amazing frameworks and libraries available. My latest contributions include [Cake][cake] and [WebApi.Hal][webapi-hal].
 
