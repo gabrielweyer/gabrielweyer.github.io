@@ -9,6 +9,260 @@
     
         
             <item>
+                <title>Top secret</title>
+                <link>https://gabrielweyer.net/2019/06/29/top-secret/</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>I was recently working on a project that contained secrets in source control. The team was aware of this fact but had never been able to allocate time to get rid of them. The circumstances changed and I was tasked with cleansing the repository. I was still unfamiliar with the code-base so I started to look around for config files. I realised quickly this approach would not work out:</p>
+
+<ul>
+  <li>Some secrets were hard-coded directly in the code</li>
+  <li>Some secrets had previously been committed to source control but had since then been removed</li>
+</ul>
+
+<p>I needed a tool that would not only attempt to identify secrets but would also do so over the complete <code class="highlighter-rouge">Git</code> history.<!--more--></p>
+
+<h2 id="identify-secrets-in-code">Identify secrets in code</h2>
+
+<p>While <a href="https://github.com/awslabs/git-secrets">git-secrets</a> found <code class="highlighter-rouge">AWS</code> access keys, it missed out pretty much anything else (private keys, <code class="highlighter-rouge">API</code> keys for other services…). My next pick was <a href="https://github.com/dxa4481/truffleHog">truffleHog</a>. <del>Based on the name only I had a clear winner</del>, <code class="highlighter-rouge">truffleHog</code> uses both entropy and known patterns to attempt to find secrets. This approach results in a high number of false positive, but it is also the only one that discovered credentials I was unaware of.</p>
+
+<blockquote>
+  <p>For entropy checks, truffleHog will evaluate the shannon entropy for both the base64 char set and hexadecimal char set for every blob of text greater than 20 characters comprised of those character sets in each diff. If at any point a high entropy string &gt;20 characters is detected, it will print to the screen.</p>
+</blockquote>
+
+<p><strong>Warning</strong>: no automated approach will uncover all the secrets. There is no way to prevent developers from creating short secrets with a low entropy and use them in production. Your best hope in this case is that those secrets were committed together with stronger secrets and that they will appear in the output of <code class="highlighter-rouge">truffleHog</code>.</p>
+
+<p>Running <code class="highlighter-rouge">truffleHog</code> on a repository is an iterative process. The first run will yield an enormous amount of results which will be impossible to thoroughly review manually. The goal of the initial phase should be to discard files which are unlikely to contain secrets. Package managers lock files, <code class="highlighter-rouge">CSS</code> and <code class="highlighter-rouge">SVG</code>s are amongst those files.</p>
+
+<p>A good starting point to reduce the volume of the haystack is to use this exclude file:</p>
+
+<figure class="highlight"><pre><code class="language-plaintext" data-lang="plaintext"># PHP Composer
+.*composer.lock$
+
+# npm
+.*package-lock.json$
+
+# Yarn
+.*yarn.lock$
+
+# Helm
+.*requirements.lock$
+
+# CSS
+.*\.css$
+
+# SVG
+.*\.svg$
+
+# A directory containing your collection of random numbers
+data/more-data/
+
+# A single file where you've let a GUID generator roam free
+data/super-random.lol</code></pre></figure>
+
+<p><code class="highlighter-rouge">truffleHog</code> is written in <a href="https://en.wikipedia.org/wiki/Monty_Python">Python</a> and distributed using <a href="https://pypi.org/project/pip/">pip</a>. If you’re like me and have no idea what those words mean, the quickest way to get started is to use <code class="highlighter-rouge">Docker</code>. Browse to the directory where the <code class="highlighter-rouge">Git</code> repository is located and run the following container:</p>
+
+<figure class="highlight"><pre><code class="language-powershell" data-lang="powershell">docker run -it --rm <span class="se">`</span>
+    -v <span class="s2">"</span><span class="k">$(</span><span class="nv">$pwd</span><span class="k">)</span><span class="s2">:/opt/scan-me"</span> <span class="se">`</span>
+    -v <span class="s2">"&lt;output-and-settings-directory&gt;:/opt/truffle-hog"</span> <span class="se">`</span>
+    python:3.7-stretch /bin/bash</code></pre></figure>
+
+<p>The directory <code class="highlighter-rouge">&lt;output-and-settings-directory&gt;</code> should contain the exclude file we created previously.</p>
+
+<p>Running the previous command will give you a <code class="highlighter-rouge">bash</code> session within a container with <code class="highlighter-rouge">Python</code> installed. You’ll then need to install <code class="highlighter-rouge">truggleHog</code> and run it:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">pip <span class="nb">install </span>truffleHog
+
+trufflehog <span class="se">\</span>
+    <span class="nt">--regex</span> <span class="se">\</span>
+    <span class="nt">--exclude_paths</span> /opt/truffle-hog/exclude.txt <span class="se">\</span>
+    file:///opt/scan-me/ <span class="o">&gt;</span> /opt/truffle-hog/output.txt</code></pre></figure>
+
+<p>The switch <code class="highlighter-rouge">--regex</code> instructs <code class="highlighter-rouge">truffleHog</code> to look for <a href="https://github.com/dxa4481/truffleHogRegexes/blob/master/truffleHogRegexes/regexes.json">known patterns</a> (ranging from private keys, passing by <code class="highlighter-rouge">AWS</code> access keys to <code class="highlighter-rouge">GCP</code> <code class="highlighter-rouge">API</code> keys). The switch <code class="highlighter-rouge">--exclude_paths</code> points to the exclude file we created previously (in this instance I named it <code class="highlighter-rouge">exclude.txt</code>). <code class="highlighter-rouge">truffleHog</code> expects to be looking at a remote <code class="highlighter-rouge">Git</code> repository but you can direct it to your file system by using <code class="highlighter-rouge">file:///</code>.</p>
+
+<p>Running <code class="highlighter-rouge">truffleHog</code> takes some time (13 minutes on a repository with many thousands of commits) but by beeing cheeky we’ll be able to reduce the number of runs required.</p>
+
+<p><code class="highlighter-rouge">truffleHog</code> outputs its results to the terminal. The potential secrets are coloured in bright yellow using <a href="https://en.wikipedia.org/wiki/ANSI_escape_code">ANSI escape codes</a>:</p>
+
+<p><img src="/assets/top-secret/ansi-escape-codes.png" alt="ANSI escape codes" /></p>
+
+<p>At times <code class="highlighter-rouge">truffleHog</code> gets over-enthusiastic and surrounds a potential secret with <strong>many</strong> <code class="highlighter-rouge">ANSI</code> escape codes:</p>
+
+<p><img src="/assets/top-secret/too-many-escape-codes.png" alt="Too many ANSI escape codes" /></p>
+
+<p>False positives litter the output. In the screenshot above, the <em>secret</em> is actually a portion of the path of an <code class="highlighter-rouge">S3</code> object. I decided to post-process <code class="highlighter-rouge">truffleHog</code>’s output using <code class="highlighter-rouge">C#</code>, but you could use any language to do so. In the <a href="https://www.linqpad.net/">LINQPad</a> script below I:</p>
+
+<ul>
+  <li>Replace duplicate <code class="highlighter-rouge">ANSI</code> escape codes by a single one</li>
+  <li>Remove <code class="highlighter-rouge">ANSI</code> escape codes surrounding false positives and known secrets</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">void</span> <span class="nf">Main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">var</span> <span class="n">truffleHogOutputFilePath</span> <span class="p">=</span>
+        <span class="s">@"&lt;output-and-settings-directory&gt;\output.txt"</span><span class="p">;</span>
+
+    <span class="kt">var</span> <span class="n">lines</span> <span class="p">=</span> <span class="n">File</span><span class="p">.</span><span class="nf">ReadLines</span><span class="p">(</span><span class="n">truffleHogOutputFilePath</span><span class="p">);</span>
+    <span class="kt">var</span> <span class="n">output</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">StringBuilder</span><span class="p">();</span>
+
+    <span class="k">foreach</span> <span class="p">(</span><span class="kt">var</span> <span class="n">line</span> <span class="k">in</span> <span class="n">lines</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="kt">var</span> <span class="n">cleansedLine</span> <span class="p">=</span> <span class="n">LineCleanser</span><span class="p">.</span><span class="nf">CleanseLine</span><span class="p">(</span><span class="n">line</span><span class="p">);</span>
+        <span class="n">output</span><span class="p">.</span><span class="nf">AppendLine</span><span class="p">(</span><span class="n">cleansedLine</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">File</span><span class="p">.</span><span class="nf">WriteAllText</span><span class="p">(</span>
+        <span class="n">truffleHogOutputFilePath</span> <span class="p">+</span> <span class="s">"-cleansed.txt"</span><span class="p">,</span>
+        <span class="n">output</span><span class="p">.</span><span class="nf">ToString</span><span class="p">());</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="k">class</span> <span class="nc">LineCleanser</span>
+<span class="p">{</span>
+    <span class="k">private</span> <span class="k">static</span> <span class="n">Regex</span> <span class="n">startSecretMatcher</span> <span class="p">=</span>
+        <span class="k">new</span> <span class="nf">Regex</span><span class="p">(</span><span class="s">@"(\[93m)\1+"</span><span class="p">);</span>
+
+    <span class="k">private</span> <span class="k">static</span> <span class="n">Regex</span> <span class="n">endSecretMatcher</span> <span class="p">=</span>
+        <span class="k">new</span> <span class="nf">Regex</span><span class="p">(</span><span class="s">@"(\[0m)\1+"</span><span class="p">);</span>
+
+    <span class="k">private</span> <span class="k">static</span> <span class="n">List</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">&gt;</span> <span class="n">valuesToDiscard</span> <span class="p">=</span>
+        <span class="k">new</span> <span class="n">List</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">&gt;</span>
+    <span class="p">{</span>
+        <span class="c1">// S3 buckets</span>
+        <span class="s">"3ec1ae061c27325c7ecb543adf91235e22cbc9ed"</span><span class="p">,</span>
+        <span class="c1">// Static asset hash</span>
+        <span class="s">"c6c10016babba0a092e034a0745bd581"</span>
+   <span class="p">};</span>
+
+    <span class="k">public</span> <span class="k">static</span> <span class="kt">string</span> <span class="nf">CleanseLine</span><span class="p">(</span><span class="kt">string</span> <span class="n">line</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">line</span> <span class="p">=</span> <span class="n">startSecretMatcher</span><span class="p">.</span><span class="nf">Replace</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="s">"$1"</span><span class="p">);</span>
+        <span class="n">line</span> <span class="p">=</span> <span class="n">endSecretMatcher</span><span class="p">.</span><span class="nf">Replace</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="s">"$1"</span><span class="p">);</span>
+
+        <span class="k">foreach</span> <span class="p">(</span><span class="kt">var</span> <span class="n">valueToDiscard</span> <span class="k">in</span> <span class="n">valuesToDiscard</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">line</span> <span class="p">=</span> <span class="n">line</span><span class="p">.</span><span class="nf">Replace</span><span class="p">(</span>
+                <span class="s">$"[93m</span><span class="p">{</span><span class="n">valueToDiscard</span><span class="p">}</span><span class="s">[0m"</span><span class="p">,</span>
+                <span class="n">valueToDiscard</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">line</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>This script runs in a few seconds and you’ll be able to iterate quickly.</p>
+
+<ol>
+  <li>Open <code class="highlighter-rouge">output.txt</code> in <code class="highlighter-rouge">Visual Studio Code</code></li>
+  <li>Search for <code class="highlighter-rouge">[93m</code></li>
+  <li>Add the <em>secret</em> to the values to discard list (if it is an actual secret, write it down)</li>
+  <li>Run the <code class="highlighter-rouge">LINQPad</code> script</li>
+  <li>Return to step <code class="highlighter-rouge">2</code></li>
+</ol>
+
+<p>After some cycles you’ll reach a much cleaner output. You might discover files you want to exclude from <code class="highlighter-rouge">truffleHog</code> (which would require you to run <code class="highlighter-rouge">truffleHog</code> again) or you could decide to discard those via scripting.</p>
+
+<p>By now you should have a list of secrets and entire files that are secrets (private keys, license files…).</p>
+
+<h2 id="purging-secrets">Purging secrets</h2>
+
+<p><a href="https://rtyley.github.io/bfg-repo-cleaner/">BFG Repo-Cleaner</a> removes big files and secrets from your <code class="highlighter-rouge">Git</code> history. It requires <code class="highlighter-rouge">Java 8</code>, I already had it installed on my machine, but you could run it in <code class="highlighter-rouge">Docker</code> if you needed to.</p>
+
+<p>The first step is to clone the repository as a <a href="https://git-scm.com/docs/gitglossary.html#def_bare_repository">bare repository</a>:</p>
+
+<blockquote>
+  <p>A bare repository […] does not have a locally checked-out copy of any of the files under revision control. That is, all of the Git administrative and control files that would normally be present in the hidden <code class="highlighter-rouge">.git</code> sub-directory are directly present in the […] directory instead, and no other files are present and checked out.</p>
+</blockquote>
+
+<p>You can clone a repository as a bare repository using the following command:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">git clone <span class="nt">--mirror</span> https://github.com/rtyley/bfg-repo-cleaner.git project-backup.git</code></pre></figure>
+
+<p>By convention the directory containing a bare repository should end with the suffix <code class="highlighter-rouge">.git</code>.</p>
+
+<p>Copy the content of the <code class="highlighter-rouge">project-backup.git</code> directory into a directory called <code class="highlighter-rouge">project-secrets.git</code> (this is so that we don’t have to clone the repository again at every successive try).</p>
+
+<p>You can then run <code class="highlighter-rouge">BFG Repo-Cleaner</code> with the following command:</p>
+
+<figure class="highlight"><pre><code class="language-powershell" data-lang="powershell">java -jar <span class="s2">"C:\tools\bfg\bfg.jar"</span> <span class="se">`</span>
+    --delete-folders <span class="s2">"{ancient-directory,useless-directory}"</span> <span class="se">`</span>
+    --delete-files <span class="s2">"{pfx-password.txt,my-super-private-key.key,private-key-for-iis.pfx,production-database-backup.sql,*.psd,all.min-626ed116.js.map}"</span> <span class="se">`</span>
+    --replace-text <span class="s2">"C:\tools\bfg\project-secrets.txt"</span> <span class="se">`</span>
+    project-secrets.git</code></pre></figure>
+
+<p>When running <code class="highlighter-rouge">truffleHog</code> I identified that two directories (<code class="highlighter-rouge">ancient-directory</code> and <code class="highlighter-rouge">useless-directory</code>) have not been in use for quite some time. They contain many files I want to purge from the <code class="highlighter-rouge">Git</code> history. The <code class="highlighter-rouge">--delete-folders</code> is used to remove a directory and its content from history. <code class="highlighter-rouge">BFG Repo-Cleaner</code> <strong>does not support full path for directories and files</strong>, so you’ll either only be able to delete objects with a unique name or delete all objects sharing the same name.</p>
+
+<p>With <code class="highlighter-rouge">--delete-files</code> I’m deleting the backup from our production database amongst other files and all the <code class="highlighter-rouge">PSD</code> files. Another approach is to use the <code class="highlighter-rouge">--strip-blobs-bigger-than</code> switch to delete files bigger than a certain size.</p>
+
+<p>The switch <code class="highlighter-rouge">--replace-text</code> points to the secrets we found when running <code class="highlighter-rouge">truffleHog</code>. <code class="highlighter-rouge">BFG Repo-Cleaner</code> will replace them with the string <code class="highlighter-rouge">***REMOVED***</code>. Each secret should be on its own line:</p>
+
+<figure class="highlight"><pre><code class="language-plaintext" data-lang="plaintext">bc7cbdbde3df4166ae8724cc2acc5ee7
+my-top-secret-secret</code></pre></figure>
+
+<p><code class="highlighter-rouge">BFG Repo-Cleaner</code> runs super quickly (a handful of seconds on the repository I was working on) but you need to scrutinise the output with care. If you get a warning about dirty files, this means some secrets are still present in the <code class="highlighter-rouge">HEAD</code> and by default <code class="highlighter-rouge">BFG Repo-Cleaner</code> doesn’t modify the contents of the latest commit on your <code class="highlighter-rouge">HEAD</code>. Here is an example of such a warning:</p>
+
+<figure class="highlight"><pre><code class="language-plaintext" data-lang="plaintext">Protected commits
+-----------------
+
+These are your protected commits, and so their contents will NOT be altered:
+
+ * commit e31fec6c (protected by 'HEAD') - contains 4 dirty files :
+        - some-directory/production-database-backup.sql (98.9 KB)
+        - other-directory/pfx-password.txt (99.5 KB)
+        - ...
+
+WARNING: The dirty content above may be removed from other commits, but as
+the *protected* commits still use it, it will STILL exist in your repository.
+
+Details of protected dirty content have been recorded here :
+
+C:\Code\project-secrets.bfg-report\2019-06-18\16-59-18\protected-dirt\
+
+If you *really* want this content gone, make a manual commit that removes it,
+and then run the BFG on a fresh copy of your repo.
+
+Cleaning
+--------</code></pre></figure>
+
+<p>You need to remove those secrets through a commit and then run <code class="highlighter-rouge">BFG Repo-Cleaner</code> again. <strong>Do not move on to the next step until this warning is gone</strong>. This is the output you should expect when the <code class="highlighter-rouge">HEAD</code> is clean:</p>
+
+<figure class="highlight"><pre><code class="language-plaintext" data-lang="plaintext">Protected commits
+-----------------
+
+These are your protected commits, and so their contents will NOT be altered:
+
+ * commit e31fec6c (protected by 'HEAD')
+
+Cleaning
+--------</code></pre></figure>
+
+<p>Finally let’s ensure that <code class="highlighter-rouge">Git</code> itself doesn’t store anything any more about the objects we’ve just removed from history:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">cd </span>project-secrets.git
+git reflog expire <span class="nt">--expire</span><span class="o">=</span>now <span class="nt">--all</span>
+git gc <span class="nt">--prune</span><span class="o">=</span>now <span class="nt">--aggressive</span></code></pre></figure>
+
+<p>The last step involves pushing back the changes to the <code class="highlighter-rouge">remote</code>. Quite often the <code class="highlighter-rouge">master</code> branch will be protected, you will need to lift this restriction before pushing:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">git push</code></pre></figure>
+
+<p>You also need to keep in mind that <strong>you will lose the links</strong> between your <code class="highlighter-rouge">Pull Requests</code>, work items, builds… and commits as the <code class="highlighter-rouge">Ids</code> identifying the commits will change. You should merge as many <code class="highlighter-rouge">Pull Requests</code> as you can before starting this process and warn your teammates that they will need to clone the repository again after you’re done.</p>
+
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2019/06/29/top-secret/</guid>
+                <description>
+                    
+                    Removing secrets from Git history.
+                    
+                </description>
+                <pubDate>Sat, 29 Jun 2019 23:10:27 -0500</pubDate>
+                <author>Gabriel Weyer</author>
+            </item>
+        
+    
+        
+            <item>
                 <title>Azure VM pricing</title>
                 <link>https://gabrielweyer.net/2019/02/06/azure-vm-pricing/</link>
                 <content:encoded>

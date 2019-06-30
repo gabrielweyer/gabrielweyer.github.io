@@ -7,6 +7,248 @@
     <atom:link href="https://gabrielweyer.net/feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
+        <title>Top secret</title>
+        <description>&lt;p&gt;I was recently working on a project that contained secrets in source control. The team was aware of this fact but had never been able to allocate time to get rid of them. The circumstances changed and I was tasked with cleansing the repository. I was still unfamiliar with the code-base so I started to look around for config files. I realised quickly this approach would not work out:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Some secrets were hard-coded directly in the code&lt;/li&gt;
+  &lt;li&gt;Some secrets had previously been committed to source control but had since then been removed&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;I needed a tool that would not only attempt to identify secrets but would also do so over the complete &lt;code class=&quot;highlighter-rouge&quot;&gt;Git&lt;/code&gt; history.&lt;!--more--&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;identify-secrets-in-code&quot;&gt;Identify secrets in code&lt;/h2&gt;
+
+&lt;p&gt;While &lt;a href=&quot;https://github.com/awslabs/git-secrets&quot;&gt;git-secrets&lt;/a&gt; found &lt;code class=&quot;highlighter-rouge&quot;&gt;AWS&lt;/code&gt; access keys, it missed out pretty much anything else (private keys, &lt;code class=&quot;highlighter-rouge&quot;&gt;API&lt;/code&gt; keys for other services…). My next pick was &lt;a href=&quot;https://github.com/dxa4481/truffleHog&quot;&gt;truffleHog&lt;/a&gt;. &lt;del&gt;Based on the name only I had a clear winner&lt;/del&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;truffleHog&lt;/code&gt; uses both entropy and known patterns to attempt to find secrets. This approach results in a high number of false positive, but it is also the only one that discovered credentials I was unaware of.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;For entropy checks, truffleHog will evaluate the shannon entropy for both the base64 char set and hexadecimal char set for every blob of text greater than 20 characters comprised of those character sets in each diff. If at any point a high entropy string &amp;gt;20 characters is detected, it will print to the screen.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;Warning&lt;/strong&gt;: no automated approach will uncover all the secrets. There is no way to prevent developers from creating short secrets with a low entropy and use them in production. Your best hope in this case is that those secrets were committed together with stronger secrets and that they will appear in the output of &lt;code class=&quot;highlighter-rouge&quot;&gt;truffleHog&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Running &lt;code class=&quot;highlighter-rouge&quot;&gt;truffleHog&lt;/code&gt; on a repository is an iterative process. The first run will yield an enormous amount of results which will be impossible to thoroughly review manually. The goal of the initial phase should be to discard files which are unlikely to contain secrets. Package managers lock files, &lt;code class=&quot;highlighter-rouge&quot;&gt;CSS&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;SVG&lt;/code&gt;s are amongst those files.&lt;/p&gt;
+
+&lt;p&gt;A good starting point to reduce the volume of the haystack is to use this exclude file:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-plaintext&quot; data-lang=&quot;plaintext&quot;&gt;# PHP Composer
+.*composer.lock$
+
+# npm
+.*package-lock.json$
+
+# Yarn
+.*yarn.lock$
+
+# Helm
+.*requirements.lock$
+
+# CSS
+.*\.css$
+
+# SVG
+.*\.svg$
+
+# A directory containing your collection of random numbers
+data/more-data/
+
+# A single file where you've let a GUID generator roam free
+data/super-random.lol&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;truffleHog&lt;/code&gt; is written in &lt;a href=&quot;https://en.wikipedia.org/wiki/Monty_Python&quot;&gt;Python&lt;/a&gt; and distributed using &lt;a href=&quot;https://pypi.org/project/pip/&quot;&gt;pip&lt;/a&gt;. If you’re like me and have no idea what those words mean, the quickest way to get started is to use &lt;code class=&quot;highlighter-rouge&quot;&gt;Docker&lt;/code&gt;. Browse to the directory where the &lt;code class=&quot;highlighter-rouge&quot;&gt;Git&lt;/code&gt; repository is located and run the following container:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-powershell&quot; data-lang=&quot;powershell&quot;&gt;docker run -it --rm &lt;span class=&quot;se&quot;&gt;`&lt;/span&gt;
+    -v &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$pwd&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;:/opt/scan-me&quot;&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;`&lt;/span&gt;
+    -v &lt;span class=&quot;s2&quot;&gt;&quot;&amp;lt;output-and-settings-directory&amp;gt;:/opt/truffle-hog&quot;&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;`&lt;/span&gt;
+    python:3.7-stretch /bin/bash&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The directory &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;output-and-settings-directory&amp;gt;&lt;/code&gt; should contain the exclude file we created previously.&lt;/p&gt;
+
+&lt;p&gt;Running the previous command will give you a &lt;code class=&quot;highlighter-rouge&quot;&gt;bash&lt;/code&gt; session within a container with &lt;code class=&quot;highlighter-rouge&quot;&gt;Python&lt;/code&gt; installed. You’ll then need to install &lt;code class=&quot;highlighter-rouge&quot;&gt;truggleHog&lt;/code&gt; and run it:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;pip &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;truffleHog
+
+trufflehog &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;--regex&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;--exclude_paths&lt;/span&gt; /opt/truffle-hog/exclude.txt &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+    file:///opt/scan-me/ &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; /opt/truffle-hog/output.txt&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The switch &lt;code class=&quot;highlighter-rouge&quot;&gt;--regex&lt;/code&gt; instructs &lt;code class=&quot;highlighter-rouge&quot;&gt;truffleHog&lt;/code&gt; to look for &lt;a href=&quot;https://github.com/dxa4481/truffleHogRegexes/blob/master/truffleHogRegexes/regexes.json&quot;&gt;known patterns&lt;/a&gt; (ranging from private keys, passing by &lt;code class=&quot;highlighter-rouge&quot;&gt;AWS&lt;/code&gt; access keys to &lt;code class=&quot;highlighter-rouge&quot;&gt;GCP&lt;/code&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;API&lt;/code&gt; keys). The switch &lt;code class=&quot;highlighter-rouge&quot;&gt;--exclude_paths&lt;/code&gt; points to the exclude file we created previously (in this instance I named it &lt;code class=&quot;highlighter-rouge&quot;&gt;exclude.txt&lt;/code&gt;). &lt;code class=&quot;highlighter-rouge&quot;&gt;truffleHog&lt;/code&gt; expects to be looking at a remote &lt;code class=&quot;highlighter-rouge&quot;&gt;Git&lt;/code&gt; repository but you can direct it to your file system by using &lt;code class=&quot;highlighter-rouge&quot;&gt;file:///&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Running &lt;code class=&quot;highlighter-rouge&quot;&gt;truffleHog&lt;/code&gt; takes some time (13 minutes on a repository with many thousands of commits) but by beeing cheeky we’ll be able to reduce the number of runs required.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;truffleHog&lt;/code&gt; outputs its results to the terminal. The potential secrets are coloured in bright yellow using &lt;a href=&quot;https://en.wikipedia.org/wiki/ANSI_escape_code&quot;&gt;ANSI escape codes&lt;/a&gt;:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/top-secret/ansi-escape-codes.png&quot; alt=&quot;ANSI escape codes&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;At times &lt;code class=&quot;highlighter-rouge&quot;&gt;truffleHog&lt;/code&gt; gets over-enthusiastic and surrounds a potential secret with &lt;strong&gt;many&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;ANSI&lt;/code&gt; escape codes:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/top-secret/too-many-escape-codes.png&quot; alt=&quot;Too many ANSI escape codes&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;False positives litter the output. In the screenshot above, the &lt;em&gt;secret&lt;/em&gt; is actually a portion of the path of an &lt;code class=&quot;highlighter-rouge&quot;&gt;S3&lt;/code&gt; object. I decided to post-process &lt;code class=&quot;highlighter-rouge&quot;&gt;truffleHog&lt;/code&gt;’s output using &lt;code class=&quot;highlighter-rouge&quot;&gt;C#&lt;/code&gt;, but you could use any language to do so. In the &lt;a href=&quot;https://www.linqpad.net/&quot;&gt;LINQPad&lt;/a&gt; script below I:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Replace duplicate &lt;code class=&quot;highlighter-rouge&quot;&gt;ANSI&lt;/code&gt; escape codes by a single one&lt;/li&gt;
+  &lt;li&gt;Remove &lt;code class=&quot;highlighter-rouge&quot;&gt;ANSI&lt;/code&gt; escape codes surrounding false positives and known secrets&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;k&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;Main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kt&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;truffleHogOutputFilePath&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;@&quot;&amp;lt;output-and-settings-directory&amp;gt;\output.txt&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+    &lt;span class=&quot;kt&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;lines&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;File&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;ReadLines&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;truffleHogOutputFilePath&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;kt&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;output&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;StringBuilder&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;foreach&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;lines&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;kt&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cleansedLine&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;LineCleanser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;CleanseLine&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;output&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;AppendLine&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cleansedLine&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;File&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;WriteAllText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;truffleHogOutputFilePath&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;-cleansed.txt&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;output&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;ToString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;());&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;LineCleanser&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Regex&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;startSecretMatcher&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;Regex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;@&quot;(\[93m)\1+&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Regex&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;endSecretMatcher&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;Regex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;@&quot;(\[0m)\1+&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;valuesToDiscard&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// S3 buckets&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&quot;3ec1ae061c27325c7ecb543adf91235e22cbc9ed&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// Static asset hash&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&quot;c6c10016babba0a092e034a0745bd581&quot;&lt;/span&gt;
+   &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;CleanseLine&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;startSecretMatcher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Replace&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;$1&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;endSecretMatcher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Replace&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;$1&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+        &lt;span class=&quot;k&quot;&gt;foreach&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;valueToDiscard&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;valuesToDiscard&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Replace&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;$&quot;[93m&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;valueToDiscard&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;[0m&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;valueToDiscard&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;This script runs in a few seconds and you’ll be able to iterate quickly.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Open &lt;code class=&quot;highlighter-rouge&quot;&gt;output.txt&lt;/code&gt; in &lt;code class=&quot;highlighter-rouge&quot;&gt;Visual Studio Code&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;Search for &lt;code class=&quot;highlighter-rouge&quot;&gt;[93m&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;Add the &lt;em&gt;secret&lt;/em&gt; to the values to discard list (if it is an actual secret, write it down)&lt;/li&gt;
+  &lt;li&gt;Run the &lt;code class=&quot;highlighter-rouge&quot;&gt;LINQPad&lt;/code&gt; script&lt;/li&gt;
+  &lt;li&gt;Return to step &lt;code class=&quot;highlighter-rouge&quot;&gt;2&lt;/code&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;After some cycles you’ll reach a much cleaner output. You might discover files you want to exclude from &lt;code class=&quot;highlighter-rouge&quot;&gt;truffleHog&lt;/code&gt; (which would require you to run &lt;code class=&quot;highlighter-rouge&quot;&gt;truffleHog&lt;/code&gt; again) or you could decide to discard those via scripting.&lt;/p&gt;
+
+&lt;p&gt;By now you should have a list of secrets and entire files that are secrets (private keys, license files…).&lt;/p&gt;
+
+&lt;h2 id=&quot;purging-secrets&quot;&gt;Purging secrets&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://rtyley.github.io/bfg-repo-cleaner/&quot;&gt;BFG Repo-Cleaner&lt;/a&gt; removes big files and secrets from your &lt;code class=&quot;highlighter-rouge&quot;&gt;Git&lt;/code&gt; history. It requires &lt;code class=&quot;highlighter-rouge&quot;&gt;Java 8&lt;/code&gt;, I already had it installed on my machine, but you could run it in &lt;code class=&quot;highlighter-rouge&quot;&gt;Docker&lt;/code&gt; if you needed to.&lt;/p&gt;
+
+&lt;p&gt;The first step is to clone the repository as a &lt;a href=&quot;https://git-scm.com/docs/gitglossary.html#def_bare_repository&quot;&gt;bare repository&lt;/a&gt;:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;A bare repository […] does not have a locally checked-out copy of any of the files under revision control. That is, all of the Git administrative and control files that would normally be present in the hidden &lt;code class=&quot;highlighter-rouge&quot;&gt;.git&lt;/code&gt; sub-directory are directly present in the […] directory instead, and no other files are present and checked out.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;You can clone a repository as a bare repository using the following command:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;git clone &lt;span class=&quot;nt&quot;&gt;--mirror&lt;/span&gt; https://github.com/rtyley/bfg-repo-cleaner.git project-backup.git&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;By convention the directory containing a bare repository should end with the suffix &lt;code class=&quot;highlighter-rouge&quot;&gt;.git&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Copy the content of the &lt;code class=&quot;highlighter-rouge&quot;&gt;project-backup.git&lt;/code&gt; directory into a directory called &lt;code class=&quot;highlighter-rouge&quot;&gt;project-secrets.git&lt;/code&gt; (this is so that we don’t have to clone the repository again at every successive try).&lt;/p&gt;
+
+&lt;p&gt;You can then run &lt;code class=&quot;highlighter-rouge&quot;&gt;BFG Repo-Cleaner&lt;/code&gt; with the following command:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-powershell&quot; data-lang=&quot;powershell&quot;&gt;java -jar &lt;span class=&quot;s2&quot;&gt;&quot;C:\tools\bfg\bfg.jar&quot;&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;`&lt;/span&gt;
+    --delete-folders &lt;span class=&quot;s2&quot;&gt;&quot;{ancient-directory,useless-directory}&quot;&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;`&lt;/span&gt;
+    --delete-files &lt;span class=&quot;s2&quot;&gt;&quot;{pfx-password.txt,my-super-private-key.key,private-key-for-iis.pfx,production-database-backup.sql,*.psd,all.min-626ed116.js.map}&quot;&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;`&lt;/span&gt;
+    --replace-text &lt;span class=&quot;s2&quot;&gt;&quot;C:\tools\bfg\project-secrets.txt&quot;&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;`&lt;/span&gt;
+    project-secrets.git&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;When running &lt;code class=&quot;highlighter-rouge&quot;&gt;truffleHog&lt;/code&gt; I identified that two directories (&lt;code class=&quot;highlighter-rouge&quot;&gt;ancient-directory&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;useless-directory&lt;/code&gt;) have not been in use for quite some time. They contain many files I want to purge from the &lt;code class=&quot;highlighter-rouge&quot;&gt;Git&lt;/code&gt; history. The &lt;code class=&quot;highlighter-rouge&quot;&gt;--delete-folders&lt;/code&gt; is used to remove a directory and its content from history. &lt;code class=&quot;highlighter-rouge&quot;&gt;BFG Repo-Cleaner&lt;/code&gt; &lt;strong&gt;does not support full path for directories and files&lt;/strong&gt;, so you’ll either only be able to delete objects with a unique name or delete all objects sharing the same name.&lt;/p&gt;
+
+&lt;p&gt;With &lt;code class=&quot;highlighter-rouge&quot;&gt;--delete-files&lt;/code&gt; I’m deleting the backup from our production database amongst other files and all the &lt;code class=&quot;highlighter-rouge&quot;&gt;PSD&lt;/code&gt; files. Another approach is to use the &lt;code class=&quot;highlighter-rouge&quot;&gt;--strip-blobs-bigger-than&lt;/code&gt; switch to delete files bigger than a certain size.&lt;/p&gt;
+
+&lt;p&gt;The switch &lt;code class=&quot;highlighter-rouge&quot;&gt;--replace-text&lt;/code&gt; points to the secrets we found when running &lt;code class=&quot;highlighter-rouge&quot;&gt;truffleHog&lt;/code&gt;. &lt;code class=&quot;highlighter-rouge&quot;&gt;BFG Repo-Cleaner&lt;/code&gt; will replace them with the string &lt;code class=&quot;highlighter-rouge&quot;&gt;***REMOVED***&lt;/code&gt;. Each secret should be on its own line:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-plaintext&quot; data-lang=&quot;plaintext&quot;&gt;bc7cbdbde3df4166ae8724cc2acc5ee7
+my-top-secret-secret&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;BFG Repo-Cleaner&lt;/code&gt; runs super quickly (a handful of seconds on the repository I was working on) but you need to scrutinise the output with care. If you get a warning about dirty files, this means some secrets are still present in the &lt;code class=&quot;highlighter-rouge&quot;&gt;HEAD&lt;/code&gt; and by default &lt;code class=&quot;highlighter-rouge&quot;&gt;BFG Repo-Cleaner&lt;/code&gt; doesn’t modify the contents of the latest commit on your &lt;code class=&quot;highlighter-rouge&quot;&gt;HEAD&lt;/code&gt;. Here is an example of such a warning:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-plaintext&quot; data-lang=&quot;plaintext&quot;&gt;Protected commits
+-----------------
+
+These are your protected commits, and so their contents will NOT be altered:
+
+ * commit e31fec6c (protected by 'HEAD') - contains 4 dirty files :
+        - some-directory/production-database-backup.sql (98.9 KB)
+        - other-directory/pfx-password.txt (99.5 KB)
+        - ...
+
+WARNING: The dirty content above may be removed from other commits, but as
+the *protected* commits still use it, it will STILL exist in your repository.
+
+Details of protected dirty content have been recorded here :
+
+C:\Code\project-secrets.bfg-report\2019-06-18\16-59-18\protected-dirt\
+
+If you *really* want this content gone, make a manual commit that removes it,
+and then run the BFG on a fresh copy of your repo.
+
+Cleaning
+--------&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;You need to remove those secrets through a commit and then run &lt;code class=&quot;highlighter-rouge&quot;&gt;BFG Repo-Cleaner&lt;/code&gt; again. &lt;strong&gt;Do not move on to the next step until this warning is gone&lt;/strong&gt;. This is the output you should expect when the &lt;code class=&quot;highlighter-rouge&quot;&gt;HEAD&lt;/code&gt; is clean:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-plaintext&quot; data-lang=&quot;plaintext&quot;&gt;Protected commits
+-----------------
+
+These are your protected commits, and so their contents will NOT be altered:
+
+ * commit e31fec6c (protected by 'HEAD')
+
+Cleaning
+--------&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Finally let’s ensure that &lt;code class=&quot;highlighter-rouge&quot;&gt;Git&lt;/code&gt; itself doesn’t store anything any more about the objects we’ve just removed from history:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;project-secrets.git
+git reflog expire &lt;span class=&quot;nt&quot;&gt;--expire&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;now &lt;span class=&quot;nt&quot;&gt;--all&lt;/span&gt;
+git gc &lt;span class=&quot;nt&quot;&gt;--prune&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;now &lt;span class=&quot;nt&quot;&gt;--aggressive&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The last step involves pushing back the changes to the &lt;code class=&quot;highlighter-rouge&quot;&gt;remote&lt;/code&gt;. Quite often the &lt;code class=&quot;highlighter-rouge&quot;&gt;master&lt;/code&gt; branch will be protected, you will need to lift this restriction before pushing:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;git push&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;You also need to keep in mind that &lt;strong&gt;you will lose the links&lt;/strong&gt; between your &lt;code class=&quot;highlighter-rouge&quot;&gt;Pull Requests&lt;/code&gt;, work items, builds… and commits as the &lt;code class=&quot;highlighter-rouge&quot;&gt;Ids&lt;/code&gt; identifying the commits will change. You should merge as many &lt;code class=&quot;highlighter-rouge&quot;&gt;Pull Requests&lt;/code&gt; as you can before starting this process and warn your teammates that they will need to clone the repository again after you’re done.&lt;/p&gt;
+
+</description>
+        <pubDate>Sat, 29 Jun 2019 23:10:27 -0500</pubDate>
+        <link>https://gabrielweyer.net/2019/06/29/top-secret/</link>
+        <guid isPermaLink="true">https://gabrielweyer.net/2019/06/29/top-secret/</guid>
+      </item>
+    
+      <item>
         <title>Azure VM pricing</title>
         <description>&lt;p&gt;I was recently faced with an interesting problem. A company wanted to cost the migration of thousands of &lt;code class=&quot;highlighter-rouge&quot;&gt;VMs&lt;/code&gt; to &lt;code class=&quot;highlighter-rouge&quot;&gt;Azure&lt;/code&gt; using a &lt;a href=&quot;https://docs.microsoft.com/en-us/azure/architecture/cloud-adoption/digital-estate/5-rs-of-rationalization#rehost&quot;&gt;lift and shift&lt;/a&gt; approach (also known as rehost). Due to the short deadline, we were not able to get our hands on detailed data. All we were provided with was a machine name, &lt;code class=&quot;highlighter-rouge&quot;&gt;CPU&lt;/code&gt; cores count, &lt;code class=&quot;highlighter-rouge&quot;&gt;RAM&lt;/code&gt; and a description field that was sometimes populated. Utilisation, storage and network usage were notably missing. We knew we couldn’t cost the migration accurately due to these unknowns, but we had enough data to cost the &lt;code class=&quot;highlighter-rouge&quot;&gt;VMs&lt;/code&gt; themselves as we had access to &lt;code class=&quot;highlighter-rouge&quot;&gt;CPU&lt;/code&gt; cores count and &lt;code class=&quot;highlighter-rouge&quot;&gt;RAM&lt;/code&gt;. I must also add that the &lt;code class=&quot;highlighter-rouge&quot;&gt;VMs&lt;/code&gt; varied greatly in their hardware specifications.&lt;/p&gt;
 
@@ -1616,195 +1858,6 @@ NumStaticFields:     1
         <pubDate>Thu, 08 Feb 2018 14:34:06 -0600</pubDate>
         <link>https://gabrielweyer.net/2018/02/08/singleton-http-client/</link>
         <guid isPermaLink="true">https://gabrielweyer.net/2018/02/08/singleton-http-client/</guid>
-      </item>
-    
-      <item>
-        <title>Simple Routing for Elastic Beanstalk Worker tier</title>
-        <description>&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Elastic Beanstalk&lt;/code&gt; offers both a &lt;code class=&quot;highlighter-rouge&quot;&gt;Web&lt;/code&gt; tier and a &lt;code class=&quot;highlighter-rouge&quot;&gt;Worker&lt;/code&gt; tier. This allows developers to build reasonably complex applications without having to maintain moving pieces. Offloading heavy-duty workloads to the worker in order to keep the web tier responsive is as easy as putting a message on a queue.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/simple-routing-elastic-beanstalk-worker/http-path.png&quot; alt=&quot;HTTP Path&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;One annoyance that I have with &lt;code class=&quot;highlighter-rouge&quot;&gt;Beanstalk&lt;/code&gt; is that there is no way to direct a message to a specific endpoint, hence leaving a single endpoint the responsibility of distributing the messages to all their handlers and potentially leading to brittle code. But it doesn’t have to be that way.&lt;!--more--&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;implementation&quot;&gt;Implementation&lt;/h2&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;SQS&lt;/code&gt; messages have &lt;a href=&quot;https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-message-attributes.html&quot;&gt;attributes&lt;/a&gt;, attributes can be set by the sender and are read by the receiver. The idea is to use a known attribute to attach routing metadata to the message.&lt;/p&gt;
-
-&lt;h3 id=&quot;constants&quot;&gt;Constants&lt;/h3&gt;
-
-&lt;p&gt;Constants are the base of any decently built &lt;code class=&quot;highlighter-rouge&quot;&gt;C#&lt;/code&gt; application. I did not want to depart from to this rule and hence added some constants:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;RoutingConstants&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;HeaderName&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Task&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;HeaderType&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;String&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;These constansts will be used to add routing metadata to the &lt;code class=&quot;highlighter-rouge&quot;&gt;SQS&lt;/code&gt; message.&lt;/p&gt;
-
-&lt;p&gt;We can then define our routes via some more constants:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;WorkerConstants&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;DoSomeWorkTaskName&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;do-some-work&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;DoSomeOtherWorkTaskName&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;do-some-other-work&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;&lt;strong&gt;Note&lt;/strong&gt;: those two &lt;code class=&quot;highlighter-rouge&quot;&gt;class&lt;/code&gt; will have to be referenced by the sender and the &lt;code class=&quot;highlighter-rouge&quot;&gt;Worker&lt;/code&gt;.&lt;/p&gt;
-
-&lt;h3 id=&quot;sending-the-message&quot;&gt;Sending the message&lt;/h3&gt;
-
-&lt;p&gt;The sender will most likely be the &lt;code class=&quot;highlighter-rouge&quot;&gt;Web&lt;/code&gt; tier but it could be any system being able to send a message to a &lt;code class=&quot;highlighter-rouge&quot;&gt;SQS&lt;/code&gt; queue.&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;kt&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sendMessageRequest&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;SendMessageRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
-&lt;span class=&quot;c1&quot;&gt;// Abbreviated: set properties on sendMessageRequest, such as the MessageBody and the QueueUrl&lt;/span&gt;
-
-&lt;span class=&quot;c1&quot;&gt;// We're using RoutingConstants.HeaderName as the MessageAttribute key&lt;/span&gt;
-&lt;span class=&quot;c1&quot;&gt;// and WorkerConstants.DoSomeWorkTaskName as the MessageAttribute value&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;sendMessageRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;MessageAttributes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Add&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;RoutingConstants&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;HeaderName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MessageAttributeValue&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;StringValue&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;WorkerConstants&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;DoSomeWorkTaskName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;DataType&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;RoutingConstants&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;HeaderType&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
-
-&lt;span class=&quot;c1&quot;&gt;// Abbreviated: send the message&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;h3 id=&quot;middleware&quot;&gt;Middleware&lt;/h3&gt;
-
-&lt;p&gt;In the &lt;code class=&quot;highlighter-rouge&quot;&gt;Worker&lt;/code&gt;, the routing is implemented via a &lt;code class=&quot;highlighter-rouge&quot;&gt;Middleware&lt;/code&gt;:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;HeaderRoutingMiddleware&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;c1&quot;&gt;// Elastic Beanstalk prefixes the SQS messages properties' name with &quot;X-Aws-Sqsd-Attr-&quot;&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;readonly&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TaskHeaderName&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;$&quot;X-Aws-Sqsd-Attr-&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;RoutingConstants&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;HeaderName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-
-    &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Task&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;Invoke&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;HttpContext&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;c1&quot;&gt;// We get the value of the routing header&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;StringValues&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;task&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Headers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TaskHeaderName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
-
-        &lt;span class=&quot;c1&quot;&gt;// And set it as the path&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Path&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;$&quot;/&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;task&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Single&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()}&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;_next&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;&lt;strong&gt;Note&lt;/strong&gt;: don’t forget to add &lt;code class=&quot;highlighter-rouge&quot;&gt;HeaderRoutingMiddleware&lt;/code&gt; to the &lt;code class=&quot;highlighter-rouge&quot;&gt;IApplicationBuilder&lt;/code&gt;.&lt;/p&gt;
-
-&lt;h3 id=&quot;controller&quot;&gt;Controller&lt;/h3&gt;
-
-&lt;p&gt;The last piece of the puzzle is defining the expected route on the &lt;code class=&quot;highlighter-rouge&quot;&gt;Controller&lt;/code&gt;:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;c1&quot;&gt;// This is important, we do not want a prefix in front of the action's route&lt;/span&gt;
-&lt;span class=&quot;na&quot;&gt;[Route(&quot;&quot;)]&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SomeController&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Controller&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-  &lt;span class=&quot;c1&quot;&gt;// The route has to match the value given to the MessageAttribute&lt;/span&gt;
-  &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;HttpPost&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;WorkerConstants&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;DoSomeWorkTaskName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;
-  &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;async&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Task&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IActionResult&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;SomeMethod&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;SomeModel&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;model&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-  &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-      &lt;span class=&quot;c1&quot;&gt;// Abbreviated for clarity&lt;/span&gt;
-  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;h2 id=&quot;simple-routing&quot;&gt;Simple routing&lt;/h2&gt;
-
-&lt;p&gt;I used &lt;code class=&quot;highlighter-rouge&quot;&gt;Simple Routing&lt;/code&gt; in production over the last few months and am now confident that it does what it’s supposed to do. This is why I decided to release it under a &lt;code class=&quot;highlighter-rouge&quot;&gt;MIT&lt;/code&gt; license to allow others to benefit from my work.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Simple Routing&lt;/code&gt; is available:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;On &lt;code class=&quot;highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; as the package &lt;a href=&quot;https://www.nuget.org/packages/BeanstalkWorker.SimpleRouting/&quot;&gt;BeanstalkWorker.SimpleRouting&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;A &lt;code class=&quot;highlighter-rouge&quot;&gt;GitHub&lt;/code&gt; &lt;a href=&quot;https://github.com/gabrielweyer/simple-routing/releases&quot;&gt;release&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;As &lt;a href=&quot;https://github.com/gabrielweyer/simple-routing&quot;&gt;source&lt;/a&gt; on &lt;code class=&quot;highlighter-rouge&quot;&gt;Github&lt;/code&gt;
-    &lt;ul&gt;
-      &lt;li&gt;The implementation is so simple that you can just copy the classes into your own solution if that works better for you&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;demo&quot;&gt;Demo&lt;/h3&gt;
-
-&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;Simple Routing&lt;/code&gt; solution contains a &lt;code class=&quot;highlighter-rouge&quot;&gt;SampleWeb&lt;/code&gt; app, you can either:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Send “work” - &lt;code class=&quot;highlighter-rouge&quot;&gt;Send/Work&lt;/code&gt;&lt;/li&gt;
-  &lt;li&gt;Send “nothing” - &lt;code class=&quot;highlighter-rouge&quot;&gt;Send/Nothing&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h4 id=&quot;send-messages&quot;&gt;Send messages&lt;/h4&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;GET http://localhost:5000/Send/Work HTTP/1.1
-Host: localhost:5000&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/simple-routing-elastic-beanstalk-worker/web-send-work.png&quot; alt=&quot;Send Work&quot; /&gt;&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;GET http://localhost:5000/Send/Nothing HTTP/1.1
-Host: localhost:5000&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/simple-routing-elastic-beanstalk-worker/web-send-nothing.png&quot; alt=&quot;Send Nothing&quot; /&gt;&lt;/p&gt;
-
-&lt;h4 id=&quot;peek-at-the-messages&quot;&gt;Peek at the messages&lt;/h4&gt;
-
-&lt;p&gt;Now let’s look at the messages in the &lt;code class=&quot;highlighter-rouge&quot;&gt;SQS&lt;/code&gt; queue:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;Work&lt;/code&gt; message&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/simple-routing-elastic-beanstalk-worker/message-work-body.png&quot; alt=&quot;Work Message Body&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/simple-routing-elastic-beanstalk-worker/message-work-attributes.png&quot; alt=&quot;Work Message Attributes&quot; /&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;Nothing&lt;/code&gt; message&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/simple-routing-elastic-beanstalk-worker/message-nothing-body.png&quot; alt=&quot;Nothing Message Body&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/simple-routing-elastic-beanstalk-worker/message-nothing-attributes.png&quot; alt=&quot;Nothing Message Attributes&quot; /&gt;&lt;/p&gt;
-
-&lt;h4 id=&quot;handle-the-messages&quot;&gt;Handle the messages&lt;/h4&gt;
-
-&lt;p&gt;Launch the &lt;code class=&quot;highlighter-rouge&quot;&gt;SampleWorker&lt;/code&gt; app. When running in &lt;code class=&quot;highlighter-rouge&quot;&gt;ElasticBeanstalk&lt;/code&gt; the &lt;a href=&quot;https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html&quot;&gt;Sqsd daemon&lt;/a&gt; reads &lt;code class=&quot;highlighter-rouge&quot;&gt;SQS&lt;/code&gt; messages from the &lt;code class=&quot;highlighter-rouge&quot;&gt;SQS&lt;/code&gt; queue and &lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt; the content to your &lt;code class=&quot;highlighter-rouge&quot;&gt;Worker&lt;/code&gt;. But we’re running the &lt;code class=&quot;highlighter-rouge&quot;&gt;Worker&lt;/code&gt; on our machine and the &lt;code class=&quot;highlighter-rouge&quot;&gt;Sqsd daemon&lt;/code&gt; is not available. This is why I wrote &lt;code class=&quot;highlighter-rouge&quot;&gt;Beanstalk Seeder&lt;/code&gt;.&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;&lt;a href=&quot;https://github.com/gabrielweyer/beanstalk-seeder&quot;&gt;Beanstalk Seeder&lt;/a&gt; emulates the &lt;code class=&quot;highlighter-rouge&quot;&gt;SQS Daemon&lt;/code&gt; surrounding an &lt;code class=&quot;highlighter-rouge&quot;&gt;Elastic Beanstalk&lt;/code&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;Worker Tier&lt;/code&gt; so that you can replicate the interaction between a &lt;code class=&quot;highlighter-rouge&quot;&gt;Web Tier&lt;/code&gt; and a &lt;code class=&quot;highlighter-rouge&quot;&gt;Worker Tier&lt;/code&gt; on your machine.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h5 id=&quot;handling-the-work-message&quot;&gt;Handling the &lt;code class=&quot;highlighter-rouge&quot;&gt;Work&lt;/code&gt; message&lt;/h5&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Beanstalk Seeder&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/simple-routing-elastic-beanstalk-worker/beanstalk-seeder-work.png&quot; alt=&quot;Work Message Beanstalk Seeder&quot; /&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Worker&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/simple-routing-elastic-beanstalk-worker/worker-work.png&quot; alt=&quot;Work Message Worker&quot; /&gt;&lt;/p&gt;
-
-&lt;h5 id=&quot;handling-the-nothing-message&quot;&gt;Handling the &lt;code class=&quot;highlighter-rouge&quot;&gt;Nothing&lt;/code&gt; message&lt;/h5&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Beanstalk Seeder&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/simple-routing-elastic-beanstalk-worker/beanstalk-seeder-nothing.png&quot; alt=&quot;Nothing Message Beanstalk Seeder&quot; /&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Worker&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/simple-routing-elastic-beanstalk-worker/worker-nothing.png&quot; alt=&quot;Nothing Message Worker&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;I wrote a detailed guide in the &lt;a href=&quot;https://github.com/gabrielweyer/simple-routing&quot;&gt;GitHub repository&lt;/a&gt;. Give it a try and let me know if it works for you.&lt;/p&gt;
-
-</description>
-        <pubDate>Sun, 28 Jan 2018 14:24:33 -0600</pubDate>
-        <link>https://gabrielweyer.net/2018/01/28/simple-routing-elastic-beanstalk-worker/</link>
-        <guid isPermaLink="true">https://gabrielweyer.net/2018/01/28/simple-routing-elastic-beanstalk-worker/</guid>
       </item>
     
   </channel>

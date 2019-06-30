@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Gabriel Weyer - A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?201906220140" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?201906292320" type="text/css">
 
     <!-- Fonts -->
     
@@ -104,6 +104,31 @@
     <div class="posts">
       
         <div class="post py3">
+          <p class="post-meta">Jul 16, 2016</p>
+          <a href="/2016/07/16/capture-network-packets-with-netsh/" class="post-link"><h3 class="h1 post-title">Capture network packets with netsh</h3></a>
+          <span class="post-summary">
+            <p>Another day, another “interesting” issue at a customer. After deploying our product we were left with a partially working web application. The product has been developed over many years and is a mix of ASP Classic, Web Forms, MVC and Web API. In this case ASP Classic pages were broken and would throw an error.</p>
+
+<h2 id="ensuring-asp-classic-is-configured-properly">Ensuring ASP Classic is configured properly</h2>
+
+<p>The first step is to ensure that IIS has been configured to execute ASP Classic and this is done easily by adding a dummy ASP page to the web application. After deploying this page I was able to confirm that it was working as expected.</p>
+
+<noscript><pre>400: Invalid request
+</pre></noscript>
+<script src="https://gist.github.com/5eb3198119bead02649c0fe11d733055.js"> </script>
+
+<p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/dummy-asp.png" alt="dummy-asp" /></p>
+
+
+             
+            
+            
+              <a href="/2016/07/16/capture-network-packets-with-netsh/">Continue reading</a>
+            
+          </span>
+        </div>
+      
+        <div class="post py3">
           <p class="post-meta">Jun 13, 2016</p>
           <a href="/2016/06/13/bein-sports-connect/" class="post-link"><h3 class="h1 post-title">beIN SPORTS CONNECT</h3></a>
           <span class="post-summary">
@@ -156,50 +181,6 @@
             
             
               <a href="/2014/12/07/barnes-and-noble-a-tale-of-poor-security-practices/">Continue reading</a>
-            
-          </span>
-        </div>
-      
-        <div class="post py3">
-          <p class="post-meta">Apr 27, 2014</p>
-          <a href="/2014/04/27/the-good-the-bad-and-the-ugly-of-password-practices/" class="post-link"><h3 class="h1 post-title">The Good, the Bad and the Ugly of password practices</h3></a>
-          <span class="post-summary">
-            <p>Internet has taken a preponderant place in our lives and most of us regularly purchase goods on Internet or use Internet banking. The access to the services we use is protected by a password and humans are not good at managing passwords:</p>
-
-<ul>
-  <li>Most of us will reuse the same password on many services (combine this with the fact that people also use the same email address to log in into said services and you get an explosive mix when security is breached on one <a href="http://www.geekosystem.com/gawker-hack-acai-spam-twitter/">service</a>).</li>
-  <li>Most of us will use weak passwords, basically as weak as the service will allow. Not only our passwords are weak they’re also extremely <a href="https://www.duosecurity.com/blog/brief-analysis-of-the-gawker-password-dump">predictable</a>.</li>
-</ul>
-
-<p>To address those issues you need to use <strong>strong unique</strong> passwords. By <strong>strong</strong> I mean that your passwords should be:</p>
-
-<ul>
-  <li>long (let’s say at least 25 characters)</li>
-  <li>a mix of lower / upper case letters, digits and symbols</li>
-  <li>randomly generated (by a random generator not by you typing random keys on your keyboard)</li>
-</ul>
-
-<p>By <strong>unique</strong> I mean that you should <em>never</em> reuse a password. You should set a different password on each service. As we tend to use many services and tend to log in from multiple devices (home and work computers, smartphones, tablets..) it makes it impossible to remember all those strong passwords.</p>
-
-<p>Google has <a href="https://www.youtube.com/watch?v=0RCsHJfHL_4">recommended</a> the use of sentence and substitution, something even stronger has been advocated by <a href="http://xkcd.com/936/">xkcd</a>. But this doesn’t work. I use over a hundred different services, how could I remember a hundred different sentences? Common substitutions (the one you will use) are also well documented and will be attempted by the attackers to guess your password. Other experts have advised to <a href="https://medium.com/cyber-security/9ed56d483eb">get rid of passwords</a> altogether, but this opinion is unconventional to say the least.</p>
-
-<p>Want it or not we’re stuck with passwords for the  predictable future. Luckily there is a solution: it’s called a password manager. With a password manager you’ll only need to remember one password (the master password), all the other ones will be entered automatically for you in the login forms. I use <a href="https://agilebits.com/onepassword">1Password</a>, but there are other products on the market: <a href="https://lastpass.com/">LastPass</a>, <a href="http://keepass.info/">KeePass</a>, <a href="http://www.roboform.com/">RoboForm</a>… Most of those products are not free but I’m sure you’ll prefer to drop a few dozens dollars every few years instead of seeing your online (and sometimes offline) life ruined.</p>
-
-<p>Now that I’ve addressed password best practices on the users’ side it’s time to mention the other side. The services that you use should do everything they can in order to protect your password. There is a <a href="http://www.troyhunt.com/2011/06/owasp-top-10-for-net-developers-part-7.html">lot</a> to say in this area but I decided to address the features that are easily observable:</p>
-
-<ul>
-  <li>passwords requirements: services shouldn’t restrict the length of our passwords (at least not smaller than a few dozens characters) or the characters’ set that we can use (this would reduce the entropy)</li>
-  <li><a href="http://www.troyhunt.com/2013/05/your-login-form-posts-to-https-but-you.html">proper use of HTTPS</a></li>
-  <li><a href="http://www.troyhunt.com/2012/05/everything-you-ever-wanted-to-know.html">reset password feature</a></li>
-</ul>
-
-<p>Due to the <a href="http://heartbleed.com/">Heartbleed</a> vulnerability I decided to change some of my passwords recently. To my surprise many well known services impose some strong restrictions on the passwords users can set. Shall we get started? The offenders are ordered from worst ones to the most benign ones.</p>
-
-
-             
-            
-            
-              <a href="/2014/04/27/the-good-the-bad-and-the-ugly-of-password-practices/">Continue reading</a>
             
           </span>
         </div>
