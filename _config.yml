@@ -144,6 +144,7 @@ plugins:
 
 # Exclude from processing.
 exclude:
+  - ".circleci/config.yml"
   - "Gemfile"
   - "Gemfile.lock"
   - "node_modules"
