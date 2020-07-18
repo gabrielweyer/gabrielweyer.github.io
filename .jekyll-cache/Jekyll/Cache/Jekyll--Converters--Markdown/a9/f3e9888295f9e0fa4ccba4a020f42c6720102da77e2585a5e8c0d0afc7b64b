@@ -1,0 +1,11 @@
+I"x<p>Even though the <code class="language-plaintext highlighter-rouge">class</code> <code class="language-plaintext highlighter-rouge">HttpClient</code> implements <code class="language-plaintext highlighter-rouge">IDisposable</code> it is supposed to be used as a singleton as stated in the <a href="https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpclient?view=netcore-2.0#Remarks">API reference</a>:</p>
+
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">HttpClient</code> is intended to be instantiated once and re-used throughout the life of an application. Instantiating an <code class="language-plaintext highlighter-rouge">HttpClient</code> class for every request will exhaust the number of sockets available under heavy loads. This will result in <code class="language-plaintext highlighter-rouge">SocketException</code> errors.</p>
+</blockquote>
+
+<p>The accepted best practice is to have one <code class="language-plaintext highlighter-rouge">HttpClient</code> per HTTP endpoint you’re interacting with. This will not only yield better performance it also allows to encapsulate endpoint specific logic (such as setting headers).</p>
+
+<p>Now the question is: how do you configure your <code class="language-plaintext highlighter-rouge">IoC</code> container to resolve the expected <code class="language-plaintext highlighter-rouge">HttpClient</code> instance? This used to require a cumbersome registration but <code class="language-plaintext highlighter-rouge">.NET Core 2.1</code> will ship with the <a href="https://github.com/aspnet/HttpClientFactory">HttpClientFactory</a> making our life much easier.</p>
+
+:ET

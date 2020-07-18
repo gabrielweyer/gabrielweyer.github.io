@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Gabriel Weyer - A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?201906292320" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202007181842" type="text/css">
 
     <!-- Fonts -->
     
@@ -114,8 +114,7 @@
   <li>Some secrets had previously been committed to source control but had since then been removed</li>
 </ul>
 
-<p>I needed a tool that would not only attempt to identify secrets but would also do so over the complete <code class="highlighter-rouge">Git</code> history.</p>
-
+<p>I needed a tool that would not only attempt to identify secrets but would also do so over the complete <code class="language-plaintext highlighter-rouge">Git</code> history.</p>
 
              
             
@@ -129,9 +128,9 @@
           <p class="post-meta">Feb 6, 2019</p>
           <a href="/2019/02/06/azure-vm-pricing/" class="post-link"><h3 class="h1 post-title">Azure VM pricing</h3></a>
           <span class="post-summary">
-            <p>I was recently faced with an interesting problem. A company wanted to cost the migration of thousands of <code class="highlighter-rouge">VMs</code> to <code class="highlighter-rouge">Azure</code> using a <a href="https://docs.microsoft.com/en-us/azure/architecture/cloud-adoption/digital-estate/5-rs-of-rationalization#rehost">lift and shift</a> approach (also known as rehost). Due to the short deadline, we were not able to get our hands on detailed data. All we were provided with was a machine name, <code class="highlighter-rouge">CPU</code> cores count, <code class="highlighter-rouge">RAM</code> and a description field that was sometimes populated. Utilisation, storage and network usage were notably missing. We knew we couldn’t cost the migration accurately due to these unknowns, but we had enough data to cost the <code class="highlighter-rouge">VMs</code> themselves as we had access to <code class="highlighter-rouge">CPU</code> cores count and <code class="highlighter-rouge">RAM</code>. I must also add that the <code class="highlighter-rouge">VMs</code> varied greatly in their hardware specifications.</p>
+            <p>I was recently faced with an interesting problem. A company wanted to cost the migration of thousands of <code class="language-plaintext highlighter-rouge">VMs</code> to <code class="language-plaintext highlighter-rouge">Azure</code> using a <a href="https://docs.microsoft.com/en-us/azure/architecture/cloud-adoption/digital-estate/5-rs-of-rationalization#rehost">lift and shift</a> approach (also known as rehost). Due to the short deadline, we were not able to get our hands on detailed data. All we were provided with was a machine name, <code class="language-plaintext highlighter-rouge">CPU</code> cores count, <code class="language-plaintext highlighter-rouge">RAM</code> and a description field that was sometimes populated. Utilisation, storage and network usage were notably missing. We knew we couldn’t cost the migration accurately due to these unknowns, but we had enough data to cost the <code class="language-plaintext highlighter-rouge">VMs</code> themselves as we had access to <code class="language-plaintext highlighter-rouge">CPU</code> cores count and <code class="language-plaintext highlighter-rouge">RAM</code>. I must also add that the <code class="language-plaintext highlighter-rouge">VMs</code> varied greatly in their hardware specifications.</p>
 
-<p><code class="highlighter-rouge">Microsoft</code> offers a <a href="https://azure.microsoft.com/en-us/pricing/calculator/?service=virtual-machines">pricing calculator</a> but it only supports manual input which disqualified it for our use case. A few <code class="highlighter-rouge">Microsoft</code> employees wrote web applications automating the pricing of <code class="highlighter-rouge">VMs</code> by importing <code class="highlighter-rouge">Excel</code> spreadsheets or <code class="highlighter-rouge">CSV</code> files. The ones I tried only offered <code class="highlighter-rouge">USD</code> as a currency and choked for anything bigger than a few hundred <code class="highlighter-rouge">VMs</code>. The output file was using a <code class="highlighter-rouge">en-us</code> culture so it had to be post-processed before being open in <code class="highlighter-rouge">Excel</code>. I didn’t have the time to review and select a commercial solution (<a href="https://azure.microsoft.com/en-us/services/azure-migrate/">Azure Migrate</a> requires to create a <code class="highlighter-rouge">VM</code> on-premises which was not possible). At the end of the day I came up with a semi-automated process that did the trick, but I felt that not much work would be required to empower teams to price <code class="highlighter-rouge">VMs</code> based on a limited data set.</p>
+<p><code class="language-plaintext highlighter-rouge">Microsoft</code> offers a <a href="https://azure.microsoft.com/en-us/pricing/calculator/?service=virtual-machines">pricing calculator</a> but it only supports manual input which disqualified it for our use case. A few <code class="language-plaintext highlighter-rouge">Microsoft</code> employees wrote web applications automating the pricing of <code class="language-plaintext highlighter-rouge">VMs</code> by importing <code class="language-plaintext highlighter-rouge">Excel</code> spreadsheets or <code class="language-plaintext highlighter-rouge">CSV</code> files. The ones I tried only offered <code class="language-plaintext highlighter-rouge">USD</code> as a currency and choked for anything bigger than a few hundred <code class="language-plaintext highlighter-rouge">VMs</code>. The output file was using a <code class="language-plaintext highlighter-rouge">en-us</code> culture so it had to be post-processed before being open in <code class="language-plaintext highlighter-rouge">Excel</code>. I didn’t have the time to review and select a commercial solution (<a href="https://azure.microsoft.com/en-us/services/azure-migrate/">Azure Migrate</a> requires to create a <code class="language-plaintext highlighter-rouge">VM</code> on-premises which was not possible). At the end of the day I came up with a semi-automated process that did the trick, but I felt that not much work would be required to empower teams to price <code class="language-plaintext highlighter-rouge">VMs</code> based on a limited data set.</p>
 
 
              
@@ -146,7 +145,7 @@
           <p class="post-meta">May 18, 2018</p>
           <a href="/2018/05/18/advanced-dotnet-debugging-2/" class="post-link"><h3 class="h1 post-title">Advanced .NET Debugging #2</h3></a>
           <span class="post-summary">
-            <p>I’m continuing to read the excellent <a href="https://www.goodreads.com/book/show/7306509-advanced-net-debugging">Advanced .NET Debugging</a> by Mario Hewardt. Last time I looked at <a href="/2018/04/06/advanced-dotnet-debugging-1/">finding the entry point of a native image</a>. This time around I’ll be investigating the launch of a <strong>managed</strong> image by <code class="highlighter-rouge">Windows</code>.</p>
+            <p>I’m continuing to read the excellent <a href="https://www.goodreads.com/book/show/7306509-advanced-net-debugging">Advanced .NET Debugging</a> by Mario Hewardt. Last time I looked at <a href="/2018/04/06/advanced-dotnet-debugging-1/">finding the entry point of a native image</a>. This time around I’ll be investigating the launch of a <strong>managed</strong> image by <code class="language-plaintext highlighter-rouge">Windows</code>.</p>
 
 <h2 id="prerequisites">Prerequisites</h2>
 
@@ -171,10 +170,9 @@
           <p class="post-meta">May 4, 2018</p>
           <a href="/2018/05/04/windbg-2-blocked-async/" class="post-link"><h3 class="h1 post-title">WinDbg #2 - The blocked async</h3></a>
           <span class="post-summary">
-            <p>Today’s exercise is not an exercise! The investigation I’m about to describe was triggered by a production outage affecting multiple <code class="highlighter-rouge">API</code>s - albeit not at the same time - at a customer. For obvious reasons I’ll not be able to share the code and will have to alter / obfuscate some of the commands’ results. I still think this is a valuable exercise as it is a classic example of an easy to make mistake leading to a catastrophic result.</p>
+            <p>Today’s exercise is not an exercise! The investigation I’m about to describe was triggered by a production outage affecting multiple <code class="language-plaintext highlighter-rouge">API</code>s - albeit not at the same time - at a customer. For obvious reasons I’ll not be able to share the code and will have to alter / obfuscate some of the commands’ results. I still think this is a valuable exercise as it is a classic example of an easy to make mistake leading to a catastrophic result.</p>
 
 <p>The other interesting point is that I had no idea what the issue was so I’ll not be following a script as I did in the first instalment.</p>
-
 
              
             

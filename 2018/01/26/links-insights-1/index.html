@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Gabriel Weyer - A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?201906292320" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202007181842" type="text/css">
 
     <!-- Fonts -->
     
@@ -132,14 +132,14 @@
 
 <p>This is a mistake I’ve seen across almost all companies I’ve consulted for. I never managed to understand why dev teams adopted this anti-pattern as it has only drawbacks and is not simpler to write than a barebone caching system.</p>
 
-<p>In the .NET word it’s often implemented via a <code class="highlighter-rouge">static private Dictionary</code>. Developers tend to use objects as key without understanding the requirements around equality but the main issue is that there is rarely code to remove keys which then requires an app pool restart (in a web app) in order to get rid of the stale key! This is compounded by the fact that sessions are often stored in process too and will be wiped out by an app pool restart.</p>
+<p>In the .NET word it’s often implemented via a <code class="language-plaintext highlighter-rouge">static private Dictionary</code>. Developers tend to use objects as key without understanding the requirements around equality but the main issue is that there is rarely code to remove keys which then requires an app pool restart (in a web app) in order to get rid of the stale key! This is compounded by the fact that sessions are often stored in process too and will be wiped out by an app pool restart.</p>
 
 <ul>
   <li>Caching is hard, only introduce caching if you need to (based on performance measurements and performance targets)</li>
-  <li>Use the <a href="https://docs.microsoft.com/en-us/dotnet/framework/performance/caching-in-net-framework-applications"><code class="highlighter-rouge">System.Runtime.Caching</code></a> namespace for in process caching</li>
+  <li>Use the <a href="https://docs.microsoft.com/en-us/dotnet/framework/performance/caching-in-net-framework-applications"><code class="language-plaintext highlighter-rouge">System.Runtime.Caching</code></a> namespace for in process caching</li>
   <li>Cache data for the smallest amount of time you can get away with</li>
   <li>Have an API allowing you to interact with your caching system</li>
-  <li>Consider using a distributed caching system (<a href="https://redis.io/"><code class="highlighter-rouge">Redis</code></a> is great for this workload)</li>
+  <li>Consider using a distributed caching system (<a href="https://redis.io/"><code class="language-plaintext highlighter-rouge">Redis</code></a> is great for this workload)</li>
   <li>When using a distributed caching system, consider using a short lived in process cache</li>
 </ul>
 
@@ -178,7 +178,7 @@
   <p>Wrap the body at 72 characters</p>
 </blockquote>
 
-<p>I used to write my commit messages inline with the <code class="highlighter-rouge">-m</code> argument. After reading this <a href="https://chris.beams.io/posts/git-commit/#wrap-72">rule</a> I realized I needed an editor. I started to use <a href="https://notepad-plus-plus.org/">Notepad++</a> by configuring Git this way:</p>
+<p>I used to write my commit messages inline with the <code class="language-plaintext highlighter-rouge">-m</code> argument. After reading this <a href="https://chris.beams.io/posts/git-commit/#wrap-72">rule</a> I realized I needed an editor. I started to use <a href="https://notepad-plus-plus.org/">Notepad++</a> by configuring Git this way:</p>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">git config <span class="nt">--global</span> core.editor <span class="s2">"'C:</span><span class="se">\P</span><span class="s2">rogram Files (x86)</span><span class="se">\N</span><span class="s2">otepad++</span><span class="se">\n</span><span class="s2">otepad++.exe' -multiInst -notabbar -nosession -noPlugin"</span></code></pre></figure>
 

@@ -1,0 +1,77 @@
+I"�)<p><code class="language-plaintext highlighter-rouge">Elastic Beanstalk</code> is a great platform, it offers both a <code class="language-plaintext highlighter-rouge">Web</code> tier and a <code class="language-plaintext highlighter-rouge">Worker</code> tier. I recently wrote about <a href="/2018/01/28/simple-routing-elastic-beanstalk-worker/">Simple Routing</a> one of my library that allows you to route a <code class="language-plaintext highlighter-rouge">SQS</code> message to a specific endpoint on the <code class="language-plaintext highlighter-rouge">Worker</code>.</p>
+
+<p>While <code class="language-plaintext highlighter-rouge">Beanstalk</code> works great once it’s deployed to <code class="language-plaintext highlighter-rouge">AWS</code> there is no easy way to run it locally. As soon as you want to execute an end-to-end flow involving both the <code class="language-plaintext highlighter-rouge">Web</code> and the <code class="language-plaintext highlighter-rouge">Worker</code> you need to manually <code class="language-plaintext highlighter-rouge">POST</code> requests to the <code class="language-plaintext highlighter-rouge">Worker</code> using <a href="https://www.getpostman.com/">Postman</a> which is cumbersome and error-prone.</p>
+
+<p>As it core all the <a href="https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html">SQS daemon</a> does is dequeue messages from a <code class="language-plaintext highlighter-rouge">SQS</code> queue and <code class="language-plaintext highlighter-rouge">POST</code> it to a specified endpoint. With this goal in mind I wrote <a href="https://github.com/gabrielweyer/beanstalk-seeder">Beanstalk Seeder</a>.<!--more--></p>
+
+<p>I had the following objectives:</p>
+
+<ul>
+  <li>Users should be able to get up and running quickly</li>
+  <li>Meaningful logging</li>
+  <li>Transform the <code class="language-plaintext highlighter-rouge">SQS</code> <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-message-attributes.html">message attributes</a> into HTTP headers (in order to support <a href="https://github.com/gabrielweyer/simple-routing">Simple Routing</a>)</li>
+</ul>
+
+<h2 id="get-up-and-running-quickly">Get up and running quickly</h2>
+
+<p>You can get <code class="language-plaintext highlighter-rouge">Beanstalk Seeder</code> from <a href="https://github.com/gabrielweyer/beanstalk-seeder/releases">GitHub releases</a>. Download the archive and extract it somewhere.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Beanstalk Seeder</code>’s <a href="https://github.com/gabrielweyer/beanstalk-seeder#configuration">configuration</a> is detailed in the <code class="language-plaintext highlighter-rouge">README</code>. All you need is a <code class="language-plaintext highlighter-rouge">iAM</code> user, the <code class="language-plaintext highlighter-rouge">Worker</code> <code class="language-plaintext highlighter-rouge">URI</code> and the <code class="language-plaintext highlighter-rouge">SQS</code> queue <code class="language-plaintext highlighter-rouge">URI.</code></p>
+
+<h2 id="meaningful-logging">Meaningful logging</h2>
+
+<p>When running a third-party tool, it’s critical to get meaningful logging as the binary is a black-box for the end user. I use <a href="https://nblumhardt.com/2016/06/structured-logging-concepts-in-net-series-1/#what-is-structured-logging">structured logging</a> in order to make querying the log events a breeze. My logging framework of choice is <a href="https://blog.getseq.net/serilog-tutorial/">Serilog</a>.</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="kt">var</span> <span class="n">loggerConfiguration</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">LoggerConfiguration</span><span class="p">()</span>
+    <span class="p">.</span><span class="n">Destructure</span><span class="p">.</span><span class="n">ByTransforming</span><span class="p">&lt;</span><span class="n">MessageAttributeValue</span><span class="p">&gt;(</span><span class="n">Destructure</span><span class="p">)</span>
+    <span class="p">.</span><span class="n">Destructure</span><span class="p">.</span><span class="n">ByTransforming</span><span class="p">&lt;</span><span class="n">Message</span><span class="p">&gt;(</span><span class="n">Destructure</span><span class="p">)</span>
+    <span class="p">.</span><span class="n">MinimumLevel</span><span class="p">.</span><span class="nf">Is</span><span class="p">(</span><span class="n">serilogLevel</span><span class="p">)</span>
+    <span class="p">.</span><span class="n">Enrich</span><span class="p">.</span><span class="nf">WithDemystifiedStackTraces</span><span class="p">()</span>
+    <span class="p">.</span><span class="n">Enrich</span><span class="p">.</span><span class="nf">FromLogContext</span><span class="p">()</span>
+    <span class="p">.</span><span class="n">WriteTo</span><span class="p">.</span><span class="nf">Console</span><span class="p">(</span><span class="n">serilogLevel</span><span class="p">);</span></code></pre></figure>
+
+<p>The previous snippet highlights only a few of the <code class="language-plaintext highlighter-rouge">Serilog</code> features.</p>
+
+<h3 id="the-structure-capturing-operator">The structure-capturing operator</h3>
+
+<p><code class="language-plaintext highlighter-rouge">MessageAttributeValue</code> and <code class="language-plaintext highlighter-rouge">Message</code> are both defined in the <code class="language-plaintext highlighter-rouge">awssdk.sqs</code> <code class="language-plaintext highlighter-rouge">NuGet</code> package. I’m interested in logging only some of their properties, <code class="language-plaintext highlighter-rouge">Serilog</code> has the ability to capture object via the <a href="https://nblumhardt.com/2016/08/serialized-data-structured-logging-concepts-in-net-6/#capturing-objects">structure-capturing operator</a>.</p>
+
+<h3 id="enrichment">Enrichment</h3>
+
+<blockquote>
+  <p>Enrichment is the act of adding additional properties to events, other than the ones originating from the message template.</p>
+</blockquote>
+
+<p><code class="language-plaintext highlighter-rouge">Serilog</code> supports <a href="https://blog.getseq.net/serilog-tutorial/#enrichingwithambientcontext">ambient context</a>. I’m also using the excellent <a href="https://github.com/benaadams/Ben.Demystifier">Ben.Demystifier</a> for getting nicer stack traces.</p>
+
+<h3 id="sinks">Sinks</h3>
+
+<p>By default, <code class="language-plaintext highlighter-rouge">Serilog</code> does not log anywhere. In order to record events you’ll need to configure one or more <code class="language-plaintext highlighter-rouge">Sink</code>s. In this case I’m writing to the console but they are <a href="https://github.com/serilog/serilog/wiki/Provided-Sinks">many other</a> <code class="language-plaintext highlighter-rouge">Sink</code>s available.</p>
+
+<h3 id="result">Result</h3>
+
+<p><img src="/assets/beanstalk-seeder/events.png" alt="HTTP Path" /></p>
+
+<p>I hope the recorded events are descriptive enough so that an end user know what’s happening:</p>
+
+<ul>
+  <li>First I display the settings used, this is important as they could come from the <code class="language-plaintext highlighter-rouge">appsettings.json</code>, environment variables or even the <a href="https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?tabs=visual-studio#secret-manager">user secrets</a> if the environment is <code class="language-plaintext highlighter-rouge">Development</code>.</li>
+  <li>Then using the <code class="language-plaintext highlighter-rouge">structure-capturing operator</code> I log the relevant <code class="language-plaintext highlighter-rouge">SQS</code> message properties.</li>
+  <li>Instead of logging the complete HTTP request I log the content of the body and the relevant headers.</li>
+  <li>When deleting the message, I log the <code class="language-plaintext highlighter-rouge">ReceiptHandle</code>, this is the value used to delete a message and the user can correlate it to what was displayed above.</li>
+  <li>Finally, rather than not displaying anything when there are no messages in the queue I inform the user that’s the case and how long I’ll wait before retrying.</li>
+</ul>
+
+<h2 id="interestings-bits">Interestings bits</h2>
+
+<p>I’m using a <a href="https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtokensource?view=netcore-2.0">CancellationTokenSource</a> so that the user can stop the message pump at any time (relying on <a href="https://docs.microsoft.com/en-us/dotnet/api/system.console.cancelkeypress?view=netcore-2.0">Console.CancelKeyPress</a>).</p>
+
+<p>The <a href="https://github.com/gabrielweyer/beanstalk-seeder/blob/ca47d6f84fe748915a22de63b23a34ef735a88ae/src/BeanstalkSeeder/Services/MessagePump.cs">MessagePump</a> <code class="language-plaintext highlighter-rouge">class</code> is the only <code class="language-plaintext highlighter-rouge">class</code> with some logic. I wrote some <a href="https://github.com/gabrielweyer/beanstalk-seeder/blob/ca47d6f84fe748915a22de63b23a34ef735a88ae/tests/BeanstalkSeederTests/MessagePumpTests.cs">tests</a> around the cancellation token, the transformation of <code class="language-plaintext highlighter-rouge">SQS</code> message attributes into HTTP headers and the back-off when no messages are available in the queue.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>I hope you’ll find <a href="https://github.com/gabrielweyer/beanstalk-seeder">Beanstalk Seeder</a> as useful as I did, combined with <a href="https://github.com/gabrielweyer/simple-routing">Simple Routing</a> it simplified and streamlined my <code class="language-plaintext highlighter-rouge">Elastic Beanstalk</code> development.</p>
+
+<p>I also wanted to point out that <code class="language-plaintext highlighter-rouge">Beanstalk Seeder</code> is platform agnostic. It doesn’t matter if you’re developing using <code class="language-plaintext highlighter-rouge">Node.js</code>, <code class="language-plaintext highlighter-rouge">Go</code> or any other of the <a href="https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/concepts.platforms.html">Elastic Beanstalk supported platforms</a>, all you need to do is install the latest <a href="https://www.microsoft.com/net/download/windows">.NET Core runtime</a> (available on <code class="language-plaintext highlighter-rouge">Windows</code>, <code class="language-plaintext highlighter-rouge">macOS</code> and <code class="language-plaintext highlighter-rouge">Linux</code>).</p>
+
+:ET

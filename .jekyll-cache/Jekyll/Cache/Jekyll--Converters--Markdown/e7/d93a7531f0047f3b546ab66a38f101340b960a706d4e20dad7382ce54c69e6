@@ -1,0 +1,13 @@
+I"�<p>I’m continuing to read the excellent <a href="https://www.goodreads.com/book/show/7306509-advanced-net-debugging">Advanced .NET Debugging</a> by Mario Hewardt. Last time I looked at <a href="/2018/04/06/advanced-dotnet-debugging-1/">finding the entry point of a native image</a>. This time around I’ll be investigating the launch of a <strong>managed</strong> image by <code class="language-plaintext highlighter-rouge">Windows</code>.</p>
+
+<h2 id="prerequisites">Prerequisites</h2>
+
+<ul>
+  <li>A hex viewer
+    <ul>
+      <li>I used the <a href="https://peclrviewer.azurewebsites.net/">PE CLR Viewer</a> (<strong>disclaimer</strong>: I created this truly ugly looking website)</li>
+    </ul>
+  </li>
+</ul>
+
+:ET

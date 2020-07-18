@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Gabriel Weyer - A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?201906292320" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202007181842" type="text/css">
 
     <!-- Fonts -->
     
@@ -112,9 +112,9 @@
 </div>
 
 <article class="post-content">
-  <p><strong>5th of Jan 2019</strong>: a lot has been happening since I initially wrote this post. <code class="highlighter-rouge">Azure DevOps</code> released a free tier for open source projects, the <code class="highlighter-rouge">Cake</code> and <code class="highlighter-rouge">GitVersion</code> contributors have been hard at work to take advantage of the latest features of <code class="highlighter-rouge">.NET Core</code>. So much things have changed that I decided to update this post to reflect the current state of affairs (inclusion of <code class="highlighter-rouge">Azure DevOps</code>, upgrade to <code class="highlighter-rouge">.NET Core 2.2</code>, utilisation of <code class="highlighter-rouge">.NET Core global tools</code> and removing the <code class="highlighter-rouge">Mono</code> requirement on <code class="highlighter-rouge">Unix</code> platforms).</p>
+  <p><strong>5th of Jan 2019</strong>: a lot has been happening since I initially wrote this post. <code class="language-plaintext highlighter-rouge">Azure DevOps</code> released a free tier for open source projects, the <code class="language-plaintext highlighter-rouge">Cake</code> and <code class="language-plaintext highlighter-rouge">GitVersion</code> contributors have been hard at work to take advantage of the latest features of <code class="language-plaintext highlighter-rouge">.NET Core</code>. So much things have changed that I decided to update this post to reflect the current state of affairs (inclusion of <code class="language-plaintext highlighter-rouge">Azure DevOps</code>, upgrade to <code class="language-plaintext highlighter-rouge">.NET Core 2.2</code>, utilisation of <code class="language-plaintext highlighter-rouge">.NET Core global tools</code> and removing the <code class="language-plaintext highlighter-rouge">Mono</code> requirement on <code class="language-plaintext highlighter-rouge">Unix</code> platforms).</p>
 
-<p>As a developer I’m amazed by the number of free tools and services available. I wanted to create an end-to-end demo of a <code class="highlighter-rouge">CI/CD</code> pipeline that would include:</p>
+<p>As a developer I’m amazed by the number of free tools and services available. I wanted to create an end-to-end demo of a <code class="language-plaintext highlighter-rouge">CI/CD</code> pipeline that would include:</p>
 
 <ul>
   <li><a href="/2018/04/21/cake-build/#configuration">Trigger a build on commit</a></li>
@@ -126,13 +126,13 @@
   <li><a href="/2018/04/21/cake-build/#create-a-github-release">Create a GitHub release</a></li>
 </ul>
 
-<p>For my purpose I wanted anonymous users to have access to a read-only view. I initially selected <a href="https://www.appveyor.com/">AppVeyor</a> as it seems to be the most popular choice for <code class="highlighter-rouge">.NET</code> open-source projects. But while browsing around I discovered than projects were often using more than one platform. <a href="https://travis-ci.org/">Travis CI</a> and <a href="https://circleci.com/">CircleCI</a> seemed to be the two other prevailing options. Since the initial version of this post, <a href="https://azure.microsoft.com/en-au/services/devops/">Azure DevOps</a> has released a free and unlimited plan for open source projects. I decided to leverage the four platforms so that I could highlight their pros and cons.<!--more--></p>
+<p>For my purpose I wanted anonymous users to have access to a read-only view. I initially selected <a href="https://www.appveyor.com/">AppVeyor</a> as it seems to be the most popular choice for <code class="language-plaintext highlighter-rouge">.NET</code> open-source projects. But while browsing around I discovered than projects were often using more than one platform. <a href="https://travis-ci.org/">Travis CI</a> and <a href="https://circleci.com/">CircleCI</a> seemed to be the two other prevailing options. Since the initial version of this post, <a href="https://azure.microsoft.com/en-au/services/devops/">Azure DevOps</a> has released a free and unlimited plan for open source projects. I decided to leverage the four platforms so that I could highlight their pros and cons.<!--more--></p>
 
 <h2 id="configuration">Configuration</h2>
 
-<p>The code is hosted on the <code class="highlighter-rouge">GitHub</code> repository <a href="https://github.com/gabrielweyer/cake-build">Cake build</a>. It’s named <a href="https://cakebuild.net/">Cake</a> after my favourite build automation system and the project is using <code class="highlighter-rouge">Cake</code> as its build system.</p>
+<p>The code is hosted on the <code class="language-plaintext highlighter-rouge">GitHub</code> repository <a href="https://github.com/gabrielweyer/cake-build">Cake build</a>. It’s named <a href="https://cakebuild.net/">Cake</a> after my favourite build automation system and the project is using <code class="language-plaintext highlighter-rouge">Cake</code> as its build system.</p>
 
-<p><code class="highlighter-rouge">AppVeyor</code>, <code class="highlighter-rouge">Azure DevOps</code>, <code class="highlighter-rouge">CircleCI</code> and <code class="highlighter-rouge">Travis CI</code> all use <a href="http://yaml.org/">YAML</a> configuration files. This means that your build steps are living in the same space than your code and this presents several benefits:</p>
+<p><code class="language-plaintext highlighter-rouge">AppVeyor</code>, <code class="language-plaintext highlighter-rouge">Azure DevOps</code>, <code class="language-plaintext highlighter-rouge">CircleCI</code> and <code class="language-plaintext highlighter-rouge">Travis CI</code> all use <a href="http://yaml.org/">YAML</a> configuration files. This means that your build steps are living in the same space than your code and this presents several benefits:</p>
 
 <ul>
   <li>Any developer can modify the build</li>
@@ -145,13 +145,13 @@
   <li>Ability to run the build locally on some platforms</li>
 </ul>
 
-<p>I’m sure you’ll be as surprised as I was when I realised how simple the <code class="highlighter-rouge">YAML</code> files are:</p>
+<p>I’m sure you’ll be as surprised as I was when I realised how simple the <code class="language-plaintext highlighter-rouge">YAML</code> files are:</p>
 
 <ul>
-  <li><code class="highlighter-rouge">AppVeyor</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/master/appveyor.yml">appveyor.yml</a></li>
-  <li><code class="highlighter-rouge">Azure DevOps</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/master/azure-pipelines.yml">azure-pipelines.yml</a></li>
-  <li><code class="highlighter-rouge">CircleCI</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/master/.circleci/config.yml">.circleci/config.yml</a></li>
-  <li><code class="highlighter-rouge">Travis CI</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/master/.travis.yml">.travis.yml</a></li>
+  <li><code class="language-plaintext highlighter-rouge">AppVeyor</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/master/appveyor.yml">appveyor.yml</a></li>
+  <li><code class="language-plaintext highlighter-rouge">Azure DevOps</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/master/azure-pipelines.yml">azure-pipelines.yml</a></li>
+  <li><code class="language-plaintext highlighter-rouge">CircleCI</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/master/.circleci/config.yml">.circleci/config.yml</a></li>
+  <li><code class="language-plaintext highlighter-rouge">Travis CI</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/master/.travis.yml">.travis.yml</a></li>
 </ul>
 
 <h2 id="the-code">The code</h2>
@@ -159,18 +159,18 @@
 <p>The project is useless. What is important is that it describes a real-life scenario:</p>
 
 <ul>
-  <li>The solution contains two projects which will be packed as <code class="highlighter-rouge">NuGet</code> packages
+  <li>The solution contains two projects which will be packed as <code class="language-plaintext highlighter-rouge">NuGet</code> packages
     <ul>
-      <li>The <code class="highlighter-rouge">Logic</code> project references a <code class="highlighter-rouge">NuGet</code> package from <a href="https://www.nuget.org/">nuget.org</a> via a <code class="highlighter-rouge">PackageReference</code>, <code class="highlighter-rouge">dotnet pack</code> will turn this into a package reference.</li>
-      <li>The <code class="highlighter-rouge">SuperLogic</code> project depends on <code class="highlighter-rouge">Logic</code> and when packing, this project reference will be turned into a <code class="highlighter-rouge">NuGet</code> package reference (handled out of the box by <code class="highlighter-rouge">dotnet pack</code>)</li>
+      <li>The <code class="language-plaintext highlighter-rouge">Logic</code> project references a <code class="language-plaintext highlighter-rouge">NuGet</code> package from <a href="https://www.nuget.org/">nuget.org</a> via a <code class="language-plaintext highlighter-rouge">PackageReference</code>, <code class="language-plaintext highlighter-rouge">dotnet pack</code> will turn this into a package reference.</li>
+      <li>The <code class="language-plaintext highlighter-rouge">SuperLogic</code> project depends on <code class="language-plaintext highlighter-rouge">Logic</code> and when packing, this project reference will be turned into a <code class="language-plaintext highlighter-rouge">NuGet</code> package reference (handled out of the box by <code class="language-plaintext highlighter-rouge">dotnet pack</code>)</li>
     </ul>
   </li>
-  <li>The projects target both <code class="highlighter-rouge">nestandard2.0</code> and <code class="highlighter-rouge">net461</code> so they can also be used with the <code class="highlighter-rouge">.NET Framework</code> (<code class="highlighter-rouge">net461</code> and above)
+  <li>The projects target both <code class="language-plaintext highlighter-rouge">nestandard2.0</code> and <code class="language-plaintext highlighter-rouge">net461</code> so they can also be used with the <code class="language-plaintext highlighter-rouge">.NET Framework</code> (<code class="language-plaintext highlighter-rouge">net461</code> and above)
     <ul>
-      <li>The resulting <code class="highlighter-rouge">NuGet</code> packages should contain <code class="highlighter-rouge">DLL</code>s for both frameworks</li>
+      <li>The resulting <code class="language-plaintext highlighter-rouge">NuGet</code> packages should contain <code class="language-plaintext highlighter-rouge">DLL</code>s for both frameworks</li>
     </ul>
   </li>
-  <li>The projects reference a third project that should be embedded as a <code class="highlighter-rouge">DLL</code> rather than being referenced as a <code class="highlighter-rouge">NuGet</code> package
+  <li>The projects reference a third project that should be embedded as a <code class="language-plaintext highlighter-rouge">DLL</code> rather than being referenced as a <code class="language-plaintext highlighter-rouge">NuGet</code> package
     <ul>
       <li>This is not yet supported by the new tooling but can be <a href="#create-nuget-packages">achieved</a>.</li>
     </ul>
@@ -181,124 +181,124 @@
 
 <h3 id="mono">Mono</h3>
 
-<p><code class="highlighter-rouge">Mono</code> is not required any more when building on <code class="highlighter-rouge">Linux</code> and <code class="highlighter-rouge">macOS</code>. This is a massive achievement from the <a href="https://github.com/cake-build/cake/graphs/contributors">Cake</a> and <a href="https://github.com/GitTools/GitVersion/graphs/contributors">GitVersion</a> contributors. The build step installing <code class="highlighter-rouge">Mono</code> on <code class="highlighter-rouge">CircleCI</code> and <code class="highlighter-rouge">Travis CI</code> never took less than <code class="highlighter-rouge">5</code> minutes and would sometimes take over <code class="highlighter-rouge">10</code> minutes on <code class="highlighter-rouge">Travis CI</code>! As a result the build script has been simplified and is doing less platform specific handling.</p>
+<p><code class="language-plaintext highlighter-rouge">Mono</code> is not required any more when building on <code class="language-plaintext highlighter-rouge">Linux</code> and <code class="language-plaintext highlighter-rouge">macOS</code>. This is a massive achievement from the <a href="https://github.com/cake-build/cake/graphs/contributors">Cake</a> and <a href="https://github.com/GitTools/GitVersion/graphs/contributors">GitVersion</a> contributors. The build step installing <code class="language-plaintext highlighter-rouge">Mono</code> on <code class="language-plaintext highlighter-rouge">CircleCI</code> and <code class="language-plaintext highlighter-rouge">Travis CI</code> never took less than <code class="language-plaintext highlighter-rouge">5</code> minutes and would sometimes take over <code class="language-plaintext highlighter-rouge">10</code> minutes on <code class="language-plaintext highlighter-rouge">Travis CI</code>! As a result the build script has been simplified and is doing less platform specific handling.</p>
 
-<h3 id="pinning-cake-version">Pinning <code class="highlighter-rouge">Cake</code> version</h3>
+<h3 id="pinning-cake-version">Pinning <code class="language-plaintext highlighter-rouge">Cake</code> version</h3>
 
-<p>Pinning the version of <code class="highlighter-rouge">Cake</code> guarantees you’ll be using the same version of <code class="highlighter-rouge">Cake</code> on your machine and on the build servers. This is enforced via the bootstrap scripts for developers’ machines (<a href="https://github.com/gabrielweyer/cake-build/blob/master/bootstrap.ps1">bootstrap.ps1</a> on <code class="highlighter-rouge">Windows</code>, <a href="https://github.com/gabrielweyer/cake-build/blob/master/bootstrap.sh">bootstrap.sh</a> on <code class="highlighter-rouge">Unix</code>) and in the <code class="highlighter-rouge">YAML</code> files for the build servers.</p>
+<p>Pinning the version of <code class="language-plaintext highlighter-rouge">Cake</code> guarantees you’ll be using the same version of <code class="language-plaintext highlighter-rouge">Cake</code> on your machine and on the build servers. This is enforced via the bootstrap scripts for developers’ machines (<a href="https://github.com/gabrielweyer/cake-build/blob/master/bootstrap.ps1">bootstrap.ps1</a> on <code class="language-plaintext highlighter-rouge">Windows</code>, <a href="https://github.com/gabrielweyer/cake-build/blob/master/bootstrap.sh">bootstrap.sh</a> on <code class="language-plaintext highlighter-rouge">Unix</code>) and in the <code class="language-plaintext highlighter-rouge">YAML</code> files for the build servers.</p>
 
 <h2 id="semantic-versioning">Semantic versioning</h2>
 
 <p>As I’m releasing packages I decided to use <a href="https://semver.org/">semantic versioning</a>.</p>
 
 <blockquote>
-  <p>Consider a version format of <code class="highlighter-rouge">X.Y.Z</code> (<code class="highlighter-rouge">Major.Minor.Patch</code>). Bug fixes not affecting the API increment the <strong>patch</strong> version, backwards compatible API additions/changes increment the <strong>minor</strong> version, and backwards incompatible API changes increment the <strong>major</strong> version.</p>
+  <p>Consider a version format of <code class="language-plaintext highlighter-rouge">X.Y.Z</code> (<code class="language-plaintext highlighter-rouge">Major.Minor.Patch</code>). Bug fixes not affecting the API increment the <strong>patch</strong> version, backwards compatible API additions/changes increment the <strong>minor</strong> version, and backwards incompatible API changes increment the <strong>major</strong> version.</p>
 </blockquote>
 
-<p>Semantic versioning allows the consumers of your binaries to assess the effort to upgrade to a newer version. Semantic versioning should not be used blindly for all kinds of projects. It makes a lot of sense for a <code class="highlighter-rouge">NuGet</code> package but it doesn’t for a product or an <code class="highlighter-rouge">API</code> for example.</p>
+<p>Semantic versioning allows the consumers of your binaries to assess the effort to upgrade to a newer version. Semantic versioning should not be used blindly for all kinds of projects. It makes a lot of sense for a <code class="language-plaintext highlighter-rouge">NuGet</code> package but it doesn’t for a product or an <code class="language-plaintext highlighter-rouge">API</code> for example.</p>
 
-<h3 id="versioning-in-net">Versioning in <code class="highlighter-rouge">.NET</code></h3>
+<h3 id="versioning-in-net">Versioning in <code class="language-plaintext highlighter-rouge">.NET</code></h3>
 
-<p>In <code class="highlighter-rouge">.NET</code> we use four properties to handle versioning:</p>
+<p>In <code class="language-plaintext highlighter-rouge">.NET</code> we use four properties to handle versioning:</p>
 
 <ul>
-  <li><code class="highlighter-rouge">AssemblyVersion</code>, <code class="highlighter-rouge">AssemblyFileVersion</code> and <code class="highlighter-rouge">AssemblyInformationalVersion</code> to version assemblies</li>
-  <li><code class="highlighter-rouge">PackageVersion</code> to version a <code class="highlighter-rouge">NuGet</code> package</li>
+  <li><code class="language-plaintext highlighter-rouge">AssemblyVersion</code>, <code class="language-plaintext highlighter-rouge">AssemblyFileVersion</code> and <code class="language-plaintext highlighter-rouge">AssemblyInformationalVersion</code> to version assemblies</li>
+  <li><code class="language-plaintext highlighter-rouge">PackageVersion</code> to version a <code class="language-plaintext highlighter-rouge">NuGet</code> package</li>
 </ul>
 
 <h4 id="versioning-an-assembly">Versioning an assembly</h4>
 
-<p><a href="https://stackoverflow.com/a/65062">These</a> <a href="https://stackoverflow.com/a/802038">two</a> <code class="highlighter-rouge">StackOverflow</code> are great at explaining how to version an assembly.</p>
+<p><a href="https://stackoverflow.com/a/65062">These</a> <a href="https://stackoverflow.com/a/802038">two</a> <code class="language-plaintext highlighter-rouge">StackOverflow</code> are great at explaining how to version an assembly.</p>
 
 <ul>
-  <li><code class="highlighter-rouge">AssemblyVersion</code>: the only version the <code class="highlighter-rouge">CLR</code> cares about (if you use <a href="https://docs.microsoft.com/en-us/dotnet/framework/app-domains/strong-named-assemblies">strong named assemblies</a>)</li>
+  <li><code class="language-plaintext highlighter-rouge">AssemblyVersion</code>: the only version the <code class="language-plaintext highlighter-rouge">CLR</code> cares about (if you use <a href="https://docs.microsoft.com/en-us/dotnet/framework/app-domains/strong-named-assemblies">strong named assemblies</a>)</li>
 </ul>
 
 <p>Curiously enough the <a href="https://docs.microsoft.com/en-us/dotnet/framework/app-domains/assembly-versioning#assembly-version-number">official documentation</a> is sparse on the <a href="https://blogs.msdn.microsoft.com/msbuild/2007/01/03/why-are-build-numbers-limited-to-65535/">topic</a> but this what I came up with after doing some reading:</p>
 
 <blockquote>
-  <p><code class="highlighter-rouge">AssemblyVersion</code> can be defined as <code class="highlighter-rouge">&lt;major-version&gt;.&lt;minor-version&gt;.&lt;build-number&gt;.&lt;revision&gt;</code> where each of the four segment is a <code class="highlighter-rouge">16-bit</code> unsigned number.</p>
+  <p><code class="language-plaintext highlighter-rouge">AssemblyVersion</code> can be defined as <code class="language-plaintext highlighter-rouge">&lt;major-version&gt;.&lt;minor-version&gt;.&lt;build-number&gt;.&lt;revision&gt;</code> where each of the four segment is a <code class="language-plaintext highlighter-rouge">16-bit</code> unsigned number.</p>
 </blockquote>
 
 <ul>
-  <li><code class="highlighter-rouge">AssemblyInformationalVersion</code>: <code class="highlighter-rouge">string</code> that attaches additional version information to an assembly for informational purposes only. Corresponds to the product’s marketing literature, packaging, or product name</li>
+  <li><code class="language-plaintext highlighter-rouge">AssemblyInformationalVersion</code>: <code class="language-plaintext highlighter-rouge">string</code> that attaches additional version information to an assembly for informational purposes only. Corresponds to the product’s marketing literature, packaging, or product name</li>
 </ul>
 
-<p><code class="highlighter-rouge">AssemblyInformationalVersion</code> is well <a href="https://docs.microsoft.com/en-us/dotnet/framework/app-domains/assembly-versioning#assembly-informational-version">documented</a>.</p>
+<p><code class="language-plaintext highlighter-rouge">AssemblyInformationalVersion</code> is well <a href="https://docs.microsoft.com/en-us/dotnet/framework/app-domains/assembly-versioning#assembly-informational-version">documented</a>.</p>
 
 <ul>
-  <li><code class="highlighter-rouge">AssemblyFileVersion</code>: intended to uniquely identify a build of the individual assembly</li>
+  <li><code class="language-plaintext highlighter-rouge">AssemblyFileVersion</code>: intended to uniquely identify a build of the individual assembly</li>
 </ul>
 
-<p>Developers tend to auto-increment this on each build. I prefer it linked to a <code class="highlighter-rouge">commit</code> / <code class="highlighter-rouge">tag</code> to be able to reproduce a build. I also use the same <code class="highlighter-rouge">string</code> for <code class="highlighter-rouge">AssemblyInformationalVersion</code> and <code class="highlighter-rouge">AssemblyFileVersion</code> (I’m a bad person I know).</p>
+<p>Developers tend to auto-increment this on each build. I prefer it linked to a <code class="language-plaintext highlighter-rouge">commit</code> / <code class="language-plaintext highlighter-rouge">tag</code> to be able to reproduce a build. I also use the same <code class="language-plaintext highlighter-rouge">string</code> for <code class="language-plaintext highlighter-rouge">AssemblyInformationalVersion</code> and <code class="language-plaintext highlighter-rouge">AssemblyFileVersion</code> (I’m a bad person I know).</p>
 
-<h4 id="versioning-a-nuget-package">Versioning a <code class="highlighter-rouge">NuGet</code> package</h4>
+<h4 id="versioning-a-nuget-package">Versioning a <code class="language-plaintext highlighter-rouge">NuGet</code> package</h4>
 
 <ul>
-  <li><code class="highlighter-rouge">PackageVersion</code>: A specific package is always referred to using its package identifier and an exact version number</li>
+  <li><code class="language-plaintext highlighter-rouge">PackageVersion</code>: A specific package is always referred to using its package identifier and an exact version number</li>
 </ul>
 
-<p><code class="highlighter-rouge">NuGet</code> package versioning is described <a href="https://docs.microsoft.com/en-us/nuget/reference/package-versioning">here</a>.</p>
+<p><code class="language-plaintext highlighter-rouge">NuGet</code> package versioning is described <a href="https://docs.microsoft.com/en-us/nuget/reference/package-versioning">here</a>.</p>
 
-<h3 id="gitversion"><code class="highlighter-rouge">GitVersion</code></h3>
+<h3 id="gitversion"><code class="language-plaintext highlighter-rouge">GitVersion</code></h3>
 
 <p>I’ve implemented semantic versioning using <a href="https://github.com/GitTools/GitVersion">GitVersion</a>. I recommend using <a href="https://guides.github.com/introduction/flow/">GitHub Flow</a> when working on a simple package. In my experience <a href="https://trunkbaseddevelopment.com/">Trunk Based Development</a> tends to lead to lower code quality. Developers push early and often thinking they will fix it later but we all know than in software development later means never.</p>
 
-<p><code class="highlighter-rouge">GitVersion</code> produces an output that will allow you to handle even the trickiest situations:</p>
+<p><code class="language-plaintext highlighter-rouge">GitVersion</code> produces an output that will allow you to handle even the trickiest situations:</p>
 
 <figure class="highlight"><pre><code class="language-json" data-lang="json"><span class="p">{</span><span class="w">
-  </span><span class="s2">"Major"</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"Minor"</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"Patch"</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"PreReleaseTag"</span><span class="p">:</span><span class="s2">"region-endpoint.2"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"PreReleaseTagWithDash"</span><span class="p">:</span><span class="s2">"-region-endpoint.2"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"PreReleaseLabel"</span><span class="p">:</span><span class="s2">"region-endpoint"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"PreReleaseNumber"</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"BuildMetaData"</span><span class="p">:</span><span class="s2">""</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"BuildMetaDataPadded"</span><span class="p">:</span><span class="s2">""</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"FullBuildMetaData"</span><span class="p">:</span><span class="s2">"Branch.features/region-endpoint.Sha.1f05a4bb4ebda8b293fbd139063ce3af22b1935a"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"MajorMinorPatch"</span><span class="p">:</span><span class="s2">"0.2.3"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"SemVer"</span><span class="p">:</span><span class="s2">"0.2.3-region-endpoint.2"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"LegacySemVer"</span><span class="p">:</span><span class="s2">"0.2.3-region-endpoint2"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"LegacySemVerPadded"</span><span class="p">:</span><span class="s2">"0.2.3-region-endpoint0002"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"AssemblySemVer"</span><span class="p">:</span><span class="s2">"0.2.3.0"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"FullSemVer"</span><span class="p">:</span><span class="s2">"0.2.3-region-endpoint.2"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"InformationalVersion"</span><span class="p">:</span><span class="s2">"0.2.3-region-endpoint.2+Branch.features/region-endpoint.Sha.1f05a4bb4ebda8b293fbd139063ce3af22b1935a"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"BranchName"</span><span class="p">:</span><span class="s2">"features/region-endpoint"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"Sha"</span><span class="p">:</span><span class="s2">"1f05a4bb4ebda8b293fbd139063ce3af22b1935a"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"NuGetVersionV2"</span><span class="p">:</span><span class="s2">"0.2.3-region-endpoint0002"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"NuGetVersion"</span><span class="p">:</span><span class="s2">"0.2.3-region-endpoint0002"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"CommitsSinceVersionSource"</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"CommitsSinceVersionSourcePadded"</span><span class="p">:</span><span class="s2">"0002"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"CommitDate"</span><span class="p">:</span><span class="s2">"2018-01-31"</span><span class="w">
+  </span><span class="nl">"Major"</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"Minor"</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"Patch"</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"PreReleaseTag"</span><span class="p">:</span><span class="s2">"region-endpoint.2"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"PreReleaseTagWithDash"</span><span class="p">:</span><span class="s2">"-region-endpoint.2"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"PreReleaseLabel"</span><span class="p">:</span><span class="s2">"region-endpoint"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"PreReleaseNumber"</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"BuildMetaData"</span><span class="p">:</span><span class="s2">""</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"BuildMetaDataPadded"</span><span class="p">:</span><span class="s2">""</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"FullBuildMetaData"</span><span class="p">:</span><span class="s2">"Branch.features/region-endpoint.Sha.1f05a4bb4ebda8b293fbd139063ce3af22b1935a"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"MajorMinorPatch"</span><span class="p">:</span><span class="s2">"0.2.3"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"SemVer"</span><span class="p">:</span><span class="s2">"0.2.3-region-endpoint.2"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"LegacySemVer"</span><span class="p">:</span><span class="s2">"0.2.3-region-endpoint2"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"LegacySemVerPadded"</span><span class="p">:</span><span class="s2">"0.2.3-region-endpoint0002"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"AssemblySemVer"</span><span class="p">:</span><span class="s2">"0.2.3.0"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"FullSemVer"</span><span class="p">:</span><span class="s2">"0.2.3-region-endpoint.2"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"InformationalVersion"</span><span class="p">:</span><span class="s2">"0.2.3-region-endpoint.2+Branch.features/region-endpoint.Sha.1f05a4bb4ebda8b293fbd139063ce3af22b1935a"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"BranchName"</span><span class="p">:</span><span class="s2">"features/region-endpoint"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"Sha"</span><span class="p">:</span><span class="s2">"1f05a4bb4ebda8b293fbd139063ce3af22b1935a"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"NuGetVersionV2"</span><span class="p">:</span><span class="s2">"0.2.3-region-endpoint0002"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"NuGetVersion"</span><span class="p">:</span><span class="s2">"0.2.3-region-endpoint0002"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"CommitsSinceVersionSource"</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"CommitsSinceVersionSourcePadded"</span><span class="p">:</span><span class="s2">"0002"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"CommitDate"</span><span class="p">:</span><span class="s2">"2018-01-31"</span><span class="w">
 </span><span class="p">}</span></code></pre></figure>
 
 <p>In my case I’m using:</p>
 
 <ul>
-  <li><code class="highlighter-rouge">AssemblySemVer</code> as the <code class="highlighter-rouge">AssemblyVersion</code></li>
-  <li><code class="highlighter-rouge">NuGetVersion</code> as the <code class="highlighter-rouge">AssemblyInformationalVersion</code>, <code class="highlighter-rouge">AssemblyFileVersion</code> and <code class="highlighter-rouge">PackageVersion</code></li>
+  <li><code class="language-plaintext highlighter-rouge">AssemblySemVer</code> as the <code class="language-plaintext highlighter-rouge">AssemblyVersion</code></li>
+  <li><code class="language-plaintext highlighter-rouge">NuGetVersion</code> as the <code class="language-plaintext highlighter-rouge">AssemblyInformationalVersion</code>, <code class="language-plaintext highlighter-rouge">AssemblyFileVersion</code> and <code class="language-plaintext highlighter-rouge">PackageVersion</code></li>
 </ul>
 
-<p>If you want to handle rebasing and <code class="highlighter-rouge">Pull Request</code>s you’ll have to use a more complex versioning strategy (keep in mind that <code class="highlighter-rouge">GitHub</code> <a href="https://help.github.com/articles/about-pull-requests/">does not support rebasing</a> in <code class="highlighter-rouge">Pull Request</code>s).</p>
+<p>If you want to handle rebasing and <code class="language-plaintext highlighter-rouge">Pull Request</code>s you’ll have to use a more complex versioning strategy (keep in mind that <code class="language-plaintext highlighter-rouge">GitHub</code> <a href="https://help.github.com/articles/about-pull-requests/">does not support rebasing</a> in <code class="language-plaintext highlighter-rouge">Pull Request</code>s).</p>
 
-<p>As an aside <code class="highlighter-rouge">Cake</code> allows you to <a href="https://cakebuild.net/api/Cake.AppVeyor/AppVeyorBuild/069D8D3F">set</a> the <code class="highlighter-rouge">AppVeyor</code> build number.</p>
+<p>As an aside <code class="language-plaintext highlighter-rouge">Cake</code> allows you to <a href="https://cakebuild.net/api/Cake.AppVeyor/AppVeyorBuild/069D8D3F">set</a> the <code class="language-plaintext highlighter-rouge">AppVeyor</code> build number.</p>
 
 <p><img src="/assets/cake-build/app-veyor-version.png" alt="AppVeyor version" /></p>
 
 <h2 id="run-the-tests">Run the tests</h2>
 
-<p>As <code class="highlighter-rouge">Travis CI</code> and <code class="highlighter-rouge">CircleCI</code> are running on <code class="highlighter-rouge">Linux</code> and <code class="highlighter-rouge">macOS</code> they don’t support testing against <code class="highlighter-rouge">net461</code>. Luckily the framework can be enforced using an argument: <code class="highlighter-rouge">-framework netcoreapp2.0</code>.</p>
+<p>As <code class="language-plaintext highlighter-rouge">Travis CI</code> and <code class="language-plaintext highlighter-rouge">CircleCI</code> are running on <code class="language-plaintext highlighter-rouge">Linux</code> and <code class="language-plaintext highlighter-rouge">macOS</code> they don’t support testing against <code class="language-plaintext highlighter-rouge">net461</code>. Luckily the framework can be enforced using an argument: <code class="language-plaintext highlighter-rouge">-framework netcoreapp2.0</code>.</p>
 
 <h2 id="publish-the-test-results">Publish the test results</h2>
 
 <h3 id="circleci">CircleCI</h3>
 
-<p><code class="highlighter-rouge">CircleCI</code> has a few quirks when it comes to testing.</p>
+<p><code class="language-plaintext highlighter-rouge">CircleCI</code> has a few quirks when it comes to testing.</p>
 
-<p>First it only support the <a href="http://llg.cubic.org/docs/junit/">JUnit format</a> so I had to write a <a href="https://github.com/gabrielweyer/xunit-to-junit">transform</a> to be able to publish the test results. Then you must place your test results within a folder named after the test framework you are using if you want <code class="highlighter-rouge">CircleCI</code> to identify your test framework.</p>
+<p>First it only support the <a href="http://llg.cubic.org/docs/junit/">JUnit format</a> so I had to write a <a href="https://github.com/gabrielweyer/xunit-to-junit">transform</a> to be able to publish the test results. Then you must place your test results within a folder named after the test framework you are using if you want <code class="language-plaintext highlighter-rouge">CircleCI</code> to identify your test framework.</p>
 
-<p>When the tests run successfully <code class="highlighter-rouge">CirceCI</code> will only display the slowest test:</p>
+<p>When the tests run successfully <code class="language-plaintext highlighter-rouge">CirceCI</code> will only display the slowest test:</p>
 
 <p><img src="/assets/cake-build/circle-ci-slowest-test.png" alt="Circle CI slowest test" /></p>
 
@@ -308,23 +308,23 @@
 
 <p><img src="/assets/cake-build/circle-ci-failed-test.png" alt="Circle CI failed test" /></p>
 
-<p>I decided not to invest more time on this as <code class="highlighter-rouge">CircleCI</code> has zero documentation around publishing test results.</p>
+<p>I decided not to invest more time on this as <code class="language-plaintext highlighter-rouge">CircleCI</code> has zero documentation around publishing test results.</p>
 
 <h3 id="appveyor">AppVeyor</h3>
 
-<p>Again, the integration between <code class="highlighter-rouge">Cake</code> and <code class="highlighter-rouge">AppVeyor</code> shines in this area as <code class="highlighter-rouge">Cake</code> will automatically publish the test results for you (I wondered why I had duplicate test results until I <a href="https://en.wikipedia.org/wiki/RTFM">RTFM</a>).</p>
+<p>Again, the integration between <code class="language-plaintext highlighter-rouge">Cake</code> and <code class="language-plaintext highlighter-rouge">AppVeyor</code> shines in this area as <code class="language-plaintext highlighter-rouge">Cake</code> will automatically publish the test results for you (I wondered why I had duplicate test results until I <a href="https://en.wikipedia.org/wiki/RTFM">RTFM</a>).</p>
 
-<p><code class="highlighter-rouge">AppVeyor</code> displays all the tests but you must hover to see the framework used:</p>
+<p><code class="language-plaintext highlighter-rouge">AppVeyor</code> displays all the tests but you must hover to see the framework used:</p>
 
 <p><img src="/assets/cake-build/app-veyor-test-success.png" alt="AppVeyor framework" /></p>
 
-<p>Failed tests come with a nice formatting and a <code class="highlighter-rouge">StackTrace</code>:</p>
+<p>Failed tests come with a nice formatting and a <code class="language-plaintext highlighter-rouge">StackTrace</code>:</p>
 
 <p><img src="/assets/cake-build/app-veyor-failed-test.png" alt="AppVeyor failed test" /></p>
 
 <h3 id="travis-ci">Travis CI</h3>
 
-<p>What about <code class="highlighter-rouge">Travis CI</code> you may ask. It turns out <strong><code class="highlighter-rouge">Travis CI</code> doesn’t parse test results</strong>! All you can rely on is the build log, luckily for us <code class="highlighter-rouge">xUnit</code> is awesome:</p>
+<p>What about <code class="language-plaintext highlighter-rouge">Travis CI</code> you may ask. It turns out <strong><code class="language-plaintext highlighter-rouge">Travis CI</code> doesn’t parse test results</strong>! All you can rely on is the build log, luckily for us <code class="language-plaintext highlighter-rouge">xUnit</code> is awesome:</p>
 
 <figure class="highlight"><pre><code class="language-text" data-lang="text">Contoso.Hello.HelloTests.EvenMoreUselessTests.WhenDoWork_ThenSomeSweetJson [FAIL]
   Assert.Equal() Failure
@@ -333,28 +333,28 @@
   Actual:   Some JSON (maybe): "Hello"
                   ↑ (pos 6)</code></pre></figure>
 
-<h2 id="create-nuget-packages">Create <code class="highlighter-rouge">NuGet</code> packages</h2>
+<h2 id="create-nuget-packages">Create <code class="language-plaintext highlighter-rouge">NuGet</code> packages</h2>
 
-<p><code class="highlighter-rouge">.NET Core</code> is leveraging the new <code class="highlighter-rouge">*.csproj</code> system and this means:</p>
+<p><code class="language-plaintext highlighter-rouge">.NET Core</code> is leveraging the new <code class="language-plaintext highlighter-rouge">*.csproj</code> system and this means:</p>
 
 <ul>
-  <li>No more <code class="highlighter-rouge">packages.config</code></li>
-  <li>No more <code class="highlighter-rouge">*.nuspec</code></li>
+  <li>No more <code class="language-plaintext highlighter-rouge">packages.config</code></li>
+  <li>No more <code class="language-plaintext highlighter-rouge">*.nuspec</code></li>
   <li>No more tears</li>
 </ul>
 
-<p>The references (projects and packages) and the package configuration are both contained in the <code class="highlighter-rouge">*.csproj</code> making it the single source of truth!</p>
+<p>The references (projects and packages) and the package configuration are both contained in the <code class="language-plaintext highlighter-rouge">*.csproj</code> making it the single source of truth!</p>
 
 <h3 id="referencing-a-project-without-turning-it-into-a-package-reference">Referencing a project without turning it into a package reference</h3>
 
-<p>Sometimes you want to include a <code class="highlighter-rouge">DLL</code> in a <code class="highlighter-rouge">NuGet</code> package rather than add it as a package reference.</p>
+<p>Sometimes you want to include a <code class="language-plaintext highlighter-rouge">DLL</code> in a <code class="language-plaintext highlighter-rouge">NuGet</code> package rather than add it as a package reference.</p>
 
-<p>The <code class="highlighter-rouge">SuperLogic</code> project depends on the <code class="highlighter-rouge">ExtraLogic</code> project but we don’t want to ship <code class="highlighter-rouge">ExtraLogic</code> as a package. Instead we want to include <code class="highlighter-rouge">Contoso.Hello.ExtraLogic.dll</code> in the <code class="highlighter-rouge">SuperLogic</code> package directly. Currently this is not supported out of the box but the team is <a href="https://github.com/NuGet/Home/issues/6285">tracking it</a>.</p>
+<p>The <code class="language-plaintext highlighter-rouge">SuperLogic</code> project depends on the <code class="language-plaintext highlighter-rouge">ExtraLogic</code> project but we don’t want to ship <code class="language-plaintext highlighter-rouge">ExtraLogic</code> as a package. Instead we want to include <code class="language-plaintext highlighter-rouge">Contoso.Hello.ExtraLogic.dll</code> in the <code class="language-plaintext highlighter-rouge">SuperLogic</code> package directly. Currently this is not supported out of the box but the team is <a href="https://github.com/NuGet/Home/issues/6285">tracking it</a>.</p>
 
-<p>Luckily <a href="https://github.com/NuGet/Home/issues/3891">this issue</a> provides a workaround. All the modifications will take place in <code class="highlighter-rouge">SuperLogic.csproj</code>.</p>
+<p>Luckily <a href="https://github.com/NuGet/Home/issues/3891">this issue</a> provides a workaround. All the modifications will take place in <code class="language-plaintext highlighter-rouge">SuperLogic.csproj</code>.</p>
 
 <ul>
-  <li>In the <code class="highlighter-rouge">&lt;PropertyGroup&gt;</code> section add the following line:</li>
+  <li>In the <code class="language-plaintext highlighter-rouge">&lt;PropertyGroup&gt;</code> section add the following line:</li>
 </ul>
 
 <figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;TargetsForTfmSpecificBuildOutput&gt;</span>$(TargetsForTfmSpecificBuildOutput);IncludeReferencedProjectInPackage<span class="nt">&lt;/TargetsForTfmSpecificBuildOutput&gt;</span></code></pre></figure>
@@ -368,7 +368,7 @@
 <span class="nt">&lt;/ProjectReference&gt;</span></code></pre></figure>
 
 <ul>
-  <li>Finally add the target responsible of copying the <code class="highlighter-rouge">DLL</code>:</li>
+  <li>Finally add the target responsible of copying the <code class="language-plaintext highlighter-rouge">DLL</code>:</li>
 </ul>
 
 <figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;Target</span> <span class="na">Name=</span><span class="s">"IncludeReferencedProjectInPackage"</span><span class="nt">&gt;</span>
@@ -377,52 +377,52 @@
   <span class="nt">&lt;/ItemGroup&gt;</span>
 <span class="nt">&lt;/Target&gt;</span></code></pre></figure>
 
-<p>The result is the following <code class="highlighter-rouge">NuGet</code> package:</p>
+<p>The result is the following <code class="language-plaintext highlighter-rouge">NuGet</code> package:</p>
 
 <p><img src="/assets/cake-build/package-version.png" alt="Package version" /></p>
 
 <p>And the assemblies have been versioned as expected:</p>
 
-<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="na">[assembly: AssemblyFileVersion("1.0.5-fix-typos0003")]</span>
-<span class="na">[assembly: AssemblyInformationalVersion("1.0.5-fix-typos0003")]</span>
-<span class="na">[assembly: AssemblyVersion("1.0.5.0")]</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="p">[</span><span class="n">assembly</span><span class="p">:</span> <span class="nf">AssemblyFileVersion</span><span class="p">(</span><span class="s">"1.0.5-fix-typos0003"</span><span class="p">)]</span>
+<span class="p">[</span><span class="n">assembly</span><span class="p">:</span> <span class="nf">AssemblyInformationalVersion</span><span class="p">(</span><span class="s">"1.0.5-fix-typos0003"</span><span class="p">)]</span>
+<span class="p">[</span><span class="n">assembly</span><span class="p">:</span> <span class="nf">AssemblyVersion</span><span class="p">(</span><span class="s">"1.0.5.0"</span><span class="p">)]</span></code></pre></figure>
 
-<p><strong>Note</strong>: you can also use the new <code class="highlighter-rouge">*.csproj</code> system for <code class="highlighter-rouge">.NET Framework</code> <code class="highlighter-rouge">NuGet</code> packages. You don’t need to target <code class="highlighter-rouge">.NET Core</code> to take advantage of it.</p>
+<p><strong>Note</strong>: you can also use the new <code class="language-plaintext highlighter-rouge">*.csproj</code> system for <code class="language-plaintext highlighter-rouge">.NET Framework</code> <code class="language-plaintext highlighter-rouge">NuGet</code> packages. You don’t need to target <code class="language-plaintext highlighter-rouge">.NET Core</code> to take advantage of it.</p>
 
-<h2 id="publish-the-nuget-packages">Publish the <code class="highlighter-rouge">NuGet</code> packages</h2>
+<h2 id="publish-the-nuget-packages">Publish the <code class="language-plaintext highlighter-rouge">NuGet</code> packages</h2>
 
-<p>On any branches starting with <code class="highlighter-rouge">features/</code>, the <code class="highlighter-rouge">NuGet</code> packages will be published to a pre-release feed. If the branch is <code class="highlighter-rouge">master</code> it’ll be published to the production feed. This is handled by <code class="highlighter-rouge">AppVeyor</code> in this <a href="https://github.com/gabrielweyer/cake-build/blob/18ffcf3dfb591519353680f81653c86b8f3966d9/appveyor.yml#L52-L73">section</a> of the configuration.</p>
+<p>On any branches starting with <code class="language-plaintext highlighter-rouge">features/</code>, the <code class="language-plaintext highlighter-rouge">NuGet</code> packages will be published to a pre-release feed. If the branch is <code class="language-plaintext highlighter-rouge">master</code> it’ll be published to the production feed. This is handled by <code class="language-plaintext highlighter-rouge">AppVeyor</code> in this <a href="https://github.com/gabrielweyer/cake-build/blob/18ffcf3dfb591519353680f81653c86b8f3966d9/appveyor.yml#L52-L73">section</a> of the configuration.</p>
 
-<p>As this is a demo project both feeds are hosted by <code class="highlighter-rouge">MyGet</code>. For my other projects I use <code class="highlighter-rouge">MyGet</code> to host my <a href="https://www.myget.org/feed/Packages/gabrielweyer-pre-release">pre-release feed</a> and <code class="highlighter-rouge">NuGet</code> for my <a href="https://www.nuget.org/profiles/gabrielweyer">production feed</a>.</p>
+<p>As this is a demo project both feeds are hosted by <code class="language-plaintext highlighter-rouge">MyGet</code>. For my other projects I use <code class="language-plaintext highlighter-rouge">MyGet</code> to host my <a href="https://www.myget.org/feed/Packages/gabrielweyer-pre-release">pre-release feed</a> and <code class="language-plaintext highlighter-rouge">NuGet</code> for my <a href="https://www.nuget.org/profiles/gabrielweyer">production feed</a>.</p>
 
 <p>When publishing the packages, I’m also publishing the associated <a href="https://msdn.microsoft.com/en-us/library/windows/desktop/ee416588(v=vs.85).aspx">symbols</a> to allow consumers to debug through my packages.</p>
 
-<p>Strangely enough <code class="highlighter-rouge">Travis CI</code> does not support artifacts out of the box. You must provide an <code class="highlighter-rouge">S3</code> account if you wish to save your build artifacts.</p>
+<p>Strangely enough <code class="language-plaintext highlighter-rouge">Travis CI</code> does not support artifacts out of the box. You must provide an <code class="language-plaintext highlighter-rouge">S3</code> account if you wish to save your build artifacts.</p>
 
 <h2 id="create-a-github-release">Create a GitHub release</h2>
 
-<p><code class="highlighter-rouge">AppVeyor</code> also creates <code class="highlighter-rouge">GitHub</code> <a href="https://github.com/gabrielweyer/cake-build/blob/b707a64cf8218092942accfa5b1f570487f34f4e/appveyor.yml#L24-L47">releases</a>.</p>
+<p><code class="language-plaintext highlighter-rouge">AppVeyor</code> also creates <code class="language-plaintext highlighter-rouge">GitHub</code> <a href="https://github.com/gabrielweyer/cake-build/blob/b707a64cf8218092942accfa5b1f570487f34f4e/appveyor.yml#L24-L47">releases</a>.</p>
 
 <h2 id="what-about-azure-devops">What about Azure DevOps</h2>
 
-<p><code class="highlighter-rouge">Azure DevOps</code> is the only product that supports <code class="highlighter-rouge">Windows</code>, <code class="highlighter-rouge">Linux</code> and <code class="highlighter-rouge">macOS</code>. <code class="highlighter-rouge">Microsoft</code> has been iterating relentlessly and the <code class="highlighter-rouge">GitHub</code> acquisition will likely lead to a tighter integration between the two services.</p>
+<p><code class="language-plaintext highlighter-rouge">Azure DevOps</code> is the only product that supports <code class="language-plaintext highlighter-rouge">Windows</code>, <code class="language-plaintext highlighter-rouge">Linux</code> and <code class="language-plaintext highlighter-rouge">macOS</code>. <code class="language-plaintext highlighter-rouge">Microsoft</code> has been iterating relentlessly and the <code class="language-plaintext highlighter-rouge">GitHub</code> acquisition will likely lead to a tighter integration between the two services.</p>
 
-<p><code class="highlighter-rouge">Azure DevOps</code> has the most powerful tests results tab:</p>
+<p><code class="language-plaintext highlighter-rouge">Azure DevOps</code> has the most powerful tests results tab:</p>
 
 <p><img src="/assets/cake-build/azure-devops-tests.png" alt="Azure DevOps Tests" /></p>
 
-<p>One thing I’ve noticed is that builds seem to be slower on the <code class="highlighter-rouge">Hosted Ubuntu 1604</code> agents than on the <code class="highlighter-rouge">Hosted VS2017</code> agents.</p>
+<p>One thing I’ve noticed is that builds seem to be slower on the <code class="language-plaintext highlighter-rouge">Hosted Ubuntu 1604</code> agents than on the <code class="language-plaintext highlighter-rouge">Hosted VS2017</code> agents.</p>
 
 <h2 id="conclusion">Conclusion</h2>
 
-<p>This is one possible workflow only. I’ve glossed over many details and taken some shortcuts (for example there is no support for <code class="highlighter-rouge">PR</code> builds).</p>
+<p>This is one possible workflow only. I’ve glossed over many details and taken some shortcuts (for example there is no support for <code class="language-plaintext highlighter-rouge">PR</code> builds).</p>
 
 <p>Those are the key takeaways:</p>
 
 <ul>
   <li>Do <strong>upfront planning on how you want to handle versioning</strong>. This is the hardest part and the one that will be the hardest to fix later on. Read the <a href="http://gitversion.readthedocs.io/en/latest/">GitVersion documentation</a> carefully before making any decision.</li>
   <li>Do what works for your team. If you didn’t have any issues with auto-incrementing your builds, keep doing so. There is no point bringing additional complexity to fix a problem you don’t have.</li>
-  <li>Don’t assume you’ll be running on <code class="highlighter-rouge">Windows</code> with <code class="highlighter-rouge">Visual Studio Enterprise</code> installed. Adding cross-platform or other <code class="highlighter-rouge">IDE</code> (<code class="highlighter-rouge">Rider</code>, <code class="highlighter-rouge">Code</code>…) support from the start will make your life easier down the track.</li>
+  <li>Don’t assume you’ll be running on <code class="language-plaintext highlighter-rouge">Windows</code> with <code class="language-plaintext highlighter-rouge">Visual Studio Enterprise</code> installed. Adding cross-platform or other <code class="language-plaintext highlighter-rouge">IDE</code> (<code class="language-plaintext highlighter-rouge">Rider</code>, <code class="language-plaintext highlighter-rouge">Code</code>…) support from the start will make your life easier down the track.</li>
 </ul>
 
 

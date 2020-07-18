@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Gabriel Weyer - A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?201906292320" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202007181842" type="text/css">
 
     <!-- Fonts -->
     
@@ -107,11 +107,11 @@
           <p class="post-meta">Feb 23, 2018</p>
           <a href="/2018/02/23/beanstalk-seeder/" class="post-link"><h3 class="h1 post-title">Beanstalk Seeder</h3></a>
           <span class="post-summary">
-            <p><code class="highlighter-rouge">Elastic Beanstalk</code> is a great platform, it offers both a <code class="highlighter-rouge">Web</code> tier and a <code class="highlighter-rouge">Worker</code> tier. I recently wrote about <a href="/2018/01/28/simple-routing-elastic-beanstalk-worker/">Simple Routing</a> one of my library that allows you to route a <code class="highlighter-rouge">SQS</code> message to a specific endpoint on the <code class="highlighter-rouge">Worker</code>.</p>
+            <p><code class="language-plaintext highlighter-rouge">Elastic Beanstalk</code> is a great platform, it offers both a <code class="language-plaintext highlighter-rouge">Web</code> tier and a <code class="language-plaintext highlighter-rouge">Worker</code> tier. I recently wrote about <a href="/2018/01/28/simple-routing-elastic-beanstalk-worker/">Simple Routing</a> one of my library that allows you to route a <code class="language-plaintext highlighter-rouge">SQS</code> message to a specific endpoint on the <code class="language-plaintext highlighter-rouge">Worker</code>.</p>
 
-<p>While <code class="highlighter-rouge">Beanstalk</code> works great once it’s deployed to <code class="highlighter-rouge">AWS</code> there is no easy way to run it locally. As soon as you want to execute an end-to-end flow involving both the <code class="highlighter-rouge">Web</code> and the <code class="highlighter-rouge">Worker</code> you need to manually <code class="highlighter-rouge">POST</code> requests to the <code class="highlighter-rouge">Worker</code> using <a href="https://www.getpostman.com/">Postman</a> which is cumbersome and error-prone.</p>
+<p>While <code class="language-plaintext highlighter-rouge">Beanstalk</code> works great once it’s deployed to <code class="language-plaintext highlighter-rouge">AWS</code> there is no easy way to run it locally. As soon as you want to execute an end-to-end flow involving both the <code class="language-plaintext highlighter-rouge">Web</code> and the <code class="language-plaintext highlighter-rouge">Worker</code> you need to manually <code class="language-plaintext highlighter-rouge">POST</code> requests to the <code class="language-plaintext highlighter-rouge">Worker</code> using <a href="https://www.getpostman.com/">Postman</a> which is cumbersome and error-prone.</p>
 
-<p>As it core all the <a href="https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html">SQS daemon</a> does is dequeue messages from a <code class="highlighter-rouge">SQS</code> queue and <code class="highlighter-rouge">POST</code> it to a specified endpoint. With this goal in mind I wrote <a href="https://github.com/gabrielweyer/beanstalk-seeder">Beanstalk Seeder</a>.</p>
+<p>As it core all the <a href="https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html">SQS daemon</a> does is dequeue messages from a <code class="language-plaintext highlighter-rouge">SQS</code> queue and <code class="language-plaintext highlighter-rouge">POST</code> it to a specified endpoint. With this goal in mind I wrote <a href="https://github.com/gabrielweyer/beanstalk-seeder">Beanstalk Seeder</a>.</p>
 
 
              
@@ -126,15 +126,15 @@
           <p class="post-meta">Feb 8, 2018</p>
           <a href="/2018/02/08/singleton-http-client/" class="post-link"><h3 class="h1 post-title">Singleton HTTP Client</h3></a>
           <span class="post-summary">
-            <p>Even though the <code class="highlighter-rouge">class</code> <code class="highlighter-rouge">HttpClient</code> implements <code class="highlighter-rouge">IDisposable</code> it is supposed to be used as a singleton as stated in the <a href="https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpclient?view=netcore-2.0#Remarks">API reference</a>:</p>
+            <p>Even though the <code class="language-plaintext highlighter-rouge">class</code> <code class="language-plaintext highlighter-rouge">HttpClient</code> implements <code class="language-plaintext highlighter-rouge">IDisposable</code> it is supposed to be used as a singleton as stated in the <a href="https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpclient?view=netcore-2.0#Remarks">API reference</a>:</p>
 
 <blockquote>
-  <p><code class="highlighter-rouge">HttpClient</code> is intended to be instantiated once and re-used throughout the life of an application. Instantiating an <code class="highlighter-rouge">HttpClient</code> class for every request will exhaust the number of sockets available under heavy loads. This will result in <code class="highlighter-rouge">SocketException</code> errors.</p>
+  <p><code class="language-plaintext highlighter-rouge">HttpClient</code> is intended to be instantiated once and re-used throughout the life of an application. Instantiating an <code class="language-plaintext highlighter-rouge">HttpClient</code> class for every request will exhaust the number of sockets available under heavy loads. This will result in <code class="language-plaintext highlighter-rouge">SocketException</code> errors.</p>
 </blockquote>
 
-<p>The accepted best practice is to have one <code class="highlighter-rouge">HttpClient</code> per HTTP endpoint you’re interacting with. This will not only yield better performance it also allows to encapsulate endpoint specific logic (such as setting headers).</p>
+<p>The accepted best practice is to have one <code class="language-plaintext highlighter-rouge">HttpClient</code> per HTTP endpoint you’re interacting with. This will not only yield better performance it also allows to encapsulate endpoint specific logic (such as setting headers).</p>
 
-<p>Now the question is: how do you configure your <code class="highlighter-rouge">IoC</code> container to resolve the expected <code class="highlighter-rouge">HttpClient</code> instance? This used to require a cumbersome registration but <code class="highlighter-rouge">.NET Core 2.1</code> will ship with the <a href="https://github.com/aspnet/HttpClientFactory">HttpClientFactory</a> making our life much easier.</p>
+<p>Now the question is: how do you configure your <code class="language-plaintext highlighter-rouge">IoC</code> container to resolve the expected <code class="language-plaintext highlighter-rouge">HttpClient</code> instance? This used to require a cumbersome registration but <code class="language-plaintext highlighter-rouge">.NET Core 2.1</code> will ship with the <a href="https://github.com/aspnet/HttpClientFactory">HttpClientFactory</a> making our life much easier.</p>
 
 
              
@@ -149,12 +149,11 @@
           <p class="post-meta">Jan 28, 2018</p>
           <a href="/2018/01/28/simple-routing-elastic-beanstalk-worker/" class="post-link"><h3 class="h1 post-title">Simple Routing for Elastic Beanstalk Worker tier</h3></a>
           <span class="post-summary">
-            <p><code class="highlighter-rouge">Elastic Beanstalk</code> offers both a <code class="highlighter-rouge">Web</code> tier and a <code class="highlighter-rouge">Worker</code> tier. This allows developers to build reasonably complex applications without having to maintain moving pieces. Offloading heavy-duty workloads to the worker in order to keep the web tier responsive is as easy as putting a message on a queue.</p>
+            <p><code class="language-plaintext highlighter-rouge">Elastic Beanstalk</code> offers both a <code class="language-plaintext highlighter-rouge">Web</code> tier and a <code class="language-plaintext highlighter-rouge">Worker</code> tier. This allows developers to build reasonably complex applications without having to maintain moving pieces. Offloading heavy-duty workloads to the worker in order to keep the web tier responsive is as easy as putting a message on a queue.</p>
 
 <p><img src="/assets/simple-routing-elastic-beanstalk-worker/http-path.png" alt="HTTP Path" /></p>
 
-<p>One annoyance that I have with <code class="highlighter-rouge">Beanstalk</code> is that there is no way to direct a message to a specific endpoint, hence leaving a single endpoint the responsibility of distributing the messages to all their handlers and potentially leading to brittle code. But it doesn’t have to be that way.</p>
-
+<p>One annoyance that I have with <code class="language-plaintext highlighter-rouge">Beanstalk</code> is that there is no way to direct a message to a specific endpoint, hence leaving a single endpoint the responsibility of distributing the messages to all their handlers and potentially leading to brittle code. But it doesn’t have to be that way.</p>
 
              
             

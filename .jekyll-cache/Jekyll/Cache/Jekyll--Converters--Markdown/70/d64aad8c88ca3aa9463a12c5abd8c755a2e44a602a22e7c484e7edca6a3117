@@ -1,0 +1,4 @@
+I"�<p>Today’s exercise is not an exercise! The investigation I’m about to describe was triggered by a production outage affecting multiple <code class="language-plaintext highlighter-rouge">API</code>s - albeit not at the same time - at a customer. For obvious reasons I’ll not be able to share the code and will have to alter / obfuscate some of the commands’ results. I still think this is a valuable exercise as it is a classic example of an easy to make mistake leading to a catastrophic result.</p>
+
+<p>The other interesting point is that I had no idea what the issue was so I’ll not be following a script as I did in the first instalment.</p>
+:ET

@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Gabriel Weyer - A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?201906292320" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202007181842" type="text/css">
 
     <!-- Fonts -->
     
@@ -124,7 +124,7 @@
 
 <p>Windows ships with a few ways to compute a checksum, <a href="http://superuser.com/a/898377/128002">CertUtil</a> is one of them, PowerShell has a <a href="https://technet.microsoft.com/en-us/library/dn520872.aspx">Get-FileHash</a> cmdlet and this is what I’ll use:</p>
 
-<figure class="highlight"><pre><code class="language-posh" data-lang="posh"><span class="nb">Get-FileHash</span> &lt;filepath&gt; -Algorithm MD5</code></pre></figure>
+<figure class="highlight"><pre><code class="language-posh" data-lang="posh"><span class="nf">Get-FileHash</span><span class="w"> </span><span class="err">&lt;</span><span class="nx">filepath</span><span class="err">&gt;</span><span class="w"> </span><span class="nt">-Algorithm</span><span class="w"> </span><span class="nx">MD5</span></code></pre></figure>
 
 <p>For our purpose MD5 is good enough, if you want to ensure that a file hasn’t been tampered with you should be using SHA256 at least.</p>
 
@@ -132,7 +132,7 @@
 
 <p>At this stage I could have used <a href="https://msdn.microsoft.com/en-us/library/f7dy01k1(v=vs.110).aspx">Ildasm</a> to try to diff the full source code in one file but according to my previous tries the output end up being different. For sake of completeness I tried again before writing this blog post.</p>
 
-<figure class="highlight"><pre><code class="language-posh" data-lang="posh">ildasm &lt;dll-filepath&gt; /text /out<span class="o">=</span>&lt;output-filepath&gt;</code></pre></figure>
+<figure class="highlight"><pre><code class="language-posh" data-lang="posh"><span class="nf">ildasm</span><span class="w"> </span><span class="err">&lt;</span><span class="nx">dll-filepath</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">/text</span><span class="w"> </span><span class="nx">/out</span><span class="o">=</span><span class="err">&lt;</span><span class="nf">output-filepath</span><span class="err">&gt;</span></code></pre></figure>
 
 <p>This time is no exception, WinMerge indicates 348 differences! Some of them can be explained away:</p>
 
@@ -184,14 +184,12 @@
 
 <p>Following the TDD principles I’ll first write a <a href="https://github.com/gabrielweyer/CodeCleanser/blob/4b7b769bdf104461decc7db0f6ce46a890de4351/Tests/RemoveLeadingTriviaTests.cs#L8-L55">test</a>:</p>
 
-<noscript><pre>400: Invalid request
-</pre></noscript>
+<noscript><pre>400: Invalid request</pre></noscript>
 <script src="https://gist.github.com/b6aaa2c60ba20f8340d32edd4ff87265.js"> </script>
 
 <p>This test ensures that everything before the first using statement is removed. Let’s now look at the <a href="https://github.com/gabrielweyer/CodeCleanser/blob/4b7b769bdf104461decc7db0f6ce46a890de4351/Logic/CodeCleaner.cs#L39-L47">implementation</a>:</p>
 
-<noscript><pre>400: Invalid request
-</pre></noscript>
+<noscript><pre>400: Invalid request</pre></noscript>
 <script src="https://gist.github.com/ac0976203a5315f16e1bac81963a6a8b.js"> </script>
 
 <p>The Roslyn documentation defines a <a href="https://github.com/dotnet/roslyn/wiki/Roslyn%20Overview#syntax-trivia">trivia</a> as:</p>
@@ -206,14 +204,12 @@
 
 <p>Again we’ll start with a <a href="https://github.com/gabrielweyer/CodeCleanser/blob/4b7b769bdf104461decc7db0f6ce46a890de4351/Tests/SortAttributesAlphabeticallyTests.cs#L8-L51">test</a>:</p>
 
-<noscript><pre>400: Invalid request
-</pre></noscript>
+<noscript><pre>400: Invalid request</pre></noscript>
 <script src="https://gist.github.com/786db1ecb44c689ce18532cda794f0f7.js"> </script>
 
 <p>We’ll need to pack a bit more power this time. In my case the issue only happened on class, enum and property declarations, CSharpSyntaxRewriter seems to be a good candidate for what I want to achieve. The implementation can be found <a href="https://github.com/gabrielweyer/CodeCleanser/blob/4b7b769bdf104461decc7db0f6ce46a890de4351/Logic/AttributesSorter.cs#L46-L66">here</a>:</p>
 
-<noscript><pre>400: Invalid request
-</pre></noscript>
+<noscript><pre>400: Invalid request</pre></noscript>
 <script src="https://gist.github.com/2daec819f25eca2679174c08985b599e.js"> </script>
 
 <p>I had to make sure the blank line preceding the first attribute didn’t get moved down and that’s why there is some logic around leading trivia (prompted by this <a href="https://github.com/gabrielweyer/CodeCleanser/blob/4b7b769bdf104461decc7db0f6ce46a890de4351/Tests/SortAttributesAlphabeticallyTests.cs#L180-L219">test</a>). Initially I was storing the AttributeListSyntax in a dictionary using the first attribute name as a key, of course I forgot that you could have the same attribute multiple time on a single declaration. It prompted me to write this <a href="https://github.com/gabrielweyer/CodeCleanser/blob/4b7b769bdf104461decc7db0f6ce46a890de4351/Tests/SortAttributesAlphabeticallyTests.cs#L53-L9">test</a>) and adapt my implementation. It took me a few tries to get it right and rather than having to replace the files after each attempt I created a local Git repository, committed the unmodified files and issued a git reset after each attempt.</p>

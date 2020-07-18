@@ -1,0 +1,89 @@
+I""<p>Every now and then I stumble upon a brilliant post on Internet, I share some of those links on my <a href="https://www.diigo.com/user/gabrielweyer">Diigo profile</a> but the format is very succinct. I decided to start a new experiment and instead write full blog posts about those links. The first reason is quite selfish as I would like to keep a record of what I thought was interesting and why, I also hope to empower the reader so that she can decide if she wants to read the full post as some of them are lengthy.</p>
+
+<p>I’m considering limiting each of those post to up to three links as to not require too much time from the reader.</p>
+
+<p>This is inspired by the excellent work that Chris Alcock and Michael Wolfenden are doing with respectively <a href="http://blog.cwa.me.uk/">The Morning Brew</a> and <a href="https://michael-wolfenden.github.io/">The Wolf Report</a>. Don’t be surprised if I end up <del>stealing</del> borrowing some links from them.</p>
+
+<p>Without further ado let me get started with the first links.<!--more--></p>
+
+<h2 id="how-to-be-a-programmer-a-short-comprehensive-and-personal-summary">How To Be a Programmer: A Short, Comprehensive, and Personal Summary</h2>
+
+<p><strong>Link</strong>: <a href="https://www.doc.ic.ac.uk/~susan/475/HowToBeAProgrammer.pdf">https://www.doc.ic.ac.uk/~susan/475/HowToBeAProgrammer.pdf</a></p>
+
+<p>This is a 40 pages long PDF but contains some invaluable lessons especially if you’ve been in the field for only a few years.</p>
+
+<blockquote>
+  <p>A classic mistake is to use a hash table as a cache and forget to remove the references in the hash table. Since the reference remains, the referent is uncollectable but useless. This is called a memory leak.</p>
+</blockquote>
+
+<p>This is a mistake I’ve seen across almost all companies I’ve consulted for. I never managed to understand why dev teams adopted this anti-pattern as it has only drawbacks and is not simpler to write than a barebone caching system.</p>
+
+<p>In the .NET word it’s often implemented via a <code class="language-plaintext highlighter-rouge">static private Dictionary</code>. Developers tend to use objects as key without understanding the requirements around equality but the main issue is that there is rarely code to remove keys which then requires an app pool restart (in a web app) in order to get rid of the stale key! This is compounded by the fact that sessions are often stored in process too and will be wiped out by an app pool restart.</p>
+
+<ul>
+  <li>Caching is hard, only introduce caching if you need to (based on performance measurements and performance targets)</li>
+  <li>Use the <a href="https://docs.microsoft.com/en-us/dotnet/framework/performance/caching-in-net-framework-applications"><code class="language-plaintext highlighter-rouge">System.Runtime.Caching</code></a> namespace for in process caching</li>
+  <li>Cache data for the smallest amount of time you can get away with</li>
+  <li>Have an API allowing you to interact with your caching system</li>
+  <li>Consider using a distributed caching system (<a href="https://redis.io/"><code class="language-plaintext highlighter-rouge">Redis</code></a> is great for this workload)</li>
+  <li>When using a distributed caching system, consider using a short lived in process cache</li>
+</ul>
+
+<blockquote>
+  <p>Never, ever, rest any hopes on vapor. Vapor is any alleged software that has been promised but is not yet available.</p>
+</blockquote>
+
+<p>This situation happened in one of my previous engagement. The feature we were developing was tightly integrated with a product being built by a startup. Their CEO flew down to our office, we listed the API endpoints we required and development started straight away. We even had a support engineer assigned to us!</p>
+
+<p>Two things started to happen:</p>
+
+<ul>
+  <li>Already working features would break suddenly. After getting some support it would turn out that they pushed a new release that broke the feature. They would then deploy a patch which would break another feature!</li>
+  <li>The core feature of this system was to poll third party services for created or modified entities. During our testing we noticed that entities were being missed frequently and we had to trigger the system manually for anything to happen. We raised those concerns and the startup promised to improve the reliability.</li>
+</ul>
+
+<p>We were developing at a faster pace and started to mock more and more dependencies. The release date was approaching and we had no confidence the integration would work. The product we were working on had long release cycles and was deployed by our customers on their own infrastructure, a failure would have been catastrophic. It was finally decided to test the reliability of our provider, we also included one of their competitor. After a few days of collecting data the verdict came in and things weren’t looking good, even though the competitor captured 100% of the entities we created our provider missed almost 30% of them!</p>
+
+<p>The CTO decided to scrap the integration on the spot and we ended up throwing away half of the code base.</p>
+
+<p>What we did right was to investigate the unknowns early on in the project. Instead of building our infrastructure we developed a small proof of concept and were able to get a contrived end-to-end execution. The lesson that I learned is that you should define a SLA for your provider from day one and measure it.</p>
+
+<h2 id="how-to-write-a-git-commit-message">How to Write a Git Commit Message</h2>
+
+<p><strong>Link</strong>: <a href="https://chris.beams.io/posts/git-commit/">https://chris.beams.io/posts/git-commit/</a></p>
+
+<p>This is an amazing post, I’ve started to apply those rules a few months ago and my commit messages are so much better now.</p>
+
+<blockquote>
+  <p>Use the body to explain what and why vs. how</p>
+</blockquote>
+
+<p><a href="https://chris.beams.io/posts/git-commit/#why-not-how">Giving context in the body</a> is critical as often when fixing a bug I can see how it has been introduced but I have no idea why the change was made - even after reading the story associated with it! Please spend a few minutes explaining why and how a change was made, in 6 months or one year someone will be grateful. This someone might even be you!</p>
+
+<blockquote>
+  <p>Wrap the body at 72 characters</p>
+</blockquote>
+
+<p>I used to write my commit messages inline with the <code class="language-plaintext highlighter-rouge">-m</code> argument. After reading this <a href="https://chris.beams.io/posts/git-commit/#wrap-72">rule</a> I realized I needed an editor. I started to use <a href="https://notepad-plus-plus.org/">Notepad++</a> by configuring Git this way:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">git config <span class="nt">--global</span> core.editor <span class="s2">"'C:</span><span class="se">\P</span><span class="s2">rogram Files (x86)</span><span class="se">\N</span><span class="s2">otepad++</span><span class="se">\n</span><span class="s2">otepad++.exe' -multiInst -notabbar -nosession -noPlugin"</span></code></pre></figure>
+
+<p>Notepad++ accepts <a href="https://docs.notepad-plus-plus.org/index.php/Command_Line_Switches">command line switches</a> but there is no switch to set the text width. Git has a setting enforcing the text width but it does not work with Notepad++. The good news is that Git can also use notepad and the text width will be enforced:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">git config <span class="nt">--global</span> core.editor notepad
+git config <span class="nt">--global</span> format.commitMessageColumns 72</code></pre></figure>
+
+<p>But the text will be wrapped <strong>after</strong> you save your commit message leading to a less than desirable result:</p>
+
+<p><a href="/assets/links-insights-1/wrap-notepad.gif"><img src="/assets/links-insights-1/wrap-notepad.gif" alt="wrap-notepad" /></a></p>
+
+<p>A better solution is to use vim instead:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">git config <span class="nt">--global</span> core.editor vim
+git config <span class="nt">--global</span> <span class="nt">--unset</span> format.commitMessageColumns</code></pre></figure>
+
+<p><a href="/assets/links-insights-1/wrap-vim.gif"><img src="/assets/links-insights-1/wrap-vim.gif" alt="wrap-vim" /></a></p>
+
+<p>I did not hit Enter while typing the body of this commit message, instead vim wrapped it for me automatically. If you want to learn more about configuring Git on Windows I wrote a <a href="https://github.com/gabrielweyer/nuggets/blob/master/git/git.md">tutorial</a> to get you started.</p>
+
+:ET

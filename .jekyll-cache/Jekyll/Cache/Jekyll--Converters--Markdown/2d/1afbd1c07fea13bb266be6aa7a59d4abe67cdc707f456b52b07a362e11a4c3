@@ -1,0 +1,5 @@
+I"^<p>This new series is an attempt to improve my <code class="language-plaintext highlighter-rouge">WinDbg</code> skills. The concept is to create faulty applications and troubleshoot the issue using <code class="language-plaintext highlighter-rouge">WinDbg</code> pretending that I have no prior knowledge of the code.</p>
+
+<p>I’ll be using my <a href="https://github.com/gabrielweyer/nuggets/blob/master/windbg/README.md">WinDbg guide</a> as I can never remember the commands! I’m hoping than through those challenges I’ll get to improve the guide. Today’s exercise is inspired by the excellent blog post <a href="https://blogs.microsoft.co.il/sasha/2012/02/07/pinpointing-a-static-gc-root-with-sos/">Pinpointing a Static GC Root with SOS</a>. The post only contains a few commands but I must admit that it took me hours to achieve the same result.</p>
+
+:ET

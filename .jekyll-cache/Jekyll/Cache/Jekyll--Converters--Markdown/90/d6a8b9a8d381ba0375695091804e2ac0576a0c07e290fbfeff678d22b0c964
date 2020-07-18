@@ -1,0 +1,10 @@
+I"�<p>I often ask candidates to define a good unit test. This is the starting point of a conversation around testing strategies and delivering value. Over the years I’ve heard opinions ranging from <code class="language-plaintext highlighter-rouge">the 100% coverage</code>, passing by <code class="language-plaintext highlighter-rouge">testing is for testers</code>, all the way to <code class="language-plaintext highlighter-rouge">we don't do automated testing</code>. If the notion of a <em>good test</em> can be subjective, it is easier to identify a <strong>bad</strong> test. Bloggers have written about this topic at length but I thought I would try paraphrasing the same content hoping nobody would notice.</p>
+
+<p>I must admit I have written - quite - a few bad tests myself and that’s fine. We all make mistakes, how we handle those mistakes is what help us grow:</p>
+
+<ul>
+  <li>It’s important to understand why the mistake happened and put in place measures to prevent the same mistake from happening again</li>
+  <li>Equally we should challenge existing practices, they might be there for a good reason but they might instead be there for a <strong>bad</strong> reason</li>
+</ul>
+
+:ET

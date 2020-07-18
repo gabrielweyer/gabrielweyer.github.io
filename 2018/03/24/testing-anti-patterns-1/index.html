@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Gabriel Weyer - A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?201906292320" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202007181842" type="text/css">
 
     <!-- Fonts -->
     
@@ -112,7 +112,7 @@
 </div>
 
 <article class="post-content">
-  <p>I often ask candidates to define a good unit test. This is the starting point of a conversation around testing strategies and delivering value. Over the years I’ve heard opinions ranging from <code class="highlighter-rouge">the 100% coverage</code>, passing by <code class="highlighter-rouge">testing is for testers</code>, all the way to <code class="highlighter-rouge">we don't do automated testing</code>. If the notion of a <em>good test</em> can be subjective, it is easier to identify a <strong>bad</strong> test. Bloggers have written about this topic at length but I thought I would try paraphrasing the same content hoping nobody would notice.</p>
+  <p>I often ask candidates to define a good unit test. This is the starting point of a conversation around testing strategies and delivering value. Over the years I’ve heard opinions ranging from <code class="language-plaintext highlighter-rouge">the 100% coverage</code>, passing by <code class="language-plaintext highlighter-rouge">testing is for testers</code>, all the way to <code class="language-plaintext highlighter-rouge">we don't do automated testing</code>. If the notion of a <em>good test</em> can be subjective, it is easier to identify a <strong>bad</strong> test. Bloggers have written about this topic at length but I thought I would try paraphrasing the same content hoping nobody would notice.</p>
 
 <p>I must admit I have written - quite - a few bad tests myself and that’s fine. We all make mistakes, how we handle those mistakes is what help us grow:</p>
 
@@ -129,11 +129,11 @@
 
 <p>Have you ever seen this?</p>
 
-<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="na">[Ignore]</span>
-<span class="na">[TestMethod]</span>
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="p">[</span><span class="n">Ignore</span><span class="p">]</span>
+<span class="p">[</span><span class="n">TestMethod</span><span class="p">]</span>
 <span class="k">public</span> <span class="k">void</span> <span class="nf">Test</span><span class="p">()</span></code></pre></figure>
 
-<p>Luckily only <code class="highlighter-rouge">MSTest</code> allows to ignore a test without providing a message, both <code class="highlighter-rouge">xUnit</code> and <code class="highlighter-rouge">NUnit</code> require the developer to provide a message. What’s worse is that the message of the commit ignoring the test often reads <code class="highlighter-rouge">"fixed" test YOLO LMAO</code> and you’re left wondering what deep philosophical message lies hidden behind those mundane words.</p>
+<p>Luckily only <code class="language-plaintext highlighter-rouge">MSTest</code> allows to ignore a test without providing a message, both <code class="language-plaintext highlighter-rouge">xUnit</code> and <code class="language-plaintext highlighter-rouge">NUnit</code> require the developer to provide a message. What’s worse is that the message of the commit ignoring the test often reads <code class="language-plaintext highlighter-rouge">"fixed" test YOLO LMAO</code> and you’re left wondering what deep philosophical message lies hidden behind those mundane words.</p>
 
 <p>In the case of a <em>commented test</em> the solution is simple: <strong>delete</strong> it. Regarding <em>ignored tests</em>, have a quick read through and run them. If you can’t get them to pass, <strong>delete</strong> them too. Ignored / commented tests will only confuse future developers. You should treat your test code the same way you treat your production code: if a piece of code has no use anymore it should go.</p>
 
@@ -147,15 +147,15 @@
     <span class="p">.</span><span class="nf">When</span><span class="p">(</span><span class="n">l</span> <span class="p">=&gt;</span> <span class="n">l</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="n">Arg</span><span class="p">.</span><span class="n">Any</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">&gt;()))</span>
     <span class="p">.</span><span class="nf">Do</span><span class="p">(</span><span class="n">ci</span> <span class="p">=&gt;</span> <span class="n">_logs</span><span class="p">.</span><span class="nf">Add</span><span class="p">(</span><span class="n">ci</span><span class="p">.</span><span class="n">Arg</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">&gt;()));</span></code></pre></figure>
 
-<p>But this was not the only issue with this statement. After making an unrelated change this test failed. I ran it again on its own and it passed, so this test was failing intermittently and I was also getting different <code class="highlighter-rouge">Exception</code> <code class="highlighter-rouge">Type</code>s! The <code class="highlighter-rouge">NullReferenceException</code> wasn’t meaningful but I also got an <code class="highlighter-rouge">IndexOutOfRangeException</code> when adding an element to the <code class="highlighter-rouge">List</code>.</p>
+<p>But this was not the only issue with this statement. After making an unrelated change this test failed. I ran it again on its own and it passed, so this test was failing intermittently and I was also getting different <code class="language-plaintext highlighter-rouge">Exception</code> <code class="language-plaintext highlighter-rouge">Type</code>s! The <code class="language-plaintext highlighter-rouge">NullReferenceException</code> wasn’t meaningful but I also got an <code class="language-plaintext highlighter-rouge">IndexOutOfRangeException</code> when adding an element to the <code class="language-plaintext highlighter-rouge">List</code>.</p>
 
-<p>It turned out the code under test was multi-threaded and multiple threads were trying to add to the <code class="highlighter-rouge">List</code> at the same time. The <a href="https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1?view=netframework-4.7.1#Thread_Safety">.NET API browser</a> makes it clear than <code class="highlighter-rouge">List</code> is not thread-safe:</p>
+<p>It turned out the code under test was multi-threaded and multiple threads were trying to add to the <code class="language-plaintext highlighter-rouge">List</code> at the same time. The <a href="https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1?view=netframework-4.7.1#Thread_Safety">.NET API browser</a> makes it clear than <code class="language-plaintext highlighter-rouge">List</code> is not thread-safe:</p>
 
 <blockquote>
   <p>Any instance members are not guaranteed to be thread safe. […] <strong>To ensure thread safety, lock the collection during a read or write operation</strong>.</p>
 </blockquote>
 
-<p>In this instance the solution was to lock the <code class="highlighter-rouge">List</code> when adding to it:</p>
+<p>In this instance the solution was to lock the <code class="language-plaintext highlighter-rouge">List</code> when adding to it:</p>
 
 <figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="n">logger</span>
     <span class="p">.</span><span class="nf">When</span><span class="p">(</span><span class="n">l</span> <span class="p">=&gt;</span> <span class="n">l</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="n">Arg</span><span class="p">.</span><span class="n">Any</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">&gt;()))</span>
@@ -198,7 +198,7 @@ Actual:   False</code></pre></figure>
 <p>Tracking business events can be achieved in different ways:</p>
 
 <ul>
-  <li>Via your <code class="highlighter-rouge">APM</code> service, both <a href="https://docs.microsoft.com/en-us/azure/application-insights/app-insights-api-custom-events-metrics#trackevent">Application Insights</a> and <a href="https://docs.newrelic.com/docs/insights/insights-data-sources/custom-data/insert-custom-events-new-relic-apm-agents">New Relic</a> can track custom events</li>
+  <li>Via your <code class="language-plaintext highlighter-rouge">APM</code> service, both <a href="https://docs.microsoft.com/en-us/azure/application-insights/app-insights-api-custom-events-metrics#trackevent">Application Insights</a> and <a href="https://docs.newrelic.com/docs/insights/insights-data-sources/custom-data/insert-custom-events-new-relic-apm-agents">New Relic</a> can track custom events</li>
   <li>Via a service bus. Your code could be instrumented to emit messages and any interested service can subscribe to them</li>
 </ul>
 
@@ -206,7 +206,7 @@ Actual:   False</code></pre></figure>
 
 <h2 id="nullreferenceexception-in-constructor">NullReferenceException in constructor</h2>
 
-<p>Don’t assert than your constructors are throwing a <code class="highlighter-rouge">NullReferenceException</code> when being passed a <code class="highlighter-rouge">null</code>. Your <code class="highlighter-rouge">IoC</code> <code class="highlighter-rouge">container</code> will throw an <code class="highlighter-rouge">Exception</code> anyway when trying to resolve the dependencies.</p>
+<p>Don’t assert than your constructors are throwing a <code class="language-plaintext highlighter-rouge">NullReferenceException</code> when being passed a <code class="language-plaintext highlighter-rouge">null</code>. Your <code class="language-plaintext highlighter-rouge">IoC</code> <code class="language-plaintext highlighter-rouge">container</code> will throw an <code class="language-plaintext highlighter-rouge">Exception</code> anyway when trying to resolve the dependencies.</p>
 
 <p><strong>Ask yourself</strong>: do I need to test third-party libraries?</p>
 

@@ -1,0 +1,9 @@
+I"ð<p>I was recently working on a project that contained secrets in source control. The team was aware of this fact but had never been able to allocate time to get rid of them. The circumstances changed and I was tasked with cleansing the repository. I was still unfamiliar with the code-base so I started to look around for config files. I realised quickly this approach would not work out:</p>
+
+<ul>
+  <li>Some secrets were hard-coded directly in the code</li>
+  <li>Some secrets had previously been committed to source control but had since then been removed</li>
+</ul>
+
+<p>I needed a tool that would not only attempt to identify secrets but would also do so over the complete <code class="language-plaintext highlighter-rouge">Git</code> history.</p>
+:ET

@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Gabriel Weyer - A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?201906292320" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202007181842" type="text/css">
 
     <!-- Fonts -->
     
@@ -112,19 +112,19 @@
 </div>
 
 <article class="post-content">
-  <p><code class="highlighter-rouge">Elastic Beanstalk</code> offers both a <code class="highlighter-rouge">Web</code> tier and a <code class="highlighter-rouge">Worker</code> tier. This allows developers to build reasonably complex applications without having to maintain moving pieces. Offloading heavy-duty workloads to the worker in order to keep the web tier responsive is as easy as putting a message on a queue.</p>
+  <p><code class="language-plaintext highlighter-rouge">Elastic Beanstalk</code> offers both a <code class="language-plaintext highlighter-rouge">Web</code> tier and a <code class="language-plaintext highlighter-rouge">Worker</code> tier. This allows developers to build reasonably complex applications without having to maintain moving pieces. Offloading heavy-duty workloads to the worker in order to keep the web tier responsive is as easy as putting a message on a queue.</p>
 
 <p><img src="/assets/simple-routing-elastic-beanstalk-worker/http-path.png" alt="HTTP Path" /></p>
 
-<p>One annoyance that I have with <code class="highlighter-rouge">Beanstalk</code> is that there is no way to direct a message to a specific endpoint, hence leaving a single endpoint the responsibility of distributing the messages to all their handlers and potentially leading to brittle code. But it doesn’t have to be that way.<!--more--></p>
+<p>One annoyance that I have with <code class="language-plaintext highlighter-rouge">Beanstalk</code> is that there is no way to direct a message to a specific endpoint, hence leaving a single endpoint the responsibility of distributing the messages to all their handlers and potentially leading to brittle code. But it doesn’t have to be that way.<!--more--></p>
 
 <h2 id="implementation">Implementation</h2>
 
-<p><code class="highlighter-rouge">SQS</code> messages have <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-message-attributes.html">attributes</a>, attributes can be set by the sender and are read by the receiver. The idea is to use a known attribute to attach routing metadata to the message.</p>
+<p><code class="language-plaintext highlighter-rouge">SQS</code> messages have <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-message-attributes.html">attributes</a>, attributes can be set by the sender and are read by the receiver. The idea is to use a known attribute to attach routing metadata to the message.</p>
 
 <h3 id="constants">Constants</h3>
 
-<p>Constants are the base of any decently built <code class="highlighter-rouge">C#</code> application. I did not want to depart from to this rule and hence added some constants:</p>
+<p>Constants are the base of any decently built <code class="language-plaintext highlighter-rouge">C#</code> application. I did not want to depart from to this rule and hence added some constants:</p>
 
 <figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">public</span> <span class="k">static</span> <span class="k">class</span> <span class="nc">RoutingConstants</span>
 <span class="p">{</span>
@@ -132,7 +132,7 @@
     <span class="k">public</span> <span class="k">const</span> <span class="kt">string</span> <span class="n">HeaderType</span> <span class="p">=</span> <span class="s">"String"</span><span class="p">;</span>
 <span class="p">}</span></code></pre></figure>
 
-<p>These constansts will be used to add routing metadata to the <code class="highlighter-rouge">SQS</code> message.</p>
+<p>These constansts will be used to add routing metadata to the <code class="language-plaintext highlighter-rouge">SQS</code> message.</p>
 
 <p>We can then define our routes via some more constants:</p>
 
@@ -142,11 +142,11 @@
     <span class="k">public</span> <span class="k">const</span> <span class="kt">string</span> <span class="n">DoSomeOtherWorkTaskName</span> <span class="p">=</span> <span class="s">"do-some-other-work"</span><span class="p">;</span>
 <span class="p">}</span></code></pre></figure>
 
-<p><strong>Note</strong>: those two <code class="highlighter-rouge">class</code> will have to be referenced by the sender and the <code class="highlighter-rouge">Worker</code>.</p>
+<p><strong>Note</strong>: those two <code class="language-plaintext highlighter-rouge">class</code> will have to be referenced by the sender and the <code class="language-plaintext highlighter-rouge">Worker</code>.</p>
 
 <h3 id="sending-the-message">Sending the message</h3>
 
-<p>The sender will most likely be the <code class="highlighter-rouge">Web</code> tier but it could be any system being able to send a message to a <code class="highlighter-rouge">SQS</code> queue.</p>
+<p>The sender will most likely be the <code class="language-plaintext highlighter-rouge">Web</code> tier but it could be any system being able to send a message to a <code class="language-plaintext highlighter-rouge">SQS</code> queue.</p>
 
 <figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="kt">var</span> <span class="n">sendMessageRequest</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">SendMessageRequest</span><span class="p">();</span>
 <span class="c1">// Abbreviated: set properties on sendMessageRequest, such as the MessageBody and the QueueUrl</span>
@@ -161,7 +161,7 @@
 
 <h3 id="middleware">Middleware</h3>
 
-<p>In the <code class="highlighter-rouge">Worker</code>, the routing is implemented via a <code class="highlighter-rouge">Middleware</code>:</p>
+<p>In the <code class="language-plaintext highlighter-rouge">Worker</code>, the routing is implemented via a <code class="language-plaintext highlighter-rouge">Middleware</code>:</p>
 
 <figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">public</span> <span class="k">static</span> <span class="k">class</span> <span class="nc">HeaderRoutingMiddleware</span>
 <span class="p">{</span>
@@ -180,14 +180,14 @@
     <span class="p">}</span>
 <span class="p">}</span></code></pre></figure>
 
-<p><strong>Note</strong>: don’t forget to add <code class="highlighter-rouge">HeaderRoutingMiddleware</code> to the <code class="highlighter-rouge">IApplicationBuilder</code>.</p>
+<p><strong>Note</strong>: don’t forget to add <code class="language-plaintext highlighter-rouge">HeaderRoutingMiddleware</code> to the <code class="language-plaintext highlighter-rouge">IApplicationBuilder</code>.</p>
 
 <h3 id="controller">Controller</h3>
 
-<p>The last piece of the puzzle is defining the expected route on the <code class="highlighter-rouge">Controller</code>:</p>
+<p>The last piece of the puzzle is defining the expected route on the <code class="language-plaintext highlighter-rouge">Controller</code>:</p>
 
 <figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="c1">// This is important, we do not want a prefix in front of the action's route</span>
-<span class="na">[Route("")]</span>
+<span class="p">[</span><span class="nf">Route</span><span class="p">(</span><span class="s">""</span><span class="p">)]</span>
 <span class="k">public</span> <span class="k">class</span> <span class="nc">SomeController</span> <span class="p">:</span> <span class="n">Controller</span>
 <span class="p">{</span>
   <span class="c1">// The route has to match the value given to the MessageAttribute</span>
@@ -200,14 +200,14 @@
 
 <h2 id="simple-routing">Simple routing</h2>
 
-<p>I used <code class="highlighter-rouge">Simple Routing</code> in production over the last few months and am now confident that it does what it’s supposed to do. This is why I decided to release it under a <code class="highlighter-rouge">MIT</code> license to allow others to benefit from my work.</p>
+<p>I used <code class="language-plaintext highlighter-rouge">Simple Routing</code> in production over the last few months and am now confident that it does what it’s supposed to do. This is why I decided to release it under a <code class="language-plaintext highlighter-rouge">MIT</code> license to allow others to benefit from my work.</p>
 
-<p><code class="highlighter-rouge">Simple Routing</code> is available:</p>
+<p><code class="language-plaintext highlighter-rouge">Simple Routing</code> is available:</p>
 
 <ul>
-  <li>On <code class="highlighter-rouge">NuGet</code> as the package <a href="https://www.nuget.org/packages/BeanstalkWorker.SimpleRouting/">BeanstalkWorker.SimpleRouting</a></li>
-  <li>A <code class="highlighter-rouge">GitHub</code> <a href="https://github.com/gabrielweyer/simple-routing/releases">release</a></li>
-  <li>As <a href="https://github.com/gabrielweyer/simple-routing">source</a> on <code class="highlighter-rouge">Github</code>
+  <li>On <code class="language-plaintext highlighter-rouge">NuGet</code> as the package <a href="https://www.nuget.org/packages/BeanstalkWorker.SimpleRouting/">BeanstalkWorker.SimpleRouting</a></li>
+  <li>A <code class="language-plaintext highlighter-rouge">GitHub</code> <a href="https://github.com/gabrielweyer/simple-routing/releases">release</a></li>
+  <li>As <a href="https://github.com/gabrielweyer/simple-routing">source</a> on <code class="language-plaintext highlighter-rouge">Github</code>
     <ul>
       <li>The implementation is so simple that you can just copy the classes into your own solution if that works better for you</li>
     </ul>
@@ -216,11 +216,11 @@
 
 <h3 id="demo">Demo</h3>
 
-<p>The <code class="highlighter-rouge">Simple Routing</code> solution contains a <code class="highlighter-rouge">SampleWeb</code> app, you can either:</p>
+<p>The <code class="language-plaintext highlighter-rouge">Simple Routing</code> solution contains a <code class="language-plaintext highlighter-rouge">SampleWeb</code> app, you can either:</p>
 
 <ul>
-  <li>Send “work” - <code class="highlighter-rouge">Send/Work</code></li>
-  <li>Send “nothing” - <code class="highlighter-rouge">Send/Nothing</code></li>
+  <li>Send “work” - <code class="language-plaintext highlighter-rouge">Send/Work</code></li>
+  <li>Send “nothing” - <code class="language-plaintext highlighter-rouge">Send/Nothing</code></li>
 </ul>
 
 <h4 id="send-messages">Send messages</h4>
@@ -237,10 +237,10 @@ Host: localhost:5000</code></pre></figure>
 
 <h4 id="peek-at-the-messages">Peek at the messages</h4>
 
-<p>Now let’s look at the messages in the <code class="highlighter-rouge">SQS</code> queue:</p>
+<p>Now let’s look at the messages in the <code class="language-plaintext highlighter-rouge">SQS</code> queue:</p>
 
 <ul>
-  <li>The <code class="highlighter-rouge">Work</code> message</li>
+  <li>The <code class="language-plaintext highlighter-rouge">Work</code> message</li>
 </ul>
 
 <p><img src="/assets/simple-routing-elastic-beanstalk-worker/message-work-body.png" alt="Work Message Body" /></p>
@@ -248,7 +248,7 @@ Host: localhost:5000</code></pre></figure>
 <p><img src="/assets/simple-routing-elastic-beanstalk-worker/message-work-attributes.png" alt="Work Message Attributes" /></p>
 
 <ul>
-  <li>The <code class="highlighter-rouge">Nothing</code> message</li>
+  <li>The <code class="language-plaintext highlighter-rouge">Nothing</code> message</li>
 </ul>
 
 <p><img src="/assets/simple-routing-elastic-beanstalk-worker/message-nothing-body.png" alt="Nothing Message Body" /></p>
@@ -257,36 +257,36 @@ Host: localhost:5000</code></pre></figure>
 
 <h4 id="handle-the-messages">Handle the messages</h4>
 
-<p>Launch the <code class="highlighter-rouge">SampleWorker</code> app. When running in <code class="highlighter-rouge">ElasticBeanstalk</code> the <a href="https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html">Sqsd daemon</a> reads <code class="highlighter-rouge">SQS</code> messages from the <code class="highlighter-rouge">SQS</code> queue and <code class="highlighter-rouge">POST</code> the content to your <code class="highlighter-rouge">Worker</code>. But we’re running the <code class="highlighter-rouge">Worker</code> on our machine and the <code class="highlighter-rouge">Sqsd daemon</code> is not available. This is why I wrote <code class="highlighter-rouge">Beanstalk Seeder</code>.</p>
+<p>Launch the <code class="language-plaintext highlighter-rouge">SampleWorker</code> app. When running in <code class="language-plaintext highlighter-rouge">ElasticBeanstalk</code> the <a href="https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html">Sqsd daemon</a> reads <code class="language-plaintext highlighter-rouge">SQS</code> messages from the <code class="language-plaintext highlighter-rouge">SQS</code> queue and <code class="language-plaintext highlighter-rouge">POST</code> the content to your <code class="language-plaintext highlighter-rouge">Worker</code>. But we’re running the <code class="language-plaintext highlighter-rouge">Worker</code> on our machine and the <code class="language-plaintext highlighter-rouge">Sqsd daemon</code> is not available. This is why I wrote <code class="language-plaintext highlighter-rouge">Beanstalk Seeder</code>.</p>
 
 <blockquote>
-  <p><a href="https://github.com/gabrielweyer/beanstalk-seeder">Beanstalk Seeder</a> emulates the <code class="highlighter-rouge">SQS Daemon</code> surrounding an <code class="highlighter-rouge">Elastic Beanstalk</code> <code class="highlighter-rouge">Worker Tier</code> so that you can replicate the interaction between a <code class="highlighter-rouge">Web Tier</code> and a <code class="highlighter-rouge">Worker Tier</code> on your machine.</p>
+  <p><a href="https://github.com/gabrielweyer/beanstalk-seeder">Beanstalk Seeder</a> emulates the <code class="language-plaintext highlighter-rouge">SQS Daemon</code> surrounding an <code class="language-plaintext highlighter-rouge">Elastic Beanstalk</code> <code class="language-plaintext highlighter-rouge">Worker Tier</code> so that you can replicate the interaction between a <code class="language-plaintext highlighter-rouge">Web Tier</code> and a <code class="language-plaintext highlighter-rouge">Worker Tier</code> on your machine.</p>
 </blockquote>
 
-<h5 id="handling-the-work-message">Handling the <code class="highlighter-rouge">Work</code> message</h5>
+<h5 id="handling-the-work-message">Handling the <code class="language-plaintext highlighter-rouge">Work</code> message</h5>
 
 <ul>
-  <li><code class="highlighter-rouge">Beanstalk Seeder</code></li>
+  <li><code class="language-plaintext highlighter-rouge">Beanstalk Seeder</code></li>
 </ul>
 
 <p><img src="/assets/simple-routing-elastic-beanstalk-worker/beanstalk-seeder-work.png" alt="Work Message Beanstalk Seeder" /></p>
 
 <ul>
-  <li><code class="highlighter-rouge">Worker</code></li>
+  <li><code class="language-plaintext highlighter-rouge">Worker</code></li>
 </ul>
 
 <p><img src="/assets/simple-routing-elastic-beanstalk-worker/worker-work.png" alt="Work Message Worker" /></p>
 
-<h5 id="handling-the-nothing-message">Handling the <code class="highlighter-rouge">Nothing</code> message</h5>
+<h5 id="handling-the-nothing-message">Handling the <code class="language-plaintext highlighter-rouge">Nothing</code> message</h5>
 
 <ul>
-  <li><code class="highlighter-rouge">Beanstalk Seeder</code></li>
+  <li><code class="language-plaintext highlighter-rouge">Beanstalk Seeder</code></li>
 </ul>
 
 <p><img src="/assets/simple-routing-elastic-beanstalk-worker/beanstalk-seeder-nothing.png" alt="Nothing Message Beanstalk Seeder" /></p>
 
 <ul>
-  <li><code class="highlighter-rouge">Worker</code></li>
+  <li><code class="language-plaintext highlighter-rouge">Worker</code></li>
 </ul>
 
 <p><img src="/assets/simple-routing-elastic-beanstalk-worker/worker-nothing.png" alt="Nothing Message Worker" /></p>

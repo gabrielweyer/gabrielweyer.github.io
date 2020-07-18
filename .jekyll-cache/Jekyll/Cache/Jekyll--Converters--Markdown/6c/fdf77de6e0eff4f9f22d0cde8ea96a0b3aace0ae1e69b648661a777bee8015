@@ -1,0 +1,6 @@
+I"¦<p><code class="language-plaintext highlighter-rouge">Elastic Beanstalk</code> offers both a <code class="language-plaintext highlighter-rouge">Web</code> tier and a <code class="language-plaintext highlighter-rouge">Worker</code> tier. This allows developers to build reasonably complex applications without having to maintain moving pieces. Offloading heavy-duty workloads to the worker in order to keep the web tier responsive is as easy as putting a message on a queue.</p>
+
+<p><img src="/assets/simple-routing-elastic-beanstalk-worker/http-path.png" alt="HTTP Path" /></p>
+
+<p>One annoyance that I have with <code class="language-plaintext highlighter-rouge">Beanstalk</code> is that there is no way to direct a message to a specific endpoint, hence leaving a single endpoint the responsibility of distributing the messages to all their handlers and potentially leading to brittle code. But it doesnâ€™t have to be that way.</p>
+:ET

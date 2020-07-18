@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Gabriel Weyer - A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?201906292320" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202007181842" type="text/css">
 
     <!-- Fonts -->
     
@@ -112,17 +112,17 @@
 </div>
 
 <article class="post-content">
-  <p>Today’s exercise is not an exercise! The investigation I’m about to describe was triggered by a production outage affecting multiple <code class="highlighter-rouge">API</code>s - albeit not at the same time - at a customer. For obvious reasons I’ll not be able to share the code and will have to alter / obfuscate some of the commands’ results. I still think this is a valuable exercise as it is a classic example of an easy to make mistake leading to a catastrophic result.</p>
+  <p>Today’s exercise is not an exercise! The investigation I’m about to describe was triggered by a production outage affecting multiple <code class="language-plaintext highlighter-rouge">API</code>s - albeit not at the same time - at a customer. For obvious reasons I’ll not be able to share the code and will have to alter / obfuscate some of the commands’ results. I still think this is a valuable exercise as it is a classic example of an easy to make mistake leading to a catastrophic result.</p>
 
 <p>The other interesting point is that I had no idea what the issue was so I’ll not be following a script as I did in the first instalment.<!--more--></p>
 
 <h2 id="the-symptoms">The symptoms</h2>
 
-<p>A week prior we had another production outage. One of our <code class="highlighter-rouge">API</code> became unresponsive, requests would sit in <code class="highlighter-rouge">Chrome</code> waiting for minutes for the server to reply. Logs did not yield anything interesting and according to <a href="https://newrelic.com/">New Relic</a> we had a quasiperfect <a href="https://docs.newrelic.com/docs/apm/new-relic-apm/apdex/apdex-measuring-user-satisfaction">Apdex</a>.</p>
+<p>A week prior we had another production outage. One of our <code class="language-plaintext highlighter-rouge">API</code> became unresponsive, requests would sit in <code class="language-plaintext highlighter-rouge">Chrome</code> waiting for minutes for the server to reply. Logs did not yield anything interesting and according to <a href="https://newrelic.com/">New Relic</a> we had a quasiperfect <a href="https://docs.newrelic.com/docs/apm/new-relic-apm/apdex/apdex-measuring-user-satisfaction">Apdex</a>.</p>
 
 <ul>
   <li>The working theory was that requests were failing early in the pipeline so that our logging did not pick anything</li>
-  <li>According to <code class="highlighter-rouge">New Relic</code> our traffic plummeted during the outage. So basically, <code class="highlighter-rouge">New Relic</code> was not capturing any of the failing requests and the dashboards were all green!</li>
+  <li>According to <code class="language-plaintext highlighter-rouge">New Relic</code> our traffic plummeted during the outage. So basically, <code class="language-plaintext highlighter-rouge">New Relic</code> was not capturing any of the failing requests and the dashboards were all green!</li>
 </ul>
 
 <p>At this stage I recommended to capture a memory dump before restarting the web app. The later happened but the former did not. The app recycled and started to serve production traffic again but we were left with few clues. Afterwards the operation team engaged Microsoft and learned than the thread count spiked during the outage.</p>
@@ -136,23 +136,23 @@
   <li>High thread count</li>
 </ul>
 
-<p>We had released a new version of this <code class="highlighter-rouge">API</code> a week before the outage. The release included a fix that I did for an intermittent <code class="highlighter-rouge">500</code> error that our testers and front-end teams experienced. The patch involved modifying the lifetime of some classes involved in the logging system. The Pull Request had been approved after a heated discussion and as soon as news of the outage broke, fingers were pointed at my fix.</p>
+<p>We had released a new version of this <code class="language-plaintext highlighter-rouge">API</code> a week before the outage. The release included a fix that I did for an intermittent <code class="language-plaintext highlighter-rouge">500</code> error that our testers and front-end teams experienced. The patch involved modifying the lifetime of some classes involved in the logging system. The Pull Request had been approved after a heated discussion and as soon as news of the outage broke, fingers were pointed at my fix.</p>
 
 <h2 id="draw-of-luck">Draw of luck</h2>
 
-<p>Come Friday morning, I’m sipping my Dirty Chai while absently looking at <code class="highlighter-rouge">Slack</code>. Suddenly a message catches my attention:</p>
+<p>Come Friday morning, I’m sipping my Dirty Chai while absently looking at <code class="language-plaintext highlighter-rouge">Slack</code>. Suddenly a message catches my attention:</p>
 
 <p><img src="/assets/windbg-2/unresponsive-again.png" alt="Unresponsive again" /></p>
 
-<p>This is the same <code class="highlighter-rouge">API</code> that went down last week! My heart beats slightly faster while I fire up the <code class="highlighter-rouge">Azure</code> portal. And sure enough the thread count is far too high for the current dev traffic this API is serving:</p>
+<p>This is the same <code class="language-plaintext highlighter-rouge">API</code> that went down last week! My heart beats slightly faster while I fire up the <code class="language-plaintext highlighter-rouge">Azure</code> portal. And sure enough the thread count is far too high for the current dev traffic this API is serving:</p>
 
 <p><img src="/assets/windbg-2/oh-my-thread-count.png" alt="Oh my thread count" /></p>
 
-<p>I write a memory dump, slurp the end of my Dirty Chai and go to work thinking I’ll allocate some <code class="highlighter-rouge">WinDbg</code> time during the week-end.</p>
+<p>I write a memory dump, slurp the end of my Dirty Chai and go to work thinking I’ll allocate some <code class="language-plaintext highlighter-rouge">WinDbg</code> time during the week-end.</p>
 
 <h2 id="were-down-again">We’re down again</h2>
 
-<p>A few hours later another <code class="highlighter-rouge">API</code> experiences a significant outage. The symptoms are eerily similar. I was waiting for another of my <code class="highlighter-rouge">PR</code> to get approved but the process is being delayed as our build server is <a href="https://githubengineering.com/crypto-deprecation-notice/">down</a>. I don’t have access to the memory dump that was written in production during the outage but it’s likely the outages have a common cause; hence I decide to take my frustration out on the memory dump I wrote in the morning.</p>
+<p>A few hours later another <code class="language-plaintext highlighter-rouge">API</code> experiences a significant outage. The symptoms are eerily similar. I was waiting for another of my <code class="language-plaintext highlighter-rouge">PR</code> to get approved but the process is being delayed as our build server is <a href="https://githubengineering.com/crypto-deprecation-notice/">down</a>. I don’t have access to the memory dump that was written in production during the outage but it’s likely the outages have a common cause; hence I decide to take my frustration out on the memory dump I wrote in the morning.</p>
 
 <h2 id="investigation">Investigation</h2>
 
@@ -160,13 +160,13 @@
 
 <p>The first question I had was: <strong>why do we have so many threads and what are they doing</strong>?</p>
 
-<p>I’ll start with the <code class="highlighter-rouge">Threads</code> <a href="https://docs.microsoft.com/en-us/dotnet/framework/tools/sos-dll-sos-debugging-extension#commands">SOS command</a>.</p>
+<p>I’ll start with the <code class="language-plaintext highlighter-rouge">Threads</code> <a href="https://docs.microsoft.com/en-us/dotnet/framework/tools/sos-dll-sos-debugging-extension#commands">SOS command</a>.</p>
 
 <blockquote>
   <p>Displays all managed threads in the process.</p>
 </blockquote>
 
-<p><strong>Note</strong>: The first column is the thread <code class="highlighter-rouge">ID</code>.</p>
+<p><strong>Note</strong>: The first column is the thread <code class="language-plaintext highlighter-rouge">ID</code>.</p>
 
 <figure class="highlight"><pre><code class="language-text" data-lang="text">0:000&gt; !threads
 ThreadCount:      145
@@ -197,7 +197,7 @@ Hosted Runtime:   no
 <p>I then pick a few threads to see what they’re doing. To achieve this I’ll combine two different commands:</p>
 
 <ul>
-  <li><a href="https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/-e--thread-specific-command-">Thread-Specific Command</a>: The <code class="highlighter-rouge">~e</code> command executes one or more commands for a specific thread</li>
+  <li><a href="https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/-e--thread-specific-command-">Thread-Specific Command</a>: The <code class="language-plaintext highlighter-rouge">~e</code> command executes one or more commands for a specific thread</li>
 </ul>
 
 <figure class="highlight"><pre><code class="language-text" data-lang="text">~&lt;thread-ID&gt;e &lt;command&gt;</code></pre></figure>
@@ -220,7 +220,7 @@ Child SP       IP Call Site
 2a8bd390 21ab20e1 Autofac.Core.Resolving.InstanceLookup.ResolveComponent(Autofac.Core.IComponentRegistration, System.Collections.Generic.IEnumerable`1)
 # Abbreviated</code></pre></figure>
 
-<p>So thread <code class="highlighter-rouge">143</code> is trying to acquire a lock: <code class="highlighter-rouge">System.Threading.Monitor.ReliableEnter(System.Object, Boolean ByRef)</code>. Let’s look at another thread.</p>
+<p>So thread <code class="language-plaintext highlighter-rouge">143</code> is trying to acquire a lock: <code class="language-plaintext highlighter-rouge">System.Threading.Monitor.ReliableEnter(System.Object, Boolean ByRef)</code>. Let’s look at another thread.</p>
 
 <h4 id="thread-136">Thread 136</h4>
 
@@ -236,7 +236,7 @@ Child SP       IP Call Site
 2b07d894 21ab20e1 Autofac.Core.Resolving.InstanceLookup.ResolveComponent(Autofac.Core.IComponentRegistration, System.Collections.Generic.IEnumerable`1)
 # Abbreviated</code></pre></figure>
 
-<p>Thread <code class="highlighter-rouge">136</code> is also trying to acquire a lock.</p>
+<p>Thread <code class="language-plaintext highlighter-rouge">136</code> is also trying to acquire a lock.</p>
 
 <h4 id="thread-123">Thread 123</h4>
 
@@ -252,11 +252,11 @@ Child SP       IP Call Site
 3d14dad4 21ab20e1 Autofac.Core.Resolving.InstanceLookup.ResolveComponent(Autofac.Core.IComponentRegistration, System.Collections.Generic.IEnumerable`1)
 # Abbreviated</code></pre></figure>
 
-<p>Thread <code class="highlighter-rouge">123</code> is also trying to acquire a lock. By now <strong>it’s safe to assume than many threads are trying to acquire a lock. How many of them exactly? And more importantly: which naughty thread is holding on the lock?</strong></p>
+<p>Thread <code class="language-plaintext highlighter-rouge">123</code> is also trying to acquire a lock. By now <strong>it’s safe to assume than many threads are trying to acquire a lock. How many of them exactly? And more importantly: which naughty thread is holding on the lock?</strong></p>
 
 <h3 id="who-is-holding-on-the-lock">Who is holding on the lock?</h3>
 
-<p>Time to use another <a href="https://docs.microsoft.com/en-us/dotnet/framework/tools/sos-dll-sos-debugging-extension#commands">SOS command</a>: <code class="highlighter-rouge">SyncBlk</code>.</p>
+<p>Time to use another <a href="https://docs.microsoft.com/en-us/dotnet/framework/tools/sos-dll-sos-debugging-extension#commands">SOS command</a>: <code class="language-plaintext highlighter-rouge">SyncBlk</code>.</p>
 
 <figure class="highlight"><pre><code class="language-text" data-lang="text">0:000&gt; !syncblk
 Index         SyncBlock MonitorHeld Recursion Owning Thread Info          SyncBlock Owner
@@ -268,7 +268,7 @@ RCW             3
 ComClassFactory 0
 Free            206</code></pre></figure>
 
-<p>Thread <code class="highlighter-rouge">ID</code> <code class="highlighter-rouge">42</code> is holding the lock. The third column (<code class="highlighter-rouge">MonitorHeld</code>) indicates how many threads are trying to acquire the same lock. In this case it is <code class="highlighter-rouge">114</code> (<code class="highlighter-rouge">(229 - 1) / 2</code>). You can read more about how I computed this number in this <a href="https://stackoverflow.com/a/2203085/57369">Stack Overflow answer</a>.</p>
+<p>Thread <code class="language-plaintext highlighter-rouge">ID</code> <code class="language-plaintext highlighter-rouge">42</code> is holding the lock. The third column (<code class="language-plaintext highlighter-rouge">MonitorHeld</code>) indicates how many threads are trying to acquire the same lock. In this case it is <code class="language-plaintext highlighter-rouge">114</code> (<code class="language-plaintext highlighter-rouge">(229 - 1) / 2</code>). You can read more about how I computed this number in this <a href="https://stackoverflow.com/a/2203085/57369">Stack Overflow answer</a>.</p>
 
 <h3 id="what-is-thread-42-doing">What is thread 42 doing?</h3>
 
@@ -294,14 +294,14 @@ Child SP       IP Call Site
 
 <figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="n">Contoso</span><span class="p">.</span><span class="n">AzureKeyVaultClient</span><span class="p">.</span><span class="nf">GetSecretByName</span><span class="p">(</span><span class="n">System</span><span class="p">.</span><span class="n">String</span><span class="p">)</span></code></pre></figure>
 
-<p>Despite its name it seems to be executing <code class="highlighter-rouge">async</code> code and even more troubling it looks like we’re blocking. I have enough information to locate the source and find the following method:</p>
+<p>Despite its name it seems to be executing <code class="language-plaintext highlighter-rouge">async</code> code and even more troubling it looks like we’re blocking. I have enough information to locate the source and find the following method:</p>
 
 <figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">public</span> <span class="kt">string</span> <span class="nf">GetSecretByName</span><span class="p">(</span><span class="kt">string</span> <span class="n">secretName</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="k">return</span> <span class="nf">GetSecretByNameAsync</span><span class="p">(</span><span class="n">secretName</span><span class="p">).</span><span class="nf">GetAwaiter</span><span class="p">().</span><span class="nf">GetResult</span><span class="p">();</span>
 <span class="p">}</span></code></pre></figure>
 
-<p>Sure enough we’re blocking on an <code class="highlighter-rouge">async</code> method. I’ll let Stephen Cleary explains what’s wrong but it can be summed up as: <a href="http://blog.stephencleary.com/2012/07/dont-block-on-async-code.html">Don’t Block on Async Code</a> (seriously read the blog post).</p>
+<p>Sure enough we’re blocking on an <code class="language-plaintext highlighter-rouge">async</code> method. I’ll let Stephen Cleary explains what’s wrong but it can be summed up as: <a href="http://blog.stephencleary.com/2012/07/dont-block-on-async-code.html">Don’t Block on Async Code</a> (seriously read the blog post).</p>
 
 <h2 id="solution">Solution</h2>
 
@@ -312,13 +312,13 @@ Child SP       IP Call Site
     <p>Resolve the secret on application startup. At this stage we’re single threaded and there is no request context so we can block without risking a deadlock. It isn’t pretty and will slow down the application startup but it works.</p>
   </li>
   <li>
-    <p>A nicer option would be to resolve the secret when needed (lazy initialization). By then we’ll be in an <code class="highlighter-rouge">async</code> method and we will be able to call the <code class="highlighter-rouge">Async</code> overload.</p>
+    <p>A nicer option would be to resolve the secret when needed (lazy initialization). By then we’ll be in an <code class="language-plaintext highlighter-rouge">async</code> method and we will be able to call the <code class="language-plaintext highlighter-rouge">Async</code> overload.</p>
   </li>
 </ul>
 
 <h2 id="conclusion">Conclusion</h2>
 
-<p>Once again <code class="highlighter-rouge">WinDbg</code> has delivered the goods. I write up my findings and communicate them to my colleagues. It’s 4:30 PM and the build server is still not fixed, I decide to call it a day.</p>
+<p>Once again <code class="language-plaintext highlighter-rouge">WinDbg</code> has delivered the goods. I write up my findings and communicate them to my colleagues. It’s 4:30 PM and the build server is still not fixed, I decide to call it a day.</p>
 
 
 </article>

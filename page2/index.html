@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Gabriel Weyer - A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?201906292320" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202007181842" type="text/css">
 
     <!-- Fonts -->
     
@@ -107,9 +107,9 @@
           <p class="post-meta">Apr 21, 2018</p>
           <a href="/2018/04/21/cake-build/" class="post-link"><h3 class="h1 post-title">Cake build</h3></a>
           <span class="post-summary">
-            <p><strong>5th of Jan 2019</strong>: a lot has been happening since I initially wrote this post. <code class="highlighter-rouge">Azure DevOps</code> released a free tier for open source projects, the <code class="highlighter-rouge">Cake</code> and <code class="highlighter-rouge">GitVersion</code> contributors have been hard at work to take advantage of the latest features of <code class="highlighter-rouge">.NET Core</code>. So much things have changed that I decided to update this post to reflect the current state of affairs (inclusion of <code class="highlighter-rouge">Azure DevOps</code>, upgrade to <code class="highlighter-rouge">.NET Core 2.2</code>, utilisation of <code class="highlighter-rouge">.NET Core global tools</code> and removing the <code class="highlighter-rouge">Mono</code> requirement on <code class="highlighter-rouge">Unix</code> platforms).</p>
+            <p><strong>5th of Jan 2019</strong>: a lot has been happening since I initially wrote this post. <code class="language-plaintext highlighter-rouge">Azure DevOps</code> released a free tier for open source projects, the <code class="language-plaintext highlighter-rouge">Cake</code> and <code class="language-plaintext highlighter-rouge">GitVersion</code> contributors have been hard at work to take advantage of the latest features of <code class="language-plaintext highlighter-rouge">.NET Core</code>. So much things have changed that I decided to update this post to reflect the current state of affairs (inclusion of <code class="language-plaintext highlighter-rouge">Azure DevOps</code>, upgrade to <code class="language-plaintext highlighter-rouge">.NET Core 2.2</code>, utilisation of <code class="language-plaintext highlighter-rouge">.NET Core global tools</code> and removing the <code class="language-plaintext highlighter-rouge">Mono</code> requirement on <code class="language-plaintext highlighter-rouge">Unix</code> platforms).</p>
 
-<p>As a developer I’m amazed by the number of free tools and services available. I wanted to create an end-to-end demo of a <code class="highlighter-rouge">CI/CD</code> pipeline that would include:</p>
+<p>As a developer I’m amazed by the number of free tools and services available. I wanted to create an end-to-end demo of a <code class="language-plaintext highlighter-rouge">CI/CD</code> pipeline that would include:</p>
 
 <ul>
   <li><a href="/2018/04/21/cake-build/#configuration">Trigger a build on commit</a></li>
@@ -121,7 +121,7 @@
   <li><a href="/2018/04/21/cake-build/#create-a-github-release">Create a GitHub release</a></li>
 </ul>
 
-<p>For my purpose I wanted anonymous users to have access to a read-only view. I initially selected <a href="https://www.appveyor.com/">AppVeyor</a> as it seems to be the most popular choice for <code class="highlighter-rouge">.NET</code> open-source projects. But while browsing around I discovered than projects were often using more than one platform. <a href="https://travis-ci.org/">Travis CI</a> and <a href="https://circleci.com/">CircleCI</a> seemed to be the two other prevailing options. Since the initial version of this post, <a href="https://azure.microsoft.com/en-au/services/devops/">Azure DevOps</a> has released a free and unlimited plan for open source projects. I decided to leverage the four platforms so that I could highlight their pros and cons.</p>
+<p>For my purpose I wanted anonymous users to have access to a read-only view. I initially selected <a href="https://www.appveyor.com/">AppVeyor</a> as it seems to be the most popular choice for <code class="language-plaintext highlighter-rouge">.NET</code> open-source projects. But while browsing around I discovered than projects were often using more than one platform. <a href="https://travis-ci.org/">Travis CI</a> and <a href="https://circleci.com/">CircleCI</a> seemed to be the two other prevailing options. Since the initial version of this post, <a href="https://azure.microsoft.com/en-au/services/devops/">Azure DevOps</a> has released a free and unlimited plan for open source projects. I decided to leverage the four platforms so that I could highlight their pros and cons.</p>
 
 
              
@@ -136,7 +136,7 @@
           <p class="post-meta">Apr 6, 2018</p>
           <a href="/2018/04/06/advanced-dotnet-debugging-1/" class="post-link"><h3 class="h1 post-title">Advanced .NET Debugging #1</h3></a>
           <span class="post-summary">
-            <p>After eyeing it for a while I finally decided to buy <a href="https://www.goodreads.com/book/show/7306509-advanced-net-debugging">Advanced .NET Debugging</a> by Mario Hewardt. I’ve been studying <code class="highlighter-rouge">WinDbg</code> for some time and consider myself somewhere between beginner and intermediate level. To my dismay I got stuck on the first excercise! Luckily I didn’t give up and finally stumbled on a blog post that unblocked me. This series has for goal to make <a href="https://www.goodreads.com/book/show/7306509-advanced-net-debugging">Advanced .NET Debugging</a> more accessible to people - quite like me - that haven’t grasped all the concepts yet.</p>
+            <p>After eyeing it for a while I finally decided to buy <a href="https://www.goodreads.com/book/show/7306509-advanced-net-debugging">Advanced .NET Debugging</a> by Mario Hewardt. I’ve been studying <code class="language-plaintext highlighter-rouge">WinDbg</code> for some time and consider myself somewhere between beginner and intermediate level. To my dismay I got stuck on the first excercise! Luckily I didn’t give up and finally stumbled on a blog post that unblocked me. This series has for goal to make <a href="https://www.goodreads.com/book/show/7306509-advanced-net-debugging">Advanced .NET Debugging</a> more accessible to people - quite like me - that haven’t grasped all the concepts yet.</p>
 
 <h2 id="prerequisites">Prerequisites</h2>
 
@@ -163,7 +163,7 @@
           <p class="post-meta">Mar 24, 2018</p>
           <a href="/2018/03/24/testing-anti-patterns-1/" class="post-link"><h3 class="h1 post-title">Testing anti-patterns #1</h3></a>
           <span class="post-summary">
-            <p>I often ask candidates to define a good unit test. This is the starting point of a conversation around testing strategies and delivering value. Over the years I’ve heard opinions ranging from <code class="highlighter-rouge">the 100% coverage</code>, passing by <code class="highlighter-rouge">testing is for testers</code>, all the way to <code class="highlighter-rouge">we don't do automated testing</code>. If the notion of a <em>good test</em> can be subjective, it is easier to identify a <strong>bad</strong> test. Bloggers have written about this topic at length but I thought I would try paraphrasing the same content hoping nobody would notice.</p>
+            <p>I often ask candidates to define a good unit test. This is the starting point of a conversation around testing strategies and delivering value. Over the years I’ve heard opinions ranging from <code class="language-plaintext highlighter-rouge">the 100% coverage</code>, passing by <code class="language-plaintext highlighter-rouge">testing is for testers</code>, all the way to <code class="language-plaintext highlighter-rouge">we don't do automated testing</code>. If the notion of a <em>good test</em> can be subjective, it is easier to identify a <strong>bad</strong> test. Bloggers have written about this topic at length but I thought I would try paraphrasing the same content hoping nobody would notice.</p>
 
 <p>I must admit I have written - quite - a few bad tests myself and that’s fine. We all make mistakes, how we handle those mistakes is what help us grow:</p>
 
@@ -185,7 +185,7 @@
           <p class="post-meta">Mar 9, 2018</p>
           <a href="/2018/03/09/windbg-1-static-root/" class="post-link"><h3 class="h1 post-title">WinDbg #1 - The static root</h3></a>
           <span class="post-summary">
-            <p>This new series is an attempt to improve my <code class="highlighter-rouge">WinDbg</code> skills. The concept is to create faulty applications and troubleshoot the issue using <code class="highlighter-rouge">WinDbg</code> pretending that I have no prior knowledge of the code.</p>
+            <p>This new series is an attempt to improve my <code class="language-plaintext highlighter-rouge">WinDbg</code> skills. The concept is to create faulty applications and troubleshoot the issue using <code class="language-plaintext highlighter-rouge">WinDbg</code> pretending that I have no prior knowledge of the code.</p>
 
 <p>I’ll be using my <a href="https://github.com/gabrielweyer/nuggets/blob/master/windbg/README.md">WinDbg guide</a> as I can never remember the commands! I’m hoping than through those challenges I’ll get to improve the guide. Today’s exercise is inspired by the excellent blog post <a href="https://blogs.microsoft.co.il/sasha/2012/02/07/pinpointing-a-static-gc-root-with-sos/">Pinpointing a Static GC Root with SOS</a>. The post only contains a few commands but I must admit that it took me hours to achieve the same result.</p>
 

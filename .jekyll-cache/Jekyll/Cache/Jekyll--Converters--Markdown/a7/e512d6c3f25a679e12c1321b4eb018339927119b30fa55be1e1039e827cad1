@@ -1,0 +1,7 @@
+I"�<p>I like football, even with the time difference I try to watch at least the World Cup and the European Championship. I watched the last World Cup on <a href="http://www.sbs.com.au/">SBS</a> but this time around they only managed to secure a handful of games. As they’re a public service it makes sense after all that they wouldn’t buy the rights for all the games. A quick search on Google indicated that <a href="http://www.beinsportsconnect.com.au/home">beIN SPORTS CONNECT</a> is the way to go in Australia - I will refer to this service as beIN for the rest of this post.</p>
+
+<h1 id="subscribing">Subscribing</h1>
+
+<p>As the pricing seems reasonable I decided to go ahead. The page is loaded over HTTPS so we start well but to my surprise the form contains a <strong>password remainder</strong> field. Password remainders are a bad practice as users tend to fill them with their password (when allowed) or with a hint that is an obvious give away.</p>
+
+:ET

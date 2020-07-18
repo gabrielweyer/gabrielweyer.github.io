@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Gabriel Weyer - A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?201906292320" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202007181842" type="text/css">
 
     <!-- Fonts -->
     
@@ -138,40 +138,35 @@
 
 <p>After a couple of hours everything went back to normal: I enabled the extension again and noticed that it wasn’t displaying ads anymore. I decided to dig deeper and downloaded the source code of the extension.</p>
 
-<p>Everything starts here: <code class="highlighter-rouge">\javascripts\content_script.js</code> [<a href="https://github.com/gabrielweyer/code-sample/blob/master/technical-blog/chrome-ext/src/3.5.7/javascripts/content_script.js#L763-L781">line:763-781</a>]</p>
+<p>Everything starts here: <code class="language-plaintext highlighter-rouge">\javascripts\content_script.js</code> [<a href="https://github.com/gabrielweyer/code-sample/blob/master/technical-blog/chrome-ext/src/3.5.7/javascripts/content_script.js#L763-L781">line:763-781</a>]</p>
 
-<noscript><pre>400: Invalid request
-</pre></noscript>
+<noscript><pre>400: Invalid request</pre></noscript>
 <script src="https://gist.github.com/8248634.js"> </script>
 
-<p>This code is commented. I suspect this is because they pushed a second version the same day (this file was the only one modified on the 5th of December). It’s very easy to understand what’s going on here: if the user is browsing a site owned by Google the code should call <code class="highlighter-rouge">addAD</code> (the function name in itself is rather explicit). The script will also reload the ads 1.5 seconds after the user has finished typing in the search bar.</p>
+<p>This code is commented. I suspect this is because they pushed a second version the same day (this file was the only one modified on the 5th of December). It’s very easy to understand what’s going on here: if the user is browsing a site owned by Google the code should call <code class="language-plaintext highlighter-rouge">addAD</code> (the function name in itself is rather explicit). The script will also reload the ads 1.5 seconds after the user has finished typing in the search bar.</p>
 
-<p>The function <code class="highlighter-rouge">addAD</code> is located in the same file `\javascripts\content_script.js [<a href="https://github.com/gabrielweyer/code-sample/blob/master/technical-blog/chrome-ext/src/3.5.7/javascripts/content_script.js#L631-L668">line:631-668</a>]. The code is a bit too long to past here but it’s calling another function [<a href="https://github.com/gabrielweyer/code-sample/blob/master/technical-blog/chrome-ext/src/3.5.7/javascripts/content_script.js#L635">line:635</a>]</p>
+<p>The function <code class="language-plaintext highlighter-rouge">addAD</code> is located in the same file `\javascripts\content_script.js [<a href="https://github.com/gabrielweyer/code-sample/blob/master/technical-blog/chrome-ext/src/3.5.7/javascripts/content_script.js#L631-L668">line:631-668</a>]. The code is a bit too long to past here but it’s calling another function [<a href="https://github.com/gabrielweyer/code-sample/blob/master/technical-blog/chrome-ext/src/3.5.7/javascripts/content_script.js#L635">line:635</a>]</p>
 
-<noscript><pre>400: Invalid request
-</pre></noscript>
+<noscript><pre>400: Invalid request</pre></noscript>
 <script src="https://gist.github.com/8248711.js"> </script>
 
 <p>This function will retrieve the ads and create the markup [<a href="https://github.com/gabrielweyer/code-sample/blob/master/technical-blog/chrome-ext/src/3.5.7/javascripts/content_script.js#L644-L646">line:644-646</a>]</p>
 
-<noscript><pre>400: Invalid request
-</pre></noscript>
+<noscript><pre>400: Invalid request</pre></noscript>
 <script src="https://gist.github.com/8248593.js"> </script>
 
-<p>The best part is located here: <code class="highlighter-rouge">\javascripts\bg.js</code> [<a href="https://github.com/gabrielweyer/code-sample/blob/master/technical-blog/chrome-ext/src/3.5.7/javascripts/bg.js#L154-L184">line:154-184</a>]</p>
+<p>The best part is located here: <code class="language-plaintext highlighter-rouge">\javascripts\bg.js</code> [<a href="https://github.com/gabrielweyer/code-sample/blob/master/technical-blog/chrome-ext/src/3.5.7/javascripts/bg.js#L154-L184">line:154-184</a>]</p>
 
 <p>First they’re doing a HTTP GET at: <a href="http://api.hostip.info/get_json.php">http://api.hostip.info/get_json.php</a> and getting JSON as a reply</p>
 
-<noscript><pre>400: Invalid request
-</pre></noscript>
+<noscript><pre>400: Invalid request</pre></noscript>
 <script src="https://gist.github.com/8248818.js"> </script>
 
 <p>The funny part is that I’m located in Melbourne and I was not using a proxy or a VPN at this time!</p>
 
 <p>Then this line says it all [<a href="https://github.com/gabrielweyer/code-sample/blob/master/technical-blog/chrome-ext/src/3.5.7/javascripts/bg.js#L162">line:162</a>]</p>
 
-<noscript><pre>400: Invalid request
-</pre></noscript>
+<noscript><pre>400: Invalid request</pre></noscript>
 <script src="https://gist.github.com/8248849.js"> </script>
 
 <p>I find it really scary. These guys are obviously not very smart, they could just have replaced Google Ads by their own and keep exactly the same design. This way they could have stayed unnoticed for much longer. This also means (most likely) that there is nothing preventing extensions from harvesting passwords (either directly via JavaScript or by inserting DOM elements in the page). This extension has over a million users, the fact that they were not taken down indicates that Google needs to improve its security practices for extensions.</p>

@@ -1,0 +1,15 @@
+I"g<p>After eyeing it for a while I finally decided to buy <a href="https://www.goodreads.com/book/show/7306509-advanced-net-debugging">Advanced .NET Debugging</a> by Mario Hewardt. I’ve been studying <code class="language-plaintext highlighter-rouge">WinDbg</code> for some time and consider myself somewhere between beginner and intermediate level. To my dismay I got stuck on the first excercise! Luckily I didn’t give up and finally stumbled on a blog post that unblocked me. This series has for goal to make <a href="https://www.goodreads.com/book/show/7306509-advanced-net-debugging">Advanced .NET Debugging</a> more accessible to people - quite like me - that haven’t grasped all the concepts yet.</p>
+
+<h2 id="prerequisites">Prerequisites</h2>
+
+<ul>
+  <li>A hex viewer
+    <ul>
+      <li>I used the <a href="https://marketplace.visualstudio.com/items?itemName=slevesque.vscode-hexdump">hexdump for VSCode</a> Visual Studio Code extension</li>
+    </ul>
+  </li>
+  <li><a href="https://github.com/gabrielweyer/nuggets/blob/master/windbg/README.md#download-and-install-windbg">WinDbg</a></li>
+  <li>Windows</li>
+</ul>
+
+:ET
