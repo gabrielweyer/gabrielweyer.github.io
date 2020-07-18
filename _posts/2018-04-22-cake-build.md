@@ -333,10 +333,10 @@ Those are the key takeaways:
 [bootstrap-unix]: https://github.com/gabrielweyer/cake-build/blob/master/bootstrap.sh
 [rtfm]: https://en.wikipedia.org/wiki/RTFM
 
-[trigger-build-commit]: {{ site.baseurl }}{% post_url 2018-04-22-cake-build %}#configuration
-[use-semantic-versioning]: {{ site.baseurl }}{% post_url 2018-04-22-cake-build %}#semantic-versioning
-[run-tests]: {{ site.baseurl }}{% post_url 2018-04-22-cake-build %}#run-the-tests
-[publish-test-results]: {{ site.baseurl }}{% post_url 2018-04-22-cake-build %}#publish-the-test-results
-[create-nuget-packages]: {{ site.baseurl }}{% post_url 2018-04-22-cake-build %}#create-nuget-packages
-[publish-nuget-packages]: {{ site.baseurl }}{% post_url 2018-04-22-cake-build %}#publish-the-nuget-packages
-[create-github-release]: {{ site.baseurl }}{% post_url 2018-04-22-cake-build %}#create-a-github-release
+[trigger-build-commit]: {% post_url 2018-04-22-cake-build %}#configuration
+[use-semantic-versioning]: {% post_url 2018-04-22-cake-build %}#semantic-versioning
+[run-tests]: {% post_url 2018-04-22-cake-build %}#run-the-tests
+[publish-test-results]: {% post_url 2018-04-22-cake-build %}#publish-the-test-results
+[create-nuget-packages]: {% post_url 2018-04-22-cake-build %}#create-nuget-packages
+[publish-nuget-packages]: {% post_url 2018-04-22-cake-build %}#publish-the-nuget-packages
+[create-github-release]: {% post_url 2018-04-22-cake-build %}#create-a-github-release

@@ -8,8 +8,9 @@ Source for my [blog][blog].
 
 ## Development
 
-```posh
-docker run --rm --volume="$($PWD):/srv/jekyll" -p 4000:4000 -it jekyll/jekyll:3.8.5 jekyll serve --force_polling --incremental --drafts
+```powershell
+$Env:JEKYLL_VERSION = '4.1.0'
+docker run --rm --volume="$($PWD):/srv/jekyll" -p 4000:4000 -it jekyll/builder:$Env:JEKYLL_VERSION jekyll serve --force_polling --incremental --drafts
 ```
 
 - `--force_polling --incremental` will regenerate the page you're working on.

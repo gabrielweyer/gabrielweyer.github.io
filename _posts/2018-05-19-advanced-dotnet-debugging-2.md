@@ -110,6 +110,6 @@ I've demonstrated how to find the entry point of a **x86** managed image but in 
 [dumpbin-reference]: https://docs.microsoft.com/en-us/cpp/build/reference/dumpbin-reference
 [net461-x86]: https://gabrielweyer.blob.core.windows.net/blog-samples/advanced-dotnet-debugging-2/net461-x86.exe
 [jmp]: https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/x86-instructions#control_flow
-[entry-point-native-image]: {{ site.baseurl }}{% post_url 2018-04-07-advanced-dotnet-debugging-1 %}
-[entry-point-native-image-endianness]: {{ site.baseurl }}{% post_url 2018-04-07-advanced-dotnet-debugging-1 %}#endianness
-[entry-point-native-image-rva]: {{ site.baseurl }}{% post_url 2018-04-07-advanced-dotnet-debugging-1 %}#relative-virtual-address
+[entry-point-native-image]: {% post_url 2018-04-07-advanced-dotnet-debugging-1 %}
+[entry-point-native-image-endianness]: {% post_url 2018-04-07-advanced-dotnet-debugging-1 %}#endianness
+[entry-point-native-image-rva]: {% post_url 2018-04-07-advanced-dotnet-debugging-1 %}#relative-virtual-address

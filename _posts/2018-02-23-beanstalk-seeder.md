@@ -85,7 +85,7 @@ I hope you'll find [Beanstalk Seeder][beanstalk-seeder] as useful as I did, comb
 
 I also wanted to point out that `Beanstalk Seeder` is platform agnostic. It doesn't matter if you're developing using `Node.js`, `Go` or any other of the [Elastic Beanstalk supported platforms][elastic-beanstalk-supported-platforms], all you need to do is install the latest [.NET Core runtime][dotnet-runtime] (available on `Windows`, `macOS` and `Linux`).
 
-[simple-routing-post]: {{ site.baseurl }}{% post_url 2018-01-29-simple-routing-elastic-beanstalk-worker %}
+[simple-routing-post]: {% post_url 2018-01-29-simple-routing-elastic-beanstalk-worker %}
 [postman]: https://www.getpostman.com/
 [sqs-daemon]: https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html
 [beanstalk-seeder]: https://github.com/gabrielweyer/beanstalk-seeder
