@@ -13,8 +13,8 @@ jobs:
             - "c1:44:43:84:15:0b:5b:af:05:2d:52:fa:81:32:8d:f3"
       - checkout
       - run:
-          name: Install Gems
-          command: gem install multipart-post -v '2.1.1' --source 'https://rubygems.org/'
+          name: List files
+          command: ls -la
       - run:
           name: Install Gems
           command: bundle install
