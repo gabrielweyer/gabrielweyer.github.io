@@ -1,4 +1,6 @@
-general:
-  branches:
-    ignore:
-      - master
+version: 2
+jobs:
+  build:
+    branches:
+      ignore:
+        - master

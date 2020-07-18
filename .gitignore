@@ -2,3 +2,7 @@
 
 .sass-cache
 _site/
+
+# Bundler
+
+vendor
