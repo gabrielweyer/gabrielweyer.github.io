@@ -6,18 +6,17 @@ jobs:
         - develop
     docker:
       - image: jekyll/builder:4.1.0
-        user: root
+        user: jekyll
     steps:
       - add_ssh_keys:
           fingerprints:
             - "c1:44:43:84:15:0b:5b:af:05:2d:52:fa:81:32:8d:f3"
       - checkout
       - run:
-          name: List files
-          command: ls -la
-      - run:
           name: Install Gems
-          command: bundle install
+          command: |
+            bundle config set --local path 'vendor/bundle'
+            bundle install
       - run:
           name: Build static site
           command: bundle exec jekyll build --destination /tmp/blog
