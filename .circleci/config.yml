@@ -14,6 +14,9 @@ jobs:
       - checkout
       - run:
           name: Install Gems
+          command: gem install multipart-post -v '2.1.1' --source 'https://rubygems.org/'
+      - run:
+          name: Install Gems
           command: bundle install
       - run:
           name: Build static site
