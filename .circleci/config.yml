@@ -10,7 +10,7 @@ jobs:
     steps:
       - add_ssh_keys:
           fingerprints:
-            - "c4:76:8a:90:8c:a5:d4:3c:c1:56:fd:a5:4e:88:63:44"
+            - "c1:44:43:84:15:0b:5b:af:05:2d:52:fa:81:32:8d:f3"
       - checkout
       - run:
           name: Install Gems
