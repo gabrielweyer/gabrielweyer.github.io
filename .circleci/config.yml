@@ -6,7 +6,6 @@ jobs:
         - develop
     docker:
       - image: jekyll/builder:4.1.0
-        user: jekyll
     steps:
       - add_ssh_keys:
           fingerprints:
