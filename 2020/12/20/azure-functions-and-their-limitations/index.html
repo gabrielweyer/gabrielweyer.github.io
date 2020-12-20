@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Azure Functions and their limitations &#8211; Gabriel Weyer &#8211; A somewhat technical blog</title>
+    <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Rough edges around the HTTP binding, development experience and Application Insights integration when working with Azure Functions.">
+    <meta name="robots" content="all">
+    <meta name="author" content="Gabriel Weyer">
+    
+    <meta name="keywords" content="Azure, Azure Functions, Application Insights">
+    <link rel="canonical" href="https://gabrielweyer.net/2020/12/20/azure-functions-and-their-limitations/">
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Gabriel Weyer - A somewhat technical blog" href="/feed.xml" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/pixyll.css?202012200428" type="text/css">
+
+    <!-- Fonts -->
+    
+    <link href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Lato:900,300' rel='stylesheet' type='text/css'>
+    
+    
+
+    <!-- MathJax -->
+    
+
+    <!-- Verifications -->
+    
+    
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    
+    <meta name="twitter:site" content="@gabrielweyer" />
+    <meta name="twitter:creator" content="@gabrielweyer" />
+    
+    <meta name="twitter:title" content="Azure Functions and their limitations" />
+    <meta name="twitter:description" content="Rough edges around the HTTP binding, development experience and Application Insights integration when working with Azure Functions." />
+    <meta name="twitter:url" content="https://gabrielweyer.net/2020/12/20/azure-functions-and-their-limitations/" />
+
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="/favicon-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+
+    
+</head>
+
+<body class="site">
+  
+	
+
+  <div class="site-wrap">
+    <header class="site-header px2 px-responsive">
+  <div class="mt2 wrap">
+    <div class="measure">
+      <a href="/" class="site-title">Gabriel Weyer<span class="site-sub-title"> &#8211; A somewhat technical blog</span></a>
+      <nav class="site-nav">
+        
+
+
+
+
+    
+    
+    
+    
+        <a href="/about/">About</a>
+    
+
+    
+
+
+      </nav>
+      <div class="clearfix"></div>
+      
+    </div>
+  </div>
+</header>
+
+
+    <div class="post p2 p-responsive wrap" role="main">
+      <div class="measure">
+        
+
+
+<div class="post-header mb2">
+  <h1>Azure Functions and their limitations</h1>
+  <span class="post-meta">Dec 20, 2020</span><br>
+  
+  <span class="post-meta small">
+  
+    3 minute read
+  
+  </span>
+</div>
+
+<article class="post-content">
+  <p>I’ve recently started using Azure Functions. What interested me most was to understand why users are picking Functions over “plain” Azure Web Apps to host HTTP APIs. I found the HTTP binding to be limited, the development experience to be clunky and the Application Insights integration to behave differently that on ASP.NET Core.</p>
+
+<p>In this post I’ll describe the limitations I faced when working with Azure Functions. In follow-up posts I’ll describe the workarounds I’m using to address some of these limitations.<!--more--></p>
+
+<p>I created a <a href="https://github.com/gabrielweyer/azure-functions-limitations">sample project</a> to demonstrate the behaviours I’m describing in this post.</p>
+
+<h2 id="http-binding">HTTP binding</h2>
+
+<p>Azure Functions do not support <a href="https://docs.microsoft.com/en-us/aspnet/core/fundamentals/middleware/?view=aspnetcore-5.0">middleware</a> out of the box. I don’t think I’ve built a single ASP.NET Core API in the past without using middleware. The Framework itself is relying on them: from authentication, health check to header propagation (<a href="https://docs.microsoft.com/en-us/aspnet/core/fundamentals/middleware/?view=aspnetcore-5.0#built-in-middleware">list of built-in middleware</a>). This makes implementing cross-cutting concerns problematic. As soon as you have more than one Function in your app, you’ll need to decide how to implement authorisation, validation…The Azure Functions team is working on an <a href="https://techcommunity.microsoft.com/t5/apps-on-azure/net-5-support-on-azure-functions/ba-p/1973055">out-of-process .NET 5 worker</a> that will introduce “<em>a customizable middleware pipeline</em>”.</p>
+
+<p>There is no <a href="https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0">TestServer</a>. This makes integration tests harder as you can’t run the whole pipeline in-memory. You can’t easily verify whether you’re using <code class="language-plaintext highlighter-rouge">camelCase</code> or <code class="language-plaintext highlighter-rouge">PascalCase</code> for serialising properties’ name for example. This also means that you’re left with asserting the returned <em>object</em> rather than an HTTP response. This can lead developers to test implementation details such as whether the Function returned a <code class="language-plaintext highlighter-rouge">StatusCodeResult</code> or an <code class="language-plaintext highlighter-rouge">ObjectResult</code> instead of asserting the returned status code. Finally, developers need to craft an <code class="language-plaintext highlighter-rouge">HttpRequest</code> when calling a Function in a test.</p>
+
+<p>When running on a consumption plan, you’ll experience <a href="https://mikhail.io/serverless/coldstarts/azure/">cold starts</a>. Most of the time an Azure Function will “only” take a few seconds to wake-up but sometimes it can take more than 30 seconds. If your APIs are users facing, this results in a poor user experience.</p>
+
+<h2 id="development-experience">Development experience</h2>
+
+<p>The Azure Functions tooling uses a custom console logging provider. This provider does not display the stack trace when an exception is thrown. If you want to know where an exception originated, you’ll have to run with a debugger attached.</p>
+
+<p><img src="/assets/azure-functions-limitations/console-stack-trace.png" alt="No stack trace in the console" /></p>
+
+<p><a href="https://docs.microsoft.com/en-us/azure/app-service/overview-authentication-authorization">EasyAuth</a> is not supported when running locally. This is not a limitation of Azure Functions but of EasyAuth itself.</p>
+
+<p>Running Functions over HTTPS on Windows is clunky.</p>
+
+<p><img src="/assets/azure-functions-limitations/use-https.png" alt="Automatic certificate generation is not supported" /></p>
+
+<h2 id="application-insights-integration">Application Insights integration</h2>
+
+<p>Azure Functions are automatically monitored by Application Insights. All you need is an instrumentation key. For a team that is getting started on the observability journey, this is great. They’ll get insights into how fast their Functions are, they’ll get dependencies and exceptions tracking. But this integration comes with some downsides as well. With the default configuration, Azure Functions emit a lot of telemetry. This translates to Application Insights costing a hundred times as much as the Functions they’re monitoring!</p>
+
+<p>Each Function execution logs two traces: one when it starts executing the Function and one when it has executed the Function:</p>
+
+<p><img src="/assets/azure-functions-limitations/function-execution-log.png" alt="Two traces per Function execution" /></p>
+
+<p>Exceptions are logged twice for the HTTP binding:</p>
+
+<p><img src="/assets/azure-functions-limitations/http-binding-exception-logged-twice.png" alt="The same exception is logged twice for the HTTP binding" /></p>
+
+<p>Exceptions are logged three times for the Service Bus binding:</p>
+
+<p><img src="/assets/azure-functions-limitations/service-bus-binding-exception-logged-three-times.png" alt="The same exception is logged three times for the Service Bus binding" /></p>
+
+<p>In fact, for this execution, the Functions runtime emitted eight telemetry items:</p>
+
+<p><img src="/assets/azure-functions-limitations/service-bus-binding-execution-eight-telemetry-items.png" alt="Service Bus binding: eight telemetry items emitted by the Functions runtime" /></p>
+
+<p>Telemetry Processor is not supported out of the box. It is discussed at length in this <a href="https://github.com/Azure/azure-functions-host/issues/3741">GitHub issue</a>. This might seem like a minor issue, but it makes it harder to filter out superfluous telemetry items.</p>
+
+<p>Finally trying to retrieve the <code class="language-plaintext highlighter-rouge">TelemetryConfiguration</code> from the container without having set the <code class="language-plaintext highlighter-rouge">APPINSIGHTS_INSTRUMENTATIONKEY</code> setting results in an exception:</p>
+
+<p><img src="/assets/azure-functions-limitations/telemetry-configuration-not-registered.png" alt="TelemetryConfiguration is not registered when APPINSIGHTS_INSTRUMENTATIONKEY is missing" /></p>
+
+<h2 id="azure-deployment">Azure Deployment</h2>
+
+<p>This is not a limitation of Azure Functions but a common issue I see with existing Functions. They lack the <code class="language-plaintext highlighter-rouge">RUN_FROM_PACKAGE</code> setting. In some rare cases this results in deployments being marked as successful even though the code was not deployed. Run from a package has a <a href="https://docs.microsoft.com/en-us/azure/azure-functions/run-functions-from-deployment-package#enabling-functions-to-run-from-a-package">section</a> dedicated to it in the Functions documentation.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>In this post I listed the inconveniences I experienced while working with Azure Functions. In order of preference here are the issues I’d like to see fixed the most:</p>
+
+<ol>
+  <li>Lack of telemetry processor support</li>
+  <li>Lack of middleware support</li>
+  <li>Lack of in-memory integration tests support</li>
+  <li>No stack trace in the console</li>
+  <li>Clunky local HTTPS support</li>
+</ol>
+
+<p>In the following posts I’ll be describing some workarounds I’m using.</p>
+
+
+</article>
+
+
+
+
+
+
+
+
+
+
+
+
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="center">
+  <div class="measure">
+    <small>
+      Gabriel Weyer. <a href="https://github.com/johnotander/pixyll">Theme</a> crafted with &lt;3 by <a href="https://twitter.com/4lpine">John Otander</a>.
+    </small>
+  </div>
+</footer>
+
+
+</body>
+</html>

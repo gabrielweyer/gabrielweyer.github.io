@@ -1,0 +1,4 @@
+I"<p>I’ve recently started using Azure Functions. What interested me most was to understand why users are picking Functions over “plain” Azure Web Apps to host HTTP APIs. I found the HTTP binding to be limited, the development experience to be clunky and the Application Insights integration to behave differently that on ASP.NET Core.</p>
+
+<p>In this post I’ll describe the limitations I faced when working with Azure Functions. In follow-up posts I’ll describe the workarounds I’m using to address some of these limitations.</p>
+:ET

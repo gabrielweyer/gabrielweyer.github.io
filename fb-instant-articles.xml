@@ -9,6 +9,96 @@
     
         
             <item>
+                <title>Azure Functions and their limitations</title>
+                <link>https://gabrielweyer.net/2020/12/20/azure-functions-and-their-limitations/</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>I’ve recently started using Azure Functions. What interested me most was to understand why users are picking Functions over “plain” Azure Web Apps to host HTTP APIs. I found the HTTP binding to be limited, the development experience to be clunky and the Application Insights integration to behave differently that on ASP.NET Core.</p>
+
+<p>In this post I’ll describe the limitations I faced when working with Azure Functions. In follow-up posts I’ll describe the workarounds I’m using to address some of these limitations.<!--more--></p>
+
+<p>I created a <a href="https://github.com/gabrielweyer/azure-functions-limitations">sample project</a> to demonstrate the behaviours I’m describing in this post.</p>
+
+<h2 id="http-binding">HTTP binding</h2>
+
+<p>Azure Functions do not support <a href="https://docs.microsoft.com/en-us/aspnet/core/fundamentals/middleware/?view=aspnetcore-5.0">middleware</a> out of the box. I don’t think I’ve built a single ASP.NET Core API in the past without using middleware. The Framework itself is relying on them: from authentication, health check to header propagation (<a href="https://docs.microsoft.com/en-us/aspnet/core/fundamentals/middleware/?view=aspnetcore-5.0#built-in-middleware">list of built-in middleware</a>). This makes implementing cross-cutting concerns problematic. As soon as you have more than one Function in your app, you’ll need to decide how to implement authorisation, validation…The Azure Functions team is working on an <a href="https://techcommunity.microsoft.com/t5/apps-on-azure/net-5-support-on-azure-functions/ba-p/1973055">out-of-process .NET 5 worker</a> that will introduce “<em>a customizable middleware pipeline</em>”.</p>
+
+<p>There is no <a href="https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0">TestServer</a>. This makes integration tests harder as you can’t run the whole pipeline in-memory. You can’t easily verify whether you’re using <code class="language-plaintext highlighter-rouge">camelCase</code> or <code class="language-plaintext highlighter-rouge">PascalCase</code> for serialising properties’ name for example. This also means that you’re left with asserting the returned <em>object</em> rather than an HTTP response. This can lead developers to test implementation details such as whether the Function returned a <code class="language-plaintext highlighter-rouge">StatusCodeResult</code> or an <code class="language-plaintext highlighter-rouge">ObjectResult</code> instead of asserting the returned status code. Finally, developers need to craft an <code class="language-plaintext highlighter-rouge">HttpRequest</code> when calling a Function in a test.</p>
+
+<p>When running on a consumption plan, you’ll experience <a href="https://mikhail.io/serverless/coldstarts/azure/">cold starts</a>. Most of the time an Azure Function will “only” take a few seconds to wake-up but sometimes it can take more than 30 seconds. If your APIs are users facing, this results in a poor user experience.</p>
+
+<h2 id="development-experience">Development experience</h2>
+
+<p>The Azure Functions tooling uses a custom console logging provider. This provider does not display the stack trace when an exception is thrown. If you want to know where an exception originated, you’ll have to run with a debugger attached.</p>
+
+<p><img src="/assets/azure-functions-limitations/console-stack-trace.png" alt="No stack trace in the console" /></p>
+
+<p><a href="https://docs.microsoft.com/en-us/azure/app-service/overview-authentication-authorization">EasyAuth</a> is not supported when running locally. This is not a limitation of Azure Functions but of EasyAuth itself.</p>
+
+<p>Running Functions over HTTPS on Windows is clunky.</p>
+
+<p><img src="/assets/azure-functions-limitations/use-https.png" alt="Automatic certificate generation is not supported" /></p>
+
+<h2 id="application-insights-integration">Application Insights integration</h2>
+
+<p>Azure Functions are automatically monitored by Application Insights. All you need is an instrumentation key. For a team that is getting started on the observability journey, this is great. They’ll get insights into how fast their Functions are, they’ll get dependencies and exceptions tracking. But this integration comes with some downsides as well. With the default configuration, Azure Functions emit a lot of telemetry. This translates to Application Insights costing a hundred times as much as the Functions they’re monitoring!</p>
+
+<p>Each Function execution logs two traces: one when it starts executing the Function and one when it has executed the Function:</p>
+
+<p><img src="/assets/azure-functions-limitations/function-execution-log.png" alt="Two traces per Function execution" /></p>
+
+<p>Exceptions are logged twice for the HTTP binding:</p>
+
+<p><img src="/assets/azure-functions-limitations/http-binding-exception-logged-twice.png" alt="The same exception is logged twice for the HTTP binding" /></p>
+
+<p>Exceptions are logged three times for the Service Bus binding:</p>
+
+<p><img src="/assets/azure-functions-limitations/service-bus-binding-exception-logged-three-times.png" alt="The same exception is logged three times for the Service Bus binding" /></p>
+
+<p>In fact, for this execution, the Functions runtime emitted eight telemetry items:</p>
+
+<p><img src="/assets/azure-functions-limitations/service-bus-binding-execution-eight-telemetry-items.png" alt="Service Bus binding: eight telemetry items emitted by the Functions runtime" /></p>
+
+<p>Telemetry Processor is not supported out of the box. It is discussed at length in this <a href="https://github.com/Azure/azure-functions-host/issues/3741">GitHub issue</a>. This might seem like a minor issue, but it makes it harder to filter out superfluous telemetry items.</p>
+
+<p>Finally trying to retrieve the <code class="language-plaintext highlighter-rouge">TelemetryConfiguration</code> from the container without having set the <code class="language-plaintext highlighter-rouge">APPINSIGHTS_INSTRUMENTATIONKEY</code> setting results in an exception:</p>
+
+<p><img src="/assets/azure-functions-limitations/telemetry-configuration-not-registered.png" alt="TelemetryConfiguration is not registered when APPINSIGHTS_INSTRUMENTATIONKEY is missing" /></p>
+
+<h2 id="azure-deployment">Azure Deployment</h2>
+
+<p>This is not a limitation of Azure Functions but a common issue I see with existing Functions. They lack the <code class="language-plaintext highlighter-rouge">RUN_FROM_PACKAGE</code> setting. In some rare cases this results in deployments being marked as successful even though the code was not deployed. Run from a package has a <a href="https://docs.microsoft.com/en-us/azure/azure-functions/run-functions-from-deployment-package#enabling-functions-to-run-from-a-package">section</a> dedicated to it in the Functions documentation.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>In this post I listed the inconveniences I experienced while working with Azure Functions. In order of preference here are the issues I’d like to see fixed the most:</p>
+
+<ol>
+  <li>Lack of telemetry processor support</li>
+  <li>Lack of middleware support</li>
+  <li>Lack of in-memory integration tests support</li>
+  <li>No stack trace in the console</li>
+  <li>Clunky local HTTPS support</li>
+</ol>
+
+<p>In the following posts I’ll be describing some workarounds I’m using.</p>
+
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2020/12/20/azure-functions-and-their-limitations/</guid>
+                <description>
+                    
+                    Rough edges around the HTTP binding, development experience and Application Insights integration when working with Azure Functions.
+                    
+                </description>
+                <pubDate>Sun, 20 Dec 2020 04:24:56 -0600</pubDate>
+                <author>Gabriel Weyer</author>
+            </item>
+        
+    
+        
+            <item>
                 <title>Top secret</title>
                 <link>https://gabrielweyer.net/2019/06/29/top-secret/</link>
                 <content:encoded>

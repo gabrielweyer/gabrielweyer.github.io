@@ -7,6 +7,84 @@
     <atom:link href="https://gabrielweyer.net/feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
+        <title>Azure Functions and their limitations</title>
+        <description>&lt;p&gt;I’ve recently started using Azure Functions. What interested me most was to understand why users are picking Functions over “plain” Azure Web Apps to host HTTP APIs. I found the HTTP binding to be limited, the development experience to be clunky and the Application Insights integration to behave differently that on ASP.NET Core.&lt;/p&gt;
+
+&lt;p&gt;In this post I’ll describe the limitations I faced when working with Azure Functions. In follow-up posts I’ll describe the workarounds I’m using to address some of these limitations.&lt;!--more--&gt;&lt;/p&gt;
+
+&lt;p&gt;I created a &lt;a href=&quot;https://github.com/gabrielweyer/azure-functions-limitations&quot;&gt;sample project&lt;/a&gt; to demonstrate the behaviours I’m describing in this post.&lt;/p&gt;
+
+&lt;h2 id=&quot;http-binding&quot;&gt;HTTP binding&lt;/h2&gt;
+
+&lt;p&gt;Azure Functions do not support &lt;a href=&quot;https://docs.microsoft.com/en-us/aspnet/core/fundamentals/middleware/?view=aspnetcore-5.0&quot;&gt;middleware&lt;/a&gt; out of the box. I don’t think I’ve built a single ASP.NET Core API in the past without using middleware. The Framework itself is relying on them: from authentication, health check to header propagation (&lt;a href=&quot;https://docs.microsoft.com/en-us/aspnet/core/fundamentals/middleware/?view=aspnetcore-5.0#built-in-middleware&quot;&gt;list of built-in middleware&lt;/a&gt;). This makes implementing cross-cutting concerns problematic. As soon as you have more than one Function in your app, you’ll need to decide how to implement authorisation, validation…The Azure Functions team is working on an &lt;a href=&quot;https://techcommunity.microsoft.com/t5/apps-on-azure/net-5-support-on-azure-functions/ba-p/1973055&quot;&gt;out-of-process .NET 5 worker&lt;/a&gt; that will introduce “&lt;em&gt;a customizable middleware pipeline&lt;/em&gt;”.&lt;/p&gt;
+
+&lt;p&gt;There is no &lt;a href=&quot;https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0&quot;&gt;TestServer&lt;/a&gt;. This makes integration tests harder as you can’t run the whole pipeline in-memory. You can’t easily verify whether you’re using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;camelCase&lt;/code&gt; or &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PascalCase&lt;/code&gt; for serialising properties’ name for example. This also means that you’re left with asserting the returned &lt;em&gt;object&lt;/em&gt; rather than an HTTP response. This can lead developers to test implementation details such as whether the Function returned a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;StatusCodeResult&lt;/code&gt; or an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ObjectResult&lt;/code&gt; instead of asserting the returned status code. Finally, developers need to craft an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HttpRequest&lt;/code&gt; when calling a Function in a test.&lt;/p&gt;
+
+&lt;p&gt;When running on a consumption plan, you’ll experience &lt;a href=&quot;https://mikhail.io/serverless/coldstarts/azure/&quot;&gt;cold starts&lt;/a&gt;. Most of the time an Azure Function will “only” take a few seconds to wake-up but sometimes it can take more than 30 seconds. If your APIs are users facing, this results in a poor user experience.&lt;/p&gt;
+
+&lt;h2 id=&quot;development-experience&quot;&gt;Development experience&lt;/h2&gt;
+
+&lt;p&gt;The Azure Functions tooling uses a custom console logging provider. This provider does not display the stack trace when an exception is thrown. If you want to know where an exception originated, you’ll have to run with a debugger attached.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/azure-functions-limitations/console-stack-trace.png&quot; alt=&quot;No stack trace in the console&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://docs.microsoft.com/en-us/azure/app-service/overview-authentication-authorization&quot;&gt;EasyAuth&lt;/a&gt; is not supported when running locally. This is not a limitation of Azure Functions but of EasyAuth itself.&lt;/p&gt;
+
+&lt;p&gt;Running Functions over HTTPS on Windows is clunky.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/azure-functions-limitations/use-https.png&quot; alt=&quot;Automatic certificate generation is not supported&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;application-insights-integration&quot;&gt;Application Insights integration&lt;/h2&gt;
+
+&lt;p&gt;Azure Functions are automatically monitored by Application Insights. All you need is an instrumentation key. For a team that is getting started on the observability journey, this is great. They’ll get insights into how fast their Functions are, they’ll get dependencies and exceptions tracking. But this integration comes with some downsides as well. With the default configuration, Azure Functions emit a lot of telemetry. This translates to Application Insights costing a hundred times as much as the Functions they’re monitoring!&lt;/p&gt;
+
+&lt;p&gt;Each Function execution logs two traces: one when it starts executing the Function and one when it has executed the Function:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/azure-functions-limitations/function-execution-log.png&quot; alt=&quot;Two traces per Function execution&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Exceptions are logged twice for the HTTP binding:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/azure-functions-limitations/http-binding-exception-logged-twice.png&quot; alt=&quot;The same exception is logged twice for the HTTP binding&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Exceptions are logged three times for the Service Bus binding:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/azure-functions-limitations/service-bus-binding-exception-logged-three-times.png&quot; alt=&quot;The same exception is logged three times for the Service Bus binding&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;In fact, for this execution, the Functions runtime emitted eight telemetry items:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/azure-functions-limitations/service-bus-binding-execution-eight-telemetry-items.png&quot; alt=&quot;Service Bus binding: eight telemetry items emitted by the Functions runtime&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Telemetry Processor is not supported out of the box. It is discussed at length in this &lt;a href=&quot;https://github.com/Azure/azure-functions-host/issues/3741&quot;&gt;GitHub issue&lt;/a&gt;. This might seem like a minor issue, but it makes it harder to filter out superfluous telemetry items.&lt;/p&gt;
+
+&lt;p&gt;Finally trying to retrieve the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;TelemetryConfiguration&lt;/code&gt; from the container without having set the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;APPINSIGHTS_INSTRUMENTATIONKEY&lt;/code&gt; setting results in an exception:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/azure-functions-limitations/telemetry-configuration-not-registered.png&quot; alt=&quot;TelemetryConfiguration is not registered when APPINSIGHTS_INSTRUMENTATIONKEY is missing&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;azure-deployment&quot;&gt;Azure Deployment&lt;/h2&gt;
+
+&lt;p&gt;This is not a limitation of Azure Functions but a common issue I see with existing Functions. They lack the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;RUN_FROM_PACKAGE&lt;/code&gt; setting. In some rare cases this results in deployments being marked as successful even though the code was not deployed. Run from a package has a &lt;a href=&quot;https://docs.microsoft.com/en-us/azure/azure-functions/run-functions-from-deployment-package#enabling-functions-to-run-from-a-package&quot;&gt;section&lt;/a&gt; dedicated to it in the Functions documentation.&lt;/p&gt;
+
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+
+&lt;p&gt;In this post I listed the inconveniences I experienced while working with Azure Functions. In order of preference here are the issues I’d like to see fixed the most:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Lack of telemetry processor support&lt;/li&gt;
+  &lt;li&gt;Lack of middleware support&lt;/li&gt;
+  &lt;li&gt;Lack of in-memory integration tests support&lt;/li&gt;
+  &lt;li&gt;No stack trace in the console&lt;/li&gt;
+  &lt;li&gt;Clunky local HTTPS support&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;In the following posts I’ll be describing some workarounds I’m using.&lt;/p&gt;
+
+</description>
+        <pubDate>Sun, 20 Dec 2020 04:24:56 -0600</pubDate>
+        <link>https://gabrielweyer.net/2020/12/20/azure-functions-and-their-limitations/</link>
+        <guid isPermaLink="true">https://gabrielweyer.net/2020/12/20/azure-functions-and-their-limitations/</guid>
+      </item>
+    
+      <item>
         <title>Top secret</title>
         <description>&lt;p&gt;I was recently working on a project that contained secrets in source control. The team was aware of this fact but had never been able to allocate time to get rid of them. The circumstances changed and I was tasked with cleansing the repository. I was still unfamiliar with the code-base so I started to look around for config files. I realised quickly this approach would not work out:&lt;/p&gt;
 
@@ -1749,115 +1827,6 @@ NumStaticFields:     1
         <pubDate>Fri, 23 Feb 2018 17:40:46 -0600</pubDate>
         <link>https://gabrielweyer.net/2018/02/23/beanstalk-seeder/</link>
         <guid isPermaLink="true">https://gabrielweyer.net/2018/02/23/beanstalk-seeder/</guid>
-      </item>
-    
-      <item>
-        <title>Singleton HTTP Client</title>
-        <description>&lt;p&gt;Even though the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;class&lt;/code&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HttpClient&lt;/code&gt; implements &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;IDisposable&lt;/code&gt; it is supposed to be used as a singleton as stated in the &lt;a href=&quot;https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpclient?view=netcore-2.0#Remarks&quot;&gt;API reference&lt;/a&gt;:&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HttpClient&lt;/code&gt; is intended to be instantiated once and re-used throughout the life of an application. Instantiating an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HttpClient&lt;/code&gt; class for every request will exhaust the number of sockets available under heavy loads. This will result in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SocketException&lt;/code&gt; errors.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;The accepted best practice is to have one &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HttpClient&lt;/code&gt; per HTTP endpoint you’re interacting with. This will not only yield better performance it also allows to encapsulate endpoint specific logic (such as setting headers).&lt;/p&gt;
-
-&lt;p&gt;Now the question is: how do you configure your &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;IoC&lt;/code&gt; container to resolve the expected &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HttpClient&lt;/code&gt; instance? This used to require a cumbersome registration but &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.NET Core 2.1&lt;/code&gt; will ship with the &lt;a href=&quot;https://github.com/aspnet/HttpClientFactory&quot;&gt;HttpClientFactory&lt;/a&gt; making our life much easier.&lt;!--more--&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;httpclientfactory&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HttpClientFactory&lt;/code&gt;&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://www.stevejgordon.co.uk/&quot;&gt;Steve Gordon&lt;/a&gt; has an excellent &lt;a href=&quot;https://www.stevejgordon.co.uk/httpclientfactory-named-typed-clients-aspnetcore&quot;&gt;post&lt;/a&gt; explaining what is &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HttpClientFactory&lt;/code&gt; and how it works.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HttpClientFactory&lt;/code&gt; aims to provide the following improvements:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Alleviate sockets exhaustion by reusing connection when possible&lt;/li&gt;
-  &lt;li&gt;Alleviate stale &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;DNS&lt;/code&gt; records (by default &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HttpClient&lt;/code&gt; caches &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;DNS&lt;/code&gt; records for its lifetime)&lt;/li&gt;
-  &lt;li&gt;Easily resolve an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HttpClient&lt;/code&gt; instance linked to a specific HTTP endpoint&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;What if you can’t use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.NET Core&lt;/code&gt; or can’t update? Fear not, we can achieve tomorrow’s dream with today’s tools (most of it anyway).&lt;/p&gt;
-
-&lt;h2 id=&quot;associate-an-httpclient-instance-with-the-service-using-it&quot;&gt;Associate an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HttpClient&lt;/code&gt; instance with the service using it&lt;/h2&gt;
-
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HttpClient&lt;/code&gt; instances communicating with a specific HTTP endpoint tend to have dedicated settings such as an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Authorization&lt;/code&gt; header, default request headers (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Accept&lt;/code&gt; for example), maybe a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HMAC&lt;/code&gt;… I tend to encapsulate those settings in a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;class&lt;/code&gt; to decouple the settings’s source from the consummer.&lt;/p&gt;
-
-&lt;p&gt;Let’s imagine that we’re integrating with a fictitious company called &lt;em&gt;Contoso&lt;/em&gt;. The integration takes place via an HTTP API and our contact at Contoso gave us a bearer token that needs to be set on the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Authorization&lt;/code&gt; header.&lt;/p&gt;
-
-&lt;p&gt;The first step is to create a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;POCO&lt;/code&gt; modelizing the settings:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ContosoSettings&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Uri&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BaseAddress&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BearerToken&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HttpClient&lt;/code&gt; makes writing tests harder. Developers tend to derive from &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HttpMessageHandler&lt;/code&gt; and provide an implementation allowing them to assert the requests issued by the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HttpClient&lt;/code&gt;. I prefer to introduce an interface called &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;IHttpClient&lt;/code&gt; exposing a single method to handle &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HTTP&lt;/code&gt; traffic:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;IHttpClient&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;Task&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;HttpResponseMessage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;SendAsync&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;HttpRequestMessage&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;We then implement the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ContosoHttpClient&lt;/code&gt; that will be dedicated to communicating with the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Contoso&lt;/code&gt; API:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ContosoHttpClient&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;HttpClient&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;IHttpClient&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;ContosoHttpClient&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ContosoSettings&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;settings&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;BaseAddress&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;settings&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;BaseAddress&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;DefaultRequestHeaders&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Authorization&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;AuthenticationHeaderValue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Bearer&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;settings&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;BearerToken&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;And finally we registers the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Type&lt;/code&gt;s in the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;IoC&lt;/code&gt; container:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;contosoHttpClientAutofacKeyName&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;ContosoHttpClient&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;builder&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;RegisterType&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ContosoHttpClient&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;()&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Named&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;contosoHttpClientAutofacKeyName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;typeof&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IHttpClient&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;SingleInstance&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;builder&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;RegisterType&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ContosoClient&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;()&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;WithParameter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;ResolvedParameter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ctx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ParameterType&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;typeof&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IHttpClient&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ctx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ctx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ResolveNamed&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IHttpClient&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ContosoHttpClientAutofacKeyName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)))&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;AsImplementedInterfaces&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;InstancePerRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
-
-&lt;span class=&quot;c1&quot;&gt;// Abbreviated: resolve and register ContosoSettings (from Web.config, appsettings.json, CSV, volumen...)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;This snippet is using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Autofac&lt;/code&gt; &lt;a href=&quot;http://autofaccn.readthedocs.io/en/latest/advanced/keyed-services.html#named-services&quot;&gt;named service&lt;/a&gt;. Using a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;named service&lt;/code&gt; this way has several benefits:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;If someone registered another &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;IHttpClient&lt;/code&gt; that is supposed to be used everywhere else we will not override the registration for all the other services while still retrieving an instance of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ContosoHttpClient&lt;/code&gt; when resolving &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;IContosoClient&lt;/code&gt;.&lt;/li&gt;
-  &lt;li&gt;The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;named service&lt;/code&gt; is an implementation details that only the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;IoC&lt;/code&gt; container knows about.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;solve-stale-dns-records&quot;&gt;Solve stale DNS records&lt;/h2&gt;
-
-&lt;p&gt;Let’s say you’re interacting with an API hosted at &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;https://api.contoso.com&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HttpClient&lt;/code&gt; will first have to resolve the domain name to an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;IP&lt;/code&gt; thanks to a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;DNS&lt;/code&gt; server. But what happens if the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;DNS&lt;/code&gt; record is updated and the domain name now resolves to another &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;IP&lt;/code&gt;? If you are using a transient &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HttpClient&lt;/code&gt; you’ll be fine but if you’re using a singleton instance (as you should) &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Exception&lt;/code&gt;s will start to shoot up in your monitoring system. Should we stop calling APIs, or maybe rewrite everything in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Go&lt;/code&gt;?&lt;/p&gt;
-
-&lt;p&gt;The &lt;a href=&quot;https://docs.microsoft.com/en-us/dotnet/api/system.net.servicepoint.connectionleasetimeout?view=netframework-4.7.1#System_Net_ServicePoint_ConnectionLeaseTimeout&quot;&gt;ConnectionLeaseTimeout&lt;/a&gt; property can solve this situation nicely for us:&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;A &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Int32&lt;/code&gt; that specifies the number of &lt;strong&gt;milliseconds&lt;/strong&gt; that an active &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ServicePoint&lt;/code&gt; connection remains open. &lt;strong&gt;The default is &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;-1&lt;/code&gt;, which allows an active &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ServicePoint&lt;/code&gt; connection to stay connected indefinitely&lt;/strong&gt;. Set this property to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;0&lt;/code&gt; to force &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ServicePoint&lt;/code&gt; connections to close after servicing a request.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;This is how you set it:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;kt&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;apiUri&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;Uri&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;https://api.contoso.com&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;kt&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sp&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ServicePointManager&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;FindServicePoint&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;apiUri&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;sp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ConnectionLeaseTimeout&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;60&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;m&quot;&gt;1000&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;In the previous snippet I’m keeping the connection opened for a minute which seems like a good trade-off.&lt;/p&gt;
-
-&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
-
-&lt;p&gt;I haven’t looked at the implementation of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HttpClientFactory&lt;/code&gt; yet but I suspect the end result will be fairly similar to what I demonstrated above. If you still have doubts about using a singleton &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HttpClient&lt;/code&gt; I recommend you to perf test it. At a previous customer I developped an API that was calling other HTTP endpoints, I increased the throughput by a factor of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;10&lt;/code&gt; by changing a single thing: I made the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HttpClient&lt;/code&gt; a singleton rather than a per-request scope.&lt;/p&gt;
-
-</description>
-        <pubDate>Thu, 08 Feb 2018 14:34:06 -0600</pubDate>
-        <link>https://gabrielweyer.net/2018/02/08/singleton-http-client/</link>
-        <guid isPermaLink="true">https://gabrielweyer.net/2018/02/08/singleton-http-client/</guid>
       </item>
     
   </channel>
