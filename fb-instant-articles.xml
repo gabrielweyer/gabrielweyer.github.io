@@ -815,7 +815,9 @@ Child SP       IP Call Site
                 <link>https://gabrielweyer.net/2018/04/21/cake-build/</link>
                 <content:encoded>
                     <![CDATA[
-                    <p><strong>5th of Jan 2019</strong>: a lot has been happening since I initially wrote this post. <code class="language-plaintext highlighter-rouge">Azure DevOps</code> released a free tier for open source projects, the <code class="language-plaintext highlighter-rouge">Cake</code> and <code class="language-plaintext highlighter-rouge">GitVersion</code> contributors have been hard at work to take advantage of the latest features of <code class="language-plaintext highlighter-rouge">.NET Core</code>. So much things have changed that I decided to update this post to reflect the current state of affairs (inclusion of <code class="language-plaintext highlighter-rouge">Azure DevOps</code>, upgrade to <code class="language-plaintext highlighter-rouge">.NET Core 2.2</code>, utilisation of <code class="language-plaintext highlighter-rouge">.NET Core global tools</code> and removing the <code class="language-plaintext highlighter-rouge">Mono</code> requirement on <code class="language-plaintext highlighter-rouge">Unix</code> platforms).</p>
+                    <p><strong>25th of Sep 2021</strong>: I decided to remove Travis CI from this post. Travis CI recently <a href="https://www.theregister.com/2021/09/15/travis_ci_leak/">poorly handled a security vulnerability</a> and security is of paramount importance when it comes to build systems.</p>
+
+<p><strong>5th of Jan 2019</strong>: a lot has been happening since I initially wrote this post. <code class="language-plaintext highlighter-rouge">Azure DevOps</code> released a free tier for open source projects, the <code class="language-plaintext highlighter-rouge">Cake</code> and <code class="language-plaintext highlighter-rouge">GitVersion</code> contributors have been hard at work to take advantage of the latest features of <code class="language-plaintext highlighter-rouge">.NET Core</code>. So much things have changed that I decided to update this post to reflect the current state of affairs (inclusion of <code class="language-plaintext highlighter-rouge">Azure DevOps</code>, upgrade to <code class="language-plaintext highlighter-rouge">.NET Core 2.2</code>, utilisation of <code class="language-plaintext highlighter-rouge">.NET Core global tools</code> and removing the <code class="language-plaintext highlighter-rouge">Mono</code> requirement on <code class="language-plaintext highlighter-rouge">Unix</code> platforms).</p>
 
 <p>As a developer I’m amazed by the number of free tools and services available. I wanted to create an end-to-end demo of a <code class="language-plaintext highlighter-rouge">CI/CD</code> pipeline that would include:</p>
 
@@ -829,13 +831,13 @@ Child SP       IP Call Site
   <li><a href="/2018/04/21/cake-build/#create-a-github-release">Create a GitHub release</a></li>
 </ul>
 
-<p>For my purpose I wanted anonymous users to have access to a read-only view. I initially selected <a href="https://www.appveyor.com/">AppVeyor</a> as it seems to be the most popular choice for <code class="language-plaintext highlighter-rouge">.NET</code> open-source projects. But while browsing around I discovered than projects were often using more than one platform. <a href="https://travis-ci.org/">Travis CI</a> and <a href="https://circleci.com/">CircleCI</a> seemed to be the two other prevailing options. Since the initial version of this post, <a href="https://azure.microsoft.com/en-au/services/devops/">Azure DevOps</a> has released a free and unlimited plan for open source projects. I decided to leverage the four platforms so that I could highlight their pros and cons.<!--more--></p>
+<p>For my purpose I wanted anonymous users to have access to a read-only view. I initially selected <a href="https://www.appveyor.com/">AppVeyor</a> as it seems to be the most popular choice for <code class="language-plaintext highlighter-rouge">.NET</code> open-source projects. But while browsing around I discovered than projects were often using more than one platform. <a href="https://circleci.com/">CircleCI</a> seemed to be the other prevailing option. Since the initial version of this post, <a href="https://azure.microsoft.com/en-au/services/devops/">Azure DevOps</a> has released a free and unlimited plan for open source projects. I decided to leverage the three platforms so that I could highlight their pros and cons.<!--more--></p>
 
 <h2 id="configuration">Configuration</h2>
 
 <p>The code is hosted on the <code class="language-plaintext highlighter-rouge">GitHub</code> repository <a href="https://github.com/gabrielweyer/cake-build">Cake build</a>. It’s named <a href="https://cakebuild.net/">Cake</a> after my favourite build automation system and the project is using <code class="language-plaintext highlighter-rouge">Cake</code> as its build system.</p>
 
-<p><code class="language-plaintext highlighter-rouge">AppVeyor</code>, <code class="language-plaintext highlighter-rouge">Azure DevOps</code>, <code class="language-plaintext highlighter-rouge">CircleCI</code> and <code class="language-plaintext highlighter-rouge">Travis CI</code> all use <a href="http://yaml.org/">YAML</a> configuration files. This means that your build steps are living in the same space than your code and this presents several benefits:</p>
+<p><code class="language-plaintext highlighter-rouge">AppVeyor</code>, <code class="language-plaintext highlighter-rouge">Azure DevOps</code> and <code class="language-plaintext highlighter-rouge">CircleCI</code> all use <a href="http://yaml.org/">YAML</a> configuration files. This means that your build steps are living in the same space than your code and this presents several benefits:</p>
 
 <ul>
   <li>Any developer can modify the build</li>
@@ -854,7 +856,6 @@ Child SP       IP Call Site
   <li><code class="language-plaintext highlighter-rouge">AppVeyor</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/master/appveyor.yml">appveyor.yml</a></li>
   <li><code class="language-plaintext highlighter-rouge">Azure DevOps</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/master/azure-pipelines.yml">azure-pipelines.yml</a></li>
   <li><code class="language-plaintext highlighter-rouge">CircleCI</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/master/.circleci/config.yml">.circleci/config.yml</a></li>
-  <li><code class="language-plaintext highlighter-rouge">Travis CI</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/master/.travis.yml">.travis.yml</a></li>
 </ul>
 
 <h2 id="the-code">The code</h2>
@@ -884,7 +885,7 @@ Child SP       IP Call Site
 
 <h3 id="mono">Mono</h3>
 
-<p><code class="language-plaintext highlighter-rouge">Mono</code> is not required any more when building on <code class="language-plaintext highlighter-rouge">Linux</code> and <code class="language-plaintext highlighter-rouge">macOS</code>. This is a massive achievement from the <a href="https://github.com/cake-build/cake/graphs/contributors">Cake</a> and <a href="https://github.com/GitTools/GitVersion/graphs/contributors">GitVersion</a> contributors. The build step installing <code class="language-plaintext highlighter-rouge">Mono</code> on <code class="language-plaintext highlighter-rouge">CircleCI</code> and <code class="language-plaintext highlighter-rouge">Travis CI</code> never took less than <code class="language-plaintext highlighter-rouge">5</code> minutes and would sometimes take over <code class="language-plaintext highlighter-rouge">10</code> minutes on <code class="language-plaintext highlighter-rouge">Travis CI</code>! As a result the build script has been simplified and is doing less platform specific handling.</p>
+<p><code class="language-plaintext highlighter-rouge">Mono</code> is not required any more when building on <code class="language-plaintext highlighter-rouge">Linux</code> and <code class="language-plaintext highlighter-rouge">macOS</code>. This is a massive achievement from the <a href="https://github.com/cake-build/cake/graphs/contributors">Cake</a> and <a href="https://github.com/GitTools/GitVersion/graphs/contributors">GitVersion</a> contributors. The build step installing <code class="language-plaintext highlighter-rouge">Mono</code> on <code class="language-plaintext highlighter-rouge">CircleCI</code> never took less than <code class="language-plaintext highlighter-rouge">5</code> minutes! As a result the build script has been simplified and is doing less platform specific handling.</p>
 
 <h3 id="pinning-cake-version">Pinning <code class="language-plaintext highlighter-rouge">Cake</code> version</h3>
 
@@ -991,7 +992,7 @@ Child SP       IP Call Site
 
 <h2 id="run-the-tests">Run the tests</h2>
 
-<p>As <code class="language-plaintext highlighter-rouge">Travis CI</code> and <code class="language-plaintext highlighter-rouge">CircleCI</code> are running on <code class="language-plaintext highlighter-rouge">Linux</code> and <code class="language-plaintext highlighter-rouge">macOS</code> they don’t support testing against <code class="language-plaintext highlighter-rouge">net461</code>. Luckily the framework can be enforced using an argument: <code class="language-plaintext highlighter-rouge">-framework netcoreapp2.0</code>.</p>
+<p>As <code class="language-plaintext highlighter-rouge">CircleCI</code> is running on <code class="language-plaintext highlighter-rouge">Linux</code> and <code class="language-plaintext highlighter-rouge">macOS</code> it doesm’t support testing against <code class="language-plaintext highlighter-rouge">net461</code>. Luckily the framework can be enforced using an argument: <code class="language-plaintext highlighter-rouge">-framework netcoreapp2.0</code>.</p>
 
 <h2 id="publish-the-test-results">Publish the test results</h2>
 
@@ -1024,17 +1025,6 @@ Child SP       IP Call Site
 <p>Failed tests come with a nice formatting and a <code class="language-plaintext highlighter-rouge">StackTrace</code>:</p>
 
 <p><img src="/assets/cake-build/app-veyor-failed-test.png" alt="AppVeyor failed test" /></p>
-
-<h3 id="travis-ci">Travis CI</h3>
-
-<p>What about <code class="language-plaintext highlighter-rouge">Travis CI</code> you may ask. It turns out <strong><code class="language-plaintext highlighter-rouge">Travis CI</code> doesn’t parse test results</strong>! All you can rely on is the build log, luckily for us <code class="language-plaintext highlighter-rouge">xUnit</code> is awesome:</p>
-
-<figure class="highlight"><pre><code class="language-text" data-lang="text">Contoso.Hello.HelloTests.EvenMoreUselessTests.WhenDoWork_ThenSomeSweetJson [FAIL]
-  Assert.Equal() Failure
-                  ↓ (pos 6)
-  Expected: Some JASON (maybe): "Hello"
-  Actual:   Some JSON (maybe): "Hello"
-                  ↑ (pos 6)</code></pre></figure>
 
 <h2 id="create-nuget-packages">Create <code class="language-plaintext highlighter-rouge">NuGet</code> packages</h2>
 
@@ -1100,8 +1090,6 @@ Child SP       IP Call Site
 
 <p>When publishing the packages, I’m also publishing the associated <a href="https://msdn.microsoft.com/en-us/library/windows/desktop/ee416588(v=vs.85).aspx">symbols</a> to allow consumers to debug through my packages.</p>
 
-<p>Strangely enough <code class="language-plaintext highlighter-rouge">Travis CI</code> does not support artifacts out of the box. You must provide an <code class="language-plaintext highlighter-rouge">S3</code> account if you wish to save your build artifacts.</p>
-
 <h2 id="create-a-github-release">Create a GitHub release</h2>
 
 <p><code class="language-plaintext highlighter-rouge">AppVeyor</code> also creates <code class="language-plaintext highlighter-rouge">GitHub</code> <a href="https://github.com/gabrielweyer/cake-build/blob/b707a64cf8218092942accfa5b1f570487f34f4e/appveyor.yml#L24-L47">releases</a>.</p>
@@ -1118,7 +1106,7 @@ Child SP       IP Call Site
 
 <h2 id="conclusion">Conclusion</h2>
 
-<p>This is one possible workflow only. I’ve glossed over many details and taken some shortcuts (for example there is no support for <code class="language-plaintext highlighter-rouge">PR</code> builds).</p>
+<p>This is one possible workflow only. I’ve glossed over many details and taken some shortcuts (for example there is no support for Pull Request builds).</p>
 
 <p>Those are the key takeaways:</p>
 

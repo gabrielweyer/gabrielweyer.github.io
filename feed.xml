@@ -750,7 +750,9 @@ Child SP       IP Call Site
     
       <item>
         <title>Cake build</title>
-        <description>&lt;p&gt;&lt;strong&gt;5th of Jan 2019&lt;/strong&gt;: a lot has been happening since I initially wrote this post. &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Azure DevOps&lt;/code&gt; released a free tier for open source projects, the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Cake&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GitVersion&lt;/code&gt; contributors have been hard at work to take advantage of the latest features of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.NET Core&lt;/code&gt;. So much things have changed that I decided to update this post to reflect the current state of affairs (inclusion of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Azure DevOps&lt;/code&gt;, upgrade to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.NET Core 2.2&lt;/code&gt;, utilisation of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.NET Core global tools&lt;/code&gt; and removing the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Mono&lt;/code&gt; requirement on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Unix&lt;/code&gt; platforms).&lt;/p&gt;
+        <description>&lt;p&gt;&lt;strong&gt;25th of Sep 2021&lt;/strong&gt;: I decided to remove Travis CI from this post. Travis CI recently &lt;a href=&quot;https://www.theregister.com/2021/09/15/travis_ci_leak/&quot;&gt;poorly handled a security vulnerability&lt;/a&gt; and security is of paramount importance when it comes to build systems.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;5th of Jan 2019&lt;/strong&gt;: a lot has been happening since I initially wrote this post. &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Azure DevOps&lt;/code&gt; released a free tier for open source projects, the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Cake&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GitVersion&lt;/code&gt; contributors have been hard at work to take advantage of the latest features of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.NET Core&lt;/code&gt;. So much things have changed that I decided to update this post to reflect the current state of affairs (inclusion of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Azure DevOps&lt;/code&gt;, upgrade to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.NET Core 2.2&lt;/code&gt;, utilisation of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.NET Core global tools&lt;/code&gt; and removing the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Mono&lt;/code&gt; requirement on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Unix&lt;/code&gt; platforms).&lt;/p&gt;
 
 &lt;p&gt;As a developer I’m amazed by the number of free tools and services available. I wanted to create an end-to-end demo of a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CI/CD&lt;/code&gt; pipeline that would include:&lt;/p&gt;
 
@@ -764,13 +766,13 @@ Child SP       IP Call Site
   &lt;li&gt;&lt;a href=&quot;/2018/04/21/cake-build/#create-a-github-release&quot;&gt;Create a GitHub release&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;For my purpose I wanted anonymous users to have access to a read-only view. I initially selected &lt;a href=&quot;https://www.appveyor.com/&quot;&gt;AppVeyor&lt;/a&gt; as it seems to be the most popular choice for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.NET&lt;/code&gt; open-source projects. But while browsing around I discovered than projects were often using more than one platform. &lt;a href=&quot;https://travis-ci.org/&quot;&gt;Travis CI&lt;/a&gt; and &lt;a href=&quot;https://circleci.com/&quot;&gt;CircleCI&lt;/a&gt; seemed to be the two other prevailing options. Since the initial version of this post, &lt;a href=&quot;https://azure.microsoft.com/en-au/services/devops/&quot;&gt;Azure DevOps&lt;/a&gt; has released a free and unlimited plan for open source projects. I decided to leverage the four platforms so that I could highlight their pros and cons.&lt;!--more--&gt;&lt;/p&gt;
+&lt;p&gt;For my purpose I wanted anonymous users to have access to a read-only view. I initially selected &lt;a href=&quot;https://www.appveyor.com/&quot;&gt;AppVeyor&lt;/a&gt; as it seems to be the most popular choice for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.NET&lt;/code&gt; open-source projects. But while browsing around I discovered than projects were often using more than one platform. &lt;a href=&quot;https://circleci.com/&quot;&gt;CircleCI&lt;/a&gt; seemed to be the other prevailing option. Since the initial version of this post, &lt;a href=&quot;https://azure.microsoft.com/en-au/services/devops/&quot;&gt;Azure DevOps&lt;/a&gt; has released a free and unlimited plan for open source projects. I decided to leverage the three platforms so that I could highlight their pros and cons.&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;configuration&quot;&gt;Configuration&lt;/h2&gt;
 
 &lt;p&gt;The code is hosted on the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GitHub&lt;/code&gt; repository &lt;a href=&quot;https://github.com/gabrielweyer/cake-build&quot;&gt;Cake build&lt;/a&gt;. It’s named &lt;a href=&quot;https://cakebuild.net/&quot;&gt;Cake&lt;/a&gt; after my favourite build automation system and the project is using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Cake&lt;/code&gt; as its build system.&lt;/p&gt;
 
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Azure DevOps&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Travis CI&lt;/code&gt; all use &lt;a href=&quot;http://yaml.org/&quot;&gt;YAML&lt;/a&gt; configuration files. This means that your build steps are living in the same space than your code and this presents several benefits:&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Azure DevOps&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; all use &lt;a href=&quot;http://yaml.org/&quot;&gt;YAML&lt;/a&gt; configuration files. This means that your build steps are living in the same space than your code and this presents several benefits:&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;Any developer can modify the build&lt;/li&gt;
@@ -789,7 +791,6 @@ Child SP       IP Call Site
   &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt;: &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/master/appveyor.yml&quot;&gt;appveyor.yml&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Azure DevOps&lt;/code&gt;: &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/master/azure-pipelines.yml&quot;&gt;azure-pipelines.yml&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt;: &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/master/.circleci/config.yml&quot;&gt;.circleci/config.yml&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Travis CI&lt;/code&gt;: &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/master/.travis.yml&quot;&gt;.travis.yml&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h2 id=&quot;the-code&quot;&gt;The code&lt;/h2&gt;
@@ -819,7 +820,7 @@ Child SP       IP Call Site
 
 &lt;h3 id=&quot;mono&quot;&gt;Mono&lt;/h3&gt;
 
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Mono&lt;/code&gt; is not required any more when building on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Linux&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;macOS&lt;/code&gt;. This is a massive achievement from the &lt;a href=&quot;https://github.com/cake-build/cake/graphs/contributors&quot;&gt;Cake&lt;/a&gt; and &lt;a href=&quot;https://github.com/GitTools/GitVersion/graphs/contributors&quot;&gt;GitVersion&lt;/a&gt; contributors. The build step installing &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Mono&lt;/code&gt; on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Travis CI&lt;/code&gt; never took less than &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;5&lt;/code&gt; minutes and would sometimes take over &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;10&lt;/code&gt; minutes on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Travis CI&lt;/code&gt;! As a result the build script has been simplified and is doing less platform specific handling.&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Mono&lt;/code&gt; is not required any more when building on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Linux&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;macOS&lt;/code&gt;. This is a massive achievement from the &lt;a href=&quot;https://github.com/cake-build/cake/graphs/contributors&quot;&gt;Cake&lt;/a&gt; and &lt;a href=&quot;https://github.com/GitTools/GitVersion/graphs/contributors&quot;&gt;GitVersion&lt;/a&gt; contributors. The build step installing &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Mono&lt;/code&gt; on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; never took less than &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;5&lt;/code&gt; minutes! As a result the build script has been simplified and is doing less platform specific handling.&lt;/p&gt;
 
 &lt;h3 id=&quot;pinning-cake-version&quot;&gt;Pinning &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Cake&lt;/code&gt; version&lt;/h3&gt;
 
@@ -926,7 +927,7 @@ Child SP       IP Call Site
 
 &lt;h2 id=&quot;run-the-tests&quot;&gt;Run the tests&lt;/h2&gt;
 
-&lt;p&gt;As &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Travis CI&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; are running on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Linux&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;macOS&lt;/code&gt; they don’t support testing against &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;net461&lt;/code&gt;. Luckily the framework can be enforced using an argument: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;-framework netcoreapp2.0&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;As &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; is running on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Linux&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;macOS&lt;/code&gt; it doesm’t support testing against &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;net461&lt;/code&gt;. Luckily the framework can be enforced using an argument: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;-framework netcoreapp2.0&lt;/code&gt;.&lt;/p&gt;
 
 &lt;h2 id=&quot;publish-the-test-results&quot;&gt;Publish the test results&lt;/h2&gt;
 
@@ -959,17 +960,6 @@ Child SP       IP Call Site
 &lt;p&gt;Failed tests come with a nice formatting and a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;StackTrace&lt;/code&gt;:&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/assets/cake-build/app-veyor-failed-test.png&quot; alt=&quot;AppVeyor failed test&quot; /&gt;&lt;/p&gt;
-
-&lt;h3 id=&quot;travis-ci&quot;&gt;Travis CI&lt;/h3&gt;
-
-&lt;p&gt;What about &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Travis CI&lt;/code&gt; you may ask. It turns out &lt;strong&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Travis CI&lt;/code&gt; doesn’t parse test results&lt;/strong&gt;! All you can rely on is the build log, luckily for us &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;xUnit&lt;/code&gt; is awesome:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;Contoso.Hello.HelloTests.EvenMoreUselessTests.WhenDoWork_ThenSomeSweetJson [FAIL]
-  Assert.Equal() Failure
-                  ↓ (pos 6)
-  Expected: Some JASON (maybe): &quot;Hello&quot;
-  Actual:   Some JSON (maybe): &quot;Hello&quot;
-                  ↑ (pos 6)&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;h2 id=&quot;create-nuget-packages&quot;&gt;Create &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; packages&lt;/h2&gt;
 
@@ -1035,8 +1025,6 @@ Child SP       IP Call Site
 
 &lt;p&gt;When publishing the packages, I’m also publishing the associated &lt;a href=&quot;https://msdn.microsoft.com/en-us/library/windows/desktop/ee416588(v=vs.85).aspx&quot;&gt;symbols&lt;/a&gt; to allow consumers to debug through my packages.&lt;/p&gt;
 
-&lt;p&gt;Strangely enough &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Travis CI&lt;/code&gt; does not support artifacts out of the box. You must provide an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;S3&lt;/code&gt; account if you wish to save your build artifacts.&lt;/p&gt;
-
 &lt;h2 id=&quot;create-a-github-release&quot;&gt;Create a GitHub release&lt;/h2&gt;
 
 &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt; also creates &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GitHub&lt;/code&gt; &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/b707a64cf8218092942accfa5b1f570487f34f4e/appveyor.yml#L24-L47&quot;&gt;releases&lt;/a&gt;.&lt;/p&gt;
@@ -1053,7 +1041,7 @@ Child SP       IP Call Site
 
 &lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
 
-&lt;p&gt;This is one possible workflow only. I’ve glossed over many details and taken some shortcuts (for example there is no support for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PR&lt;/code&gt; builds).&lt;/p&gt;
+&lt;p&gt;This is one possible workflow only. I’ve glossed over many details and taken some shortcuts (for example there is no support for Pull Request builds).&lt;/p&gt;
 
 &lt;p&gt;Those are the key takeaways:&lt;/p&gt;
 
