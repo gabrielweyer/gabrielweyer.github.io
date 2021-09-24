@@ -7,10 +7,11 @@ categories:
 - CI/CD
 tags:
 - AppVeyor
-- Travis CI
 - CircleCI
 - Azure DevOps
 ---
+
+**25th of Sep 2021**: I decided to remove Travis CI from this post. Travis CI recently [poorly handled a security vulnerability][travis-ci-exposed-secrets] and security is of paramount importance when it comes to build systems.
 
 **5th of Jan 2019**: a lot has been happening since I initially wrote this post. `Azure DevOps` released a free tier for open source projects, the `Cake` and `GitVersion` contributors have been hard at work to take advantage of the latest features of `.NET Core`. So much things have changed that I decided to update this post to reflect the current state of affairs (inclusion of `Azure DevOps`, upgrade to `.NET Core 2.2`, utilisation of `.NET Core global tools` and removing the `Mono` requirement on `Unix` platforms).
 
@@ -24,13 +25,13 @@ As a developer I'm amazed by the number of free tools and services available. I 
 - [Publish the NuGet packages][publish-nuget-packages]
 - [Create a GitHub release][create-github-release]
 
-For my purpose I wanted anonymous users to have access to a read-only view. I initially selected [AppVeyor][app-veyor] as it seems to be the most popular choice for `.NET` open-source projects. But while browsing around I discovered than projects were often using more than one platform. [Travis CI][travis-ci] and [CircleCI][circle-ci] seemed to be the two other prevailing options. Since the initial version of this post, [Azure DevOps][azure-devops] has released a free and unlimited plan for open source projects. I decided to leverage the four platforms so that I could highlight their pros and cons.<!--more-->
+For my purpose I wanted anonymous users to have access to a read-only view. I initially selected [AppVeyor][app-veyor] as it seems to be the most popular choice for `.NET` open-source projects. But while browsing around I discovered than projects were often using more than one platform. [CircleCI][circle-ci] seemed to be the other prevailing option. Since the initial version of this post, [Azure DevOps][azure-devops] has released a free and unlimited plan for open source projects. I decided to leverage the three platforms so that I could highlight their pros and cons.<!--more-->
 
 ## Configuration
 
 The code is hosted on the `GitHub` repository [Cake build][cake-build]. It's named [Cake][cake] after my favourite build automation system and the project is using `Cake` as its build system.
 
-`AppVeyor`, `Azure DevOps`, `CircleCI` and `Travis CI` all use [YAML][yaml] configuration files. This means that your build steps are living in the same space than your code and this presents several benefits:
+`AppVeyor`, `Azure DevOps` and `CircleCI` all use [YAML][yaml] configuration files. This means that your build steps are living in the same space than your code and this presents several benefits:
 
 - Any developer can modify the build
 - The project is self-contained
@@ -43,7 +44,6 @@ I'm sure you'll be as surprised as I was when I realised how simple the `YAML` f
 - `AppVeyor`: [appveyor.yml][app-veyor-config]
 - `Azure DevOps`: [azure-pipelines.yml][azure-devops-config]
 - `CircleCI`: [.circleci/config.yml][circle-ci-config]
-- `Travis CI`: [.travis.yml][travis-ci-config]
 
 ## The code
 
@@ -61,7 +61,7 @@ The project is useless. What is important is that it describes a real-life scena
 
 ### Mono
 
-`Mono` is not required any more when building on `Linux` and `macOS`. This is a massive achievement from the [Cake][cake-contributors] and [GitVersion][gitversion-contributors] contributors. The build step installing `Mono` on `CircleCI` and `Travis CI` never took less than `5` minutes and would sometimes take over `10` minutes on `Travis CI`! As a result the build script has been simplified and is doing less platform specific handling.
+`Mono` is not required any more when building on `Linux` and `macOS`. This is a massive achievement from the [Cake][cake-contributors] and [GitVersion][gitversion-contributors] contributors. The build step installing `Mono` on `CircleCI` never took less than `5` minutes! As a result the build script has been simplified and is doing less platform specific handling.
 
 ### Pinning `Cake` version
 
@@ -154,7 +154,7 @@ As an aside `Cake` allows you to [set][cake-app-veyor-build] the `AppVeyor` buil
 
 ## Run the tests
 
-As `Travis CI` and `CircleCI` are running on `Linux` and `macOS` they don't support testing against `net461`. Luckily the framework can be enforced using an argument: `-framework netcoreapp2.0`.
+As `CircleCI` is running on `Linux` and `macOS` it doesm't support testing against `net461`. Luckily the framework can be enforced using an argument: `-framework netcoreapp2.0`.
 
 ## Publish the test results
 
@@ -187,19 +187,6 @@ Again, the integration between `Cake` and `AppVeyor` shines in this area as `Cak
 Failed tests come with a nice formatting and a `StackTrace`:
 
 ![AppVeyor failed test]({{ "/assets/cake-build/app-veyor-failed-test.png" | prepend: site.baseurl }})
-
-### Travis CI
-
-What about `Travis CI` you may ask. It turns out **`Travis CI` doesn't parse test results**! All you can rely on is the build log, luckily for us `xUnit` is awesome:
-
-{% highlight text %}
-Contoso.Hello.HelloTests.EvenMoreUselessTests.WhenDoWork_ThenSomeSweetJson [FAIL]
-  Assert.Equal() Failure
-                  ↓ (pos 6)
-  Expected: Some JASON (maybe): "Hello"
-  Actual:   Some JSON (maybe): "Hello"
-                  ↑ (pos 6)
-{% endhighlight %}
 
 ## Create `NuGet` packages
 
@@ -265,8 +252,6 @@ As this is a demo project both feeds are hosted by `MyGet`. For my other project
 
 When publishing the packages, I'm also publishing the associated [symbols][symbols] to allow consumers to debug through my packages.
 
-Strangely enough `Travis CI` does not support artifacts out of the box. You must provide an `S3` account if you wish to save your build artifacts.
-
 ## Create a GitHub release
 
 `AppVeyor` also creates `GitHub` [releases][appveyor-create-github-release].
@@ -283,7 +268,7 @@ One thing I've noticed is that builds seem to be slower on the `Hosted Ubuntu 16
 
 ## Conclusion
 
-This is one possible workflow only. I've glossed over many details and taken some shortcuts (for example there is no support for `PR` builds).
+This is one possible workflow only. I've glossed over many details and taken some shortcuts (for example there is no support for Pull Request builds).
 
 Those are the key takeaways:
 
@@ -294,13 +279,11 @@ Those are the key takeaways:
 [sem-ver]: https://semver.org/
 [azure-devops]: https://azure.microsoft.com/en-au/services/devops/
 [app-veyor]: https://www.appveyor.com/
-[travis-ci]: https://travis-ci.org/
 [circle-ci]: https://circleci.com/
 [cake-build]: https://github.com/gabrielweyer/cake-build
 [cake]: https://cakebuild.net/
 [yaml]: http://yaml.org/
 [app-veyor-config]: https://github.com/gabrielweyer/cake-build/blob/master/appveyor.yml
-[travis-ci-config]: https://github.com/gabrielweyer/cake-build/blob/master/.travis.yml
 [circle-ci-config]: https://github.com/gabrielweyer/cake-build/blob/master/.circleci/config.yml
 [nuget-org]: https://www.nuget.org/
 [git-version]: https://github.com/GitTools/GitVersion
@@ -332,6 +315,7 @@ Those are the key takeaways:
 [bootstrap-windows]: https://github.com/gabrielweyer/cake-build/blob/master/bootstrap.ps1
 [bootstrap-unix]: https://github.com/gabrielweyer/cake-build/blob/master/bootstrap.sh
 [rtfm]: https://en.wikipedia.org/wiki/RTFM
+[travis-ci-exposed-secrets]: https://www.theregister.com/2021/09/15/travis_ci_leak/
 
 [trigger-build-commit]: {% post_url 2018-04-22-cake-build %}#configuration
 [use-semantic-versioning]: {% post_url 2018-04-22-cake-build %}#semantic-versioning
