@@ -788,9 +788,9 @@ Child SP       IP Call Site
 &lt;p&gt;I’m sure you’ll be as surprised as I was when I realised how simple the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;YAML&lt;/code&gt; files are:&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt;: &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/master/appveyor.yml&quot;&gt;appveyor.yml&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Azure DevOps&lt;/code&gt;: &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/master/azure-pipelines.yml&quot;&gt;azure-pipelines.yml&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt;: &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/master/.circleci/config.yml&quot;&gt;.circleci/config.yml&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt;: &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/main/appveyor.yml&quot;&gt;appveyor.yml&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Azure DevOps&lt;/code&gt;: &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/main/azure-pipelines.yml&quot;&gt;azure-pipelines.yml&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt;: &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/main/.circleci/config.yml&quot;&gt;.circleci/config.yml&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h2 id=&quot;the-code&quot;&gt;The code&lt;/h2&gt;
@@ -824,7 +824,7 @@ Child SP       IP Call Site
 
 &lt;h3 id=&quot;pinning-cake-version&quot;&gt;Pinning &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Cake&lt;/code&gt; version&lt;/h3&gt;
 
-&lt;p&gt;Pinning the version of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Cake&lt;/code&gt; guarantees you’ll be using the same version of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Cake&lt;/code&gt; on your machine and on the build servers. This is enforced via the bootstrap scripts for developers’ machines (&lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/master/bootstrap.ps1&quot;&gt;bootstrap.ps1&lt;/a&gt; on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Windows&lt;/code&gt;, &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/master/bootstrap.sh&quot;&gt;bootstrap.sh&lt;/a&gt; on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Unix&lt;/code&gt;) and in the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;YAML&lt;/code&gt; files for the build servers.&lt;/p&gt;
+&lt;p&gt;Pinning the version of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Cake&lt;/code&gt; guarantees you’ll be using the same version of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Cake&lt;/code&gt; on your machine and on the build servers. This is enforced via the bootstrap scripts for developers’ machines (&lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/main/bootstrap.ps1&quot;&gt;bootstrap.ps1&lt;/a&gt; on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Windows&lt;/code&gt;, &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/main/bootstrap.sh&quot;&gt;bootstrap.sh&lt;/a&gt; on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Unix&lt;/code&gt;) and in the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;YAML&lt;/code&gt; files for the build servers.&lt;/p&gt;
 
 &lt;h2 id=&quot;semantic-versioning&quot;&gt;Semantic versioning&lt;/h2&gt;
 
@@ -1019,7 +1019,7 @@ Child SP       IP Call Site
 
 &lt;h2 id=&quot;publish-the-nuget-packages&quot;&gt;Publish the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; packages&lt;/h2&gt;
 
-&lt;p&gt;On any branches starting with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;features/&lt;/code&gt;, the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; packages will be published to a pre-release feed. If the branch is &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;master&lt;/code&gt; it’ll be published to the production feed. This is handled by &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt; in this &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/18ffcf3dfb591519353680f81653c86b8f3966d9/appveyor.yml#L52-L73&quot;&gt;section&lt;/a&gt; of the configuration.&lt;/p&gt;
+&lt;p&gt;On any branches starting with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;features/&lt;/code&gt;, the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; packages will be published to a pre-release feed. If the branch is &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;main&lt;/code&gt; it’ll be published to the production feed. This is handled by &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt; in this &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/18ffcf3dfb591519353680f81653c86b8f3966d9/appveyor.yml#L52-L73&quot;&gt;section&lt;/a&gt; of the configuration.&lt;/p&gt;
 
 &lt;p&gt;As this is a demo project both feeds are hosted by &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MyGet&lt;/code&gt;. For my other projects I use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MyGet&lt;/code&gt; to host my &lt;a href=&quot;https://www.myget.org/feed/Packages/gabrielweyer-pre-release&quot;&gt;pre-release feed&lt;/a&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; for my &lt;a href=&quot;https://www.nuget.org/profiles/gabrielweyer&quot;&gt;production feed&lt;/a&gt;.&lt;/p&gt;
 

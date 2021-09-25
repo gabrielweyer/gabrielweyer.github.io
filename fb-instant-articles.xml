@@ -853,9 +853,9 @@ Child SP       IP Call Site
 <p>I’m sure you’ll be as surprised as I was when I realised how simple the <code class="language-plaintext highlighter-rouge">YAML</code> files are:</p>
 
 <ul>
-  <li><code class="language-plaintext highlighter-rouge">AppVeyor</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/master/appveyor.yml">appveyor.yml</a></li>
-  <li><code class="language-plaintext highlighter-rouge">Azure DevOps</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/master/azure-pipelines.yml">azure-pipelines.yml</a></li>
-  <li><code class="language-plaintext highlighter-rouge">CircleCI</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/master/.circleci/config.yml">.circleci/config.yml</a></li>
+  <li><code class="language-plaintext highlighter-rouge">AppVeyor</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/main/appveyor.yml">appveyor.yml</a></li>
+  <li><code class="language-plaintext highlighter-rouge">Azure DevOps</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/main/azure-pipelines.yml">azure-pipelines.yml</a></li>
+  <li><code class="language-plaintext highlighter-rouge">CircleCI</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/main/.circleci/config.yml">.circleci/config.yml</a></li>
 </ul>
 
 <h2 id="the-code">The code</h2>
@@ -889,7 +889,7 @@ Child SP       IP Call Site
 
 <h3 id="pinning-cake-version">Pinning <code class="language-plaintext highlighter-rouge">Cake</code> version</h3>
 
-<p>Pinning the version of <code class="language-plaintext highlighter-rouge">Cake</code> guarantees you’ll be using the same version of <code class="language-plaintext highlighter-rouge">Cake</code> on your machine and on the build servers. This is enforced via the bootstrap scripts for developers’ machines (<a href="https://github.com/gabrielweyer/cake-build/blob/master/bootstrap.ps1">bootstrap.ps1</a> on <code class="language-plaintext highlighter-rouge">Windows</code>, <a href="https://github.com/gabrielweyer/cake-build/blob/master/bootstrap.sh">bootstrap.sh</a> on <code class="language-plaintext highlighter-rouge">Unix</code>) and in the <code class="language-plaintext highlighter-rouge">YAML</code> files for the build servers.</p>
+<p>Pinning the version of <code class="language-plaintext highlighter-rouge">Cake</code> guarantees you’ll be using the same version of <code class="language-plaintext highlighter-rouge">Cake</code> on your machine and on the build servers. This is enforced via the bootstrap scripts for developers’ machines (<a href="https://github.com/gabrielweyer/cake-build/blob/main/bootstrap.ps1">bootstrap.ps1</a> on <code class="language-plaintext highlighter-rouge">Windows</code>, <a href="https://github.com/gabrielweyer/cake-build/blob/main/bootstrap.sh">bootstrap.sh</a> on <code class="language-plaintext highlighter-rouge">Unix</code>) and in the <code class="language-plaintext highlighter-rouge">YAML</code> files for the build servers.</p>
 
 <h2 id="semantic-versioning">Semantic versioning</h2>
 
@@ -1084,7 +1084,7 @@ Child SP       IP Call Site
 
 <h2 id="publish-the-nuget-packages">Publish the <code class="language-plaintext highlighter-rouge">NuGet</code> packages</h2>
 
-<p>On any branches starting with <code class="language-plaintext highlighter-rouge">features/</code>, the <code class="language-plaintext highlighter-rouge">NuGet</code> packages will be published to a pre-release feed. If the branch is <code class="language-plaintext highlighter-rouge">master</code> it’ll be published to the production feed. This is handled by <code class="language-plaintext highlighter-rouge">AppVeyor</code> in this <a href="https://github.com/gabrielweyer/cake-build/blob/18ffcf3dfb591519353680f81653c86b8f3966d9/appveyor.yml#L52-L73">section</a> of the configuration.</p>
+<p>On any branches starting with <code class="language-plaintext highlighter-rouge">features/</code>, the <code class="language-plaintext highlighter-rouge">NuGet</code> packages will be published to a pre-release feed. If the branch is <code class="language-plaintext highlighter-rouge">main</code> it’ll be published to the production feed. This is handled by <code class="language-plaintext highlighter-rouge">AppVeyor</code> in this <a href="https://github.com/gabrielweyer/cake-build/blob/18ffcf3dfb591519353680f81653c86b8f3966d9/appveyor.yml#L52-L73">section</a> of the configuration.</p>
 
 <p>As this is a demo project both feeds are hosted by <code class="language-plaintext highlighter-rouge">MyGet</code>. For my other projects I use <code class="language-plaintext highlighter-rouge">MyGet</code> to host my <a href="https://www.myget.org/feed/Packages/gabrielweyer-pre-release">pre-release feed</a> and <code class="language-plaintext highlighter-rouge">NuGet</code> for my <a href="https://www.nuget.org/profiles/gabrielweyer">production feed</a>.</p>
 
