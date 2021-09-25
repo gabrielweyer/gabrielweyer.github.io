@@ -246,7 +246,7 @@ And the assemblies have been versioned as expected:
 
 ## Publish the `NuGet` packages
 
-On any branches starting with `features/`, the `NuGet` packages will be published to a pre-release feed. If the branch is `master` it'll be published to the production feed. This is handled by `AppVeyor` in this [section][publish-packages] of the configuration.
+On any branches starting with `features/`, the `NuGet` packages will be published to a pre-release feed. If the branch is `main` it'll be published to the production feed. This is handled by `AppVeyor` in this [section][publish-packages] of the configuration.
 
 As this is a demo project both feeds are hosted by `MyGet`. For my other projects I use `MyGet` to host my [pre-release feed][myget-feed] and `NuGet` for my [production feed][nuget-feed].
 
@@ -283,8 +283,8 @@ Those are the key takeaways:
 [cake-build]: https://github.com/gabrielweyer/cake-build
 [cake]: https://cakebuild.net/
 [yaml]: http://yaml.org/
-[app-veyor-config]: https://github.com/gabrielweyer/cake-build/blob/master/appveyor.yml
-[circle-ci-config]: https://github.com/gabrielweyer/cake-build/blob/master/.circleci/config.yml
+[app-veyor-config]: https://github.com/gabrielweyer/cake-build/blob/main/appveyor.yml
+[circle-ci-config]: https://github.com/gabrielweyer/cake-build/blob/main/.circleci/config.yml
 [nuget-org]: https://www.nuget.org/
 [git-version]: https://github.com/GitTools/GitVersion
 [github-flow]: https://guides.github.com/introduction/flow/
@@ -309,11 +309,11 @@ Those are the key takeaways:
 [symbols]: https://msdn.microsoft.com/en-us/library/windows/desktop/ee416588(v=vs.85).aspx
 [appveyor-create-github-release]: https://github.com/gabrielweyer/cake-build/blob/b707a64cf8218092942accfa5b1f570487f34f4e/appveyor.yml#L24-L47
 [git-version-docs]: http://gitversion.readthedocs.io/en/latest/
-[azure-devops-config]: https://github.com/gabrielweyer/cake-build/blob/master/azure-pipelines.yml
+[azure-devops-config]: https://github.com/gabrielweyer/cake-build/blob/main/azure-pipelines.yml
 [cake-contributors]: https://github.com/cake-build/cake/graphs/contributors
 [gitversion-contributors]: https://github.com/GitTools/GitVersion/graphs/contributors
-[bootstrap-windows]: https://github.com/gabrielweyer/cake-build/blob/master/bootstrap.ps1
-[bootstrap-unix]: https://github.com/gabrielweyer/cake-build/blob/master/bootstrap.sh
+[bootstrap-windows]: https://github.com/gabrielweyer/cake-build/blob/main/bootstrap.ps1
+[bootstrap-unix]: https://github.com/gabrielweyer/cake-build/blob/main/bootstrap.sh
 [rtfm]: https://en.wikipedia.org/wiki/RTFM
 [travis-ci-exposed-secrets]: https://www.theregister.com/2021/09/15/travis_ci_leak/
 
