@@ -2,7 +2,7 @@
 date: 2018-04-22 09:57:02+10:00
 layout: post
 title: Cake build
-summary: Demonstrates a basic build of a .NET Core NuGet package using https://cakebuild.net/.
+summary: Demonstrates a basic build of a .NET NuGet package using https://cakebuild.net/.
 categories:
 - CI/CD
 tags:
@@ -13,7 +13,7 @@ tags:
 
 **25th of Sep 2021**: I decided to remove Travis CI from this post. Travis CI recently [poorly handled a security vulnerability][travis-ci-exposed-secrets] and security is of paramount importance when it comes to build systems.
 
-**5th of Jan 2019**: a lot has been happening since I initially wrote this post. `Azure DevOps` released a free tier for open source projects, the `Cake` and `GitVersion` contributors have been hard at work to take advantage of the latest features of `.NET Core`. So much things have changed that I decided to update this post to reflect the current state of affairs (inclusion of `Azure DevOps`, upgrade to `.NET Core 2.2`, utilisation of `.NET Core global tools` and removing the `Mono` requirement on `Unix` platforms).
+**5th of Jan 2019**: a lot has been happening since I initially wrote this post. `Azure DevOps` released a free tier for open source projects, the `Cake` and `GitVersion` contributors have been hard at work to take advantage of the latest features of `.NET Core`. So many things have changed that I decided to update this post to reflect the current state of affairs (inclusion of `Azure DevOps`, upgrade to `.NET Core 2.2`, utilisation of `.NET Core global tools` and removing the `Mono` requirement on `Unix` platforms).
 
 As a developer I'm amazed by the number of free tools and services available. I wanted to create an end-to-end demo of a `CI/CD` pipeline that would include:
 
@@ -25,7 +25,7 @@ As a developer I'm amazed by the number of free tools and services available. I 
 - [Publish the NuGet packages][publish-nuget-packages]
 - [Create a GitHub release][create-github-release]
 
-For my purpose I wanted anonymous users to have access to a read-only view. I initially selected [AppVeyor][app-veyor] as it seems to be the most popular choice for `.NET` open-source projects. But while browsing around I discovered than projects were often using more than one platform. [CircleCI][circle-ci] seemed to be the other prevailing option. Since the initial version of this post, [Azure DevOps][azure-devops] has released a free and unlimited plan for open source projects. I decided to leverage the three platforms so that I could highlight their pros and cons.<!--more-->
+For my purpose I wanted anonymous users to have access to a read-only view. I initially selected [AppVeyor][app-veyor] as it seems to be the most popular choice for `.NET` open-source projects. But while browsing around I discovered that projects were often using more than one platform. [CircleCI][circle-ci] seemed to be the other prevailing option. Since the initial version of this post, [Azure DevOps][azure-devops] has released a free and unlimited plan for open source projects. I decided to leverage the three platforms so that I could highlight their pros and cons.<!--more-->
 
 ## Configuration
 
@@ -65,7 +65,7 @@ The project is useless. What is important is that it describes a real-life scena
 
 ### Pinning `Cake` version
 
-Pinning the version of `Cake` guarantees you'll be using the same version of `Cake` on your machine and on the build servers. This is enforced via the bootstrap scripts for developers' machines ([bootstrap.ps1][bootstrap-windows] on `Windows`, [bootstrap.sh][bootstrap-unix] on `Unix`) and in the `YAML` files for the build servers.
+Pinning the version of `Cake` guarantees you'll be using the same version of `Cake` on your machine and on the build servers. This is achieved by installing Cake as a [.NET local tool][dotnet-local-tool].
 
 ## Semantic versioning
 
@@ -84,7 +84,7 @@ In `.NET` we use four properties to handle versioning:
 
 #### Versioning an assembly
 
-[These][dll-versions-1] [two][dll-versions-2] `StackOverflow` are great at explaining how to version an assembly.
+[These][dll-versions-1] [two][dll-versions-2] `StackOverflow` answers are great at explaining how to version an assembly.
 
 - `AssemblyVersion`: the only version the `CLR` cares about (if you use [strong named assemblies][strong-named-assemblies])
 
@@ -146,7 +146,7 @@ In my case I'm using:
 - `AssemblySemVer` as the `AssemblyVersion`
 - `NuGetVersion` as the `AssemblyInformationalVersion`, `AssemblyFileVersion` and `PackageVersion`
 
-If you want to handle rebasing and `Pull Request`s you'll have to use a more complex versioning strategy (keep in mind that `GitHub` [does not support rebasing][github-pr-no-force-push] in `Pull Request`s).
+If you want to handle rebasing and `Pull Request`s you'll have to use a more complex versioning strategy (keep in mind that `GitHub` advises against [force-push][github-pr-no-force-push] in `Pull Request`s).
 
 As an aside `Cake` allows you to [set][cake-app-veyor-build] the `AppVeyor` build number.
 
@@ -154,7 +154,7 @@ As an aside `Cake` allows you to [set][cake-app-veyor-build] the `AppVeyor` buil
 
 ## Run the tests
 
-As `CircleCI` is running on `Linux` and `macOS` it doesm't support testing against `net461`. Luckily the framework can be enforced using an argument: `-framework netcoreapp2.0`.
+As `CircleCI` is running on `Linux` and `macOS` it doesn't support testing against `net461`. Luckily the framework can be enforced using an argument: `--framework net6.0`.
 
 ## Publish the test results
 
@@ -190,7 +190,7 @@ Failed tests come with a nice formatting and a `StackTrace`:
 
 ## Create `NuGet` packages
 
-`.NET Core` is leveraging the new `*.csproj` system and this means:
+`.NET` is now leveraging the "new" `*.csproj` system and this means:
 
 - No more `packages.config`
 - No more `*.nuspec`
@@ -242,7 +242,7 @@ And the assemblies have been versioned as expected:
 [assembly: AssemblyVersion("1.0.5.0")]
 {% endhighlight %}
 
-**Note**: you can also use the new `*.csproj` system for `.NET Framework` `NuGet` packages. You don't need to target `.NET Core` to take advantage of it.
+**Note**: you can also use the "new" `*.csproj` system for `NuGet` packages targeting older `.NET Framework` versions.
 
 ## Publish the `NuGet` packages
 
@@ -257,8 +257,6 @@ When publishing the packages, I'm also publishing the associated [symbols][symbo
 `AppVeyor` also creates `GitHub` [releases][appveyor-create-github-release].
 
 ## What about Azure DevOps
-
-`Azure DevOps` is the only product that supports `Windows`, `Linux` and `macOS`. `Microsoft` has been iterating relentlessly and the `GitHub` acquisition will likely lead to a tighter integration between the two services.
 
 `Azure DevOps` has the most powerful tests results tab:
 
@@ -282,12 +280,12 @@ Those are the key takeaways:
 [circle-ci]: https://circleci.com/
 [cake-build]: https://github.com/gabrielweyer/cake-build
 [cake]: https://cakebuild.net/
-[yaml]: http://yaml.org/
+[yaml]: https://yaml.org/
 [app-veyor-config]: https://github.com/gabrielweyer/cake-build/blob/main/appveyor.yml
 [circle-ci-config]: https://github.com/gabrielweyer/cake-build/blob/main/.circleci/config.yml
 [nuget-org]: https://www.nuget.org/
 [git-version]: https://github.com/GitTools/GitVersion
-[github-flow]: https://guides.github.com/introduction/flow/
+[github-flow]: https://docs.github.com/en/get-started/quickstart/github-flow
 [trunk-based-development]: https://trunkbaseddevelopment.com/
 [nuget-package-versioning]: https://docs.microsoft.com/en-us/nuget/reference/package-versioning
 [dll-versions-1]: https://stackoverflow.com/a/65062
@@ -296,26 +294,25 @@ Those are the key takeaways:
 [16-bit-build-number]: https://blogs.msdn.microsoft.com/msbuild/2007/01/03/why-are-build-numbers-limited-to-65535/
 [strong-named-assemblies]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/strong-named-assemblies
 [assembly-informational-version]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/assembly-versioning#assembly-informational-version
-[github-pr-no-force-push]: https://help.github.com/articles/about-pull-requests/
+[github-pr-no-force-push]: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests
 [cake-app-veyor-build]: https://cakebuild.net/api/Cake.AppVeyor/AppVeyorBuild/069D8D3F
-[junit-format]: http://llg.cubic.org/docs/junit/
+[junit-format]: https://llg.cubic.org/docs/junit/
 [xunit-to-junit]: https://github.com/gabrielweyer/xunit-to-junit
 [pack-issues]: https://github.com/NuGet/Home/issues/6285
 [project-reference-dll-issue]: https://github.com/NuGet/Home/issues/3891
 [private-assets]: https://docs.microsoft.com/en-us/dotnet/core/tools/csproj#includeassets-excludeassets-and-privateassets
-[publish-packages]: https://github.com/gabrielweyer/cake-build/blob/18ffcf3dfb591519353680f81653c86b8f3966d9/appveyor.yml#L52-L73
+[publish-packages]: https://github.com/gabrielweyer/cake-build/blob/d7daca61a5add242ba2d6af655e0272251da13f2/appveyor.yml#L44-L65
 [nuget-feed]: https://www.nuget.org/profiles/gabrielweyer
 [myget-feed]: https://www.myget.org/feed/Packages/gabrielweyer-pre-release
-[symbols]: https://msdn.microsoft.com/en-us/library/windows/desktop/ee416588(v=vs.85).aspx
-[appveyor-create-github-release]: https://github.com/gabrielweyer/cake-build/blob/b707a64cf8218092942accfa5b1f570487f34f4e/appveyor.yml#L24-L47
-[git-version-docs]: http://gitversion.readthedocs.io/en/latest/
+[symbols]: https://docs.microsoft.com/en-us/nuget/create-packages/symbol-packages-snupkg
+[appveyor-create-github-release]: https://github.com/gabrielweyer/cake-build/blob/d7daca61a5add242ba2d6af655e0272251da13f2/appveyor.yml#L20-L43
+[git-version-docs]: https://gitversion.net/docs/
 [azure-devops-config]: https://github.com/gabrielweyer/cake-build/blob/main/azure-pipelines.yml
 [cake-contributors]: https://github.com/cake-build/cake/graphs/contributors
 [gitversion-contributors]: https://github.com/GitTools/GitVersion/graphs/contributors
-[bootstrap-windows]: https://github.com/gabrielweyer/cake-build/blob/main/bootstrap.ps1
-[bootstrap-unix]: https://github.com/gabrielweyer/cake-build/blob/main/bootstrap.sh
 [rtfm]: https://en.wikipedia.org/wiki/RTFM
 [travis-ci-exposed-secrets]: https://www.theregister.com/2021/09/15/travis_ci_leak/
+[dotnet-local-tool]: https://docs.microsoft.com/en-us/dotnet/core/tools/local-tools-how-to-use
 
 [trigger-build-commit]: {% post_url 2018-04-22-cake-build %}#configuration
 [use-semantic-versioning]: {% post_url 2018-04-22-cake-build %}#semantic-versioning
