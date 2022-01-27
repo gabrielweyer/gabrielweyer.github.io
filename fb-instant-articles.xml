@@ -831,7 +831,7 @@ Child SP       IP Call Site
   <li><a href="/2018/04/21/cake-build/#create-a-github-release">Create a GitHub release</a></li>
 </ul>
 
-<p>For my purpose I wanted anonymous users to have access to a read-only view. I initially selected <a href="https://www.appveyor.com/">AppVeyor</a> as it seems to be the most popular choice for <code class="language-plaintext highlighter-rouge">.NET</code> open-source projects. But while browsing around I discovered that projects were often using more than one platform. <a href="https://circleci.com/">CircleCI</a> seemed to be the other prevailing option. Since the initial version of this post, <a href="https://azure.microsoft.com/en-au/services/devops/">Azure DevOps</a> has released a free and unlimited plan for open source projects. I decided to leverage the three platforms so that I could highlight their pros and cons.<!--more--></p>
+<p>For my purpose I wanted anonymous users to have access to a read-only view. I initially selected <a href="https://www.appveyor.com/">AppVeyor</a> as it seems to be the most popular choice for <code class="language-plaintext highlighter-rouge">.NET</code> open-source projects. But while browsing around I discovered that projects were often using more than one platform. <a href="https://circleci.com/">CircleCI</a> seemed to be the other prevailing option. Since the initial version of this post, <a href="https://azure.microsoft.com/en-au/services/devops/">Azure DevOps</a> has released a <del>free and unlimited plan for open source projects</del> (<a href="https://devblogs.microsoft.com/devops/change-in-azure-pipelines-grant-for-public-projects/">this is not the case any more</a>). I decided to leverage the three platforms so that I could highlight their pros and cons.<!--more--></p>
 
 <h2 id="configuration">Configuration</h2>
 
@@ -882,10 +882,6 @@ Child SP       IP Call Site
 </ul>
 
 <h2 id="cake">Cake</h2>
-
-<h3 id="mono">Mono</h3>
-
-<p><code class="language-plaintext highlighter-rouge">Mono</code> is not required any more when building on <code class="language-plaintext highlighter-rouge">Linux</code> and <code class="language-plaintext highlighter-rouge">macOS</code>. This is a massive achievement from the <a href="https://github.com/cake-build/cake/graphs/contributors">Cake</a> and <a href="https://github.com/GitTools/GitVersion/graphs/contributors">GitVersion</a> contributors. The build step installing <code class="language-plaintext highlighter-rouge">Mono</code> on <code class="language-plaintext highlighter-rouge">CircleCI</code> never took less than <code class="language-plaintext highlighter-rouge">5</code> minutes! As a result the build script has been simplified and is doing less platform specific handling.</p>
 
 <h3 id="pinning-cake-version">Pinning <code class="language-plaintext highlighter-rouge">Cake</code> version</h3>
 
@@ -992,7 +988,7 @@ Child SP       IP Call Site
 
 <h2 id="run-the-tests">Run the tests</h2>
 
-<p>As <code class="language-plaintext highlighter-rouge">CircleCI</code> is running on <code class="language-plaintext highlighter-rouge">Linux</code> and <code class="language-plaintext highlighter-rouge">macOS</code> it doesn’t support testing against <code class="language-plaintext highlighter-rouge">net461</code>. Luckily the framework can be enforced using an argument: <code class="language-plaintext highlighter-rouge">--framework net6.0</code>.</p>
+<p>As <code class="language-plaintext highlighter-rouge">CircleCI</code> is running on <code class="language-plaintext highlighter-rouge">Linux</code> and <code class="language-plaintext highlighter-rouge">macOS</code> it doesn’t support testing against <code class="language-plaintext highlighter-rouge">net461</code>. Luckily the framework can be specified using an argument: <code class="language-plaintext highlighter-rouge">--framework net6.0</code>.</p>
 
 <h2 id="publish-the-test-results">Publish the test results</h2>
 

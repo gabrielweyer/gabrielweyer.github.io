@@ -766,7 +766,7 @@ Child SP       IP Call Site
   &lt;li&gt;&lt;a href=&quot;/2018/04/21/cake-build/#create-a-github-release&quot;&gt;Create a GitHub release&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;For my purpose I wanted anonymous users to have access to a read-only view. I initially selected &lt;a href=&quot;https://www.appveyor.com/&quot;&gt;AppVeyor&lt;/a&gt; as it seems to be the most popular choice for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.NET&lt;/code&gt; open-source projects. But while browsing around I discovered that projects were often using more than one platform. &lt;a href=&quot;https://circleci.com/&quot;&gt;CircleCI&lt;/a&gt; seemed to be the other prevailing option. Since the initial version of this post, &lt;a href=&quot;https://azure.microsoft.com/en-au/services/devops/&quot;&gt;Azure DevOps&lt;/a&gt; has released a free and unlimited plan for open source projects. I decided to leverage the three platforms so that I could highlight their pros and cons.&lt;!--more--&gt;&lt;/p&gt;
+&lt;p&gt;For my purpose I wanted anonymous users to have access to a read-only view. I initially selected &lt;a href=&quot;https://www.appveyor.com/&quot;&gt;AppVeyor&lt;/a&gt; as it seems to be the most popular choice for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.NET&lt;/code&gt; open-source projects. But while browsing around I discovered that projects were often using more than one platform. &lt;a href=&quot;https://circleci.com/&quot;&gt;CircleCI&lt;/a&gt; seemed to be the other prevailing option. Since the initial version of this post, &lt;a href=&quot;https://azure.microsoft.com/en-au/services/devops/&quot;&gt;Azure DevOps&lt;/a&gt; has released a &lt;del&gt;free and unlimited plan for open source projects&lt;/del&gt; (&lt;a href=&quot;https://devblogs.microsoft.com/devops/change-in-azure-pipelines-grant-for-public-projects/&quot;&gt;this is not the case any more&lt;/a&gt;). I decided to leverage the three platforms so that I could highlight their pros and cons.&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;configuration&quot;&gt;Configuration&lt;/h2&gt;
 
@@ -817,10 +817,6 @@ Child SP       IP Call Site
 &lt;/ul&gt;
 
 &lt;h2 id=&quot;cake&quot;&gt;Cake&lt;/h2&gt;
-
-&lt;h3 id=&quot;mono&quot;&gt;Mono&lt;/h3&gt;
-
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Mono&lt;/code&gt; is not required any more when building on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Linux&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;macOS&lt;/code&gt;. This is a massive achievement from the &lt;a href=&quot;https://github.com/cake-build/cake/graphs/contributors&quot;&gt;Cake&lt;/a&gt; and &lt;a href=&quot;https://github.com/GitTools/GitVersion/graphs/contributors&quot;&gt;GitVersion&lt;/a&gt; contributors. The build step installing &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Mono&lt;/code&gt; on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; never took less than &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;5&lt;/code&gt; minutes! As a result the build script has been simplified and is doing less platform specific handling.&lt;/p&gt;
 
 &lt;h3 id=&quot;pinning-cake-version&quot;&gt;Pinning &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Cake&lt;/code&gt; version&lt;/h3&gt;
 
@@ -927,7 +923,7 @@ Child SP       IP Call Site
 
 &lt;h2 id=&quot;run-the-tests&quot;&gt;Run the tests&lt;/h2&gt;
 
-&lt;p&gt;As &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; is running on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Linux&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;macOS&lt;/code&gt; it doesn’t support testing against &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;net461&lt;/code&gt;. Luckily the framework can be enforced using an argument: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;--framework net6.0&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;As &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; is running on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Linux&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;macOS&lt;/code&gt; it doesn’t support testing against &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;net461&lt;/code&gt;. Luckily the framework can be specified using an argument: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;--framework net6.0&lt;/code&gt;.&lt;/p&gt;
 
 &lt;h2 id=&quot;publish-the-test-results&quot;&gt;Publish the test results&lt;/h2&gt;
 
