@@ -817,7 +817,7 @@ Child SP       IP Call Site
                     <![CDATA[
                     <p><strong>25th of Sep 2021</strong>: I decided to remove Travis CI from this post. Travis CI recently <a href="https://www.theregister.com/2021/09/15/travis_ci_leak/">poorly handled a security vulnerability</a> and security is of paramount importance when it comes to build systems.</p>
 
-<p><strong>5th of Jan 2019</strong>: a lot has been happening since I initially wrote this post. <code class="language-plaintext highlighter-rouge">Azure DevOps</code> released a free tier for open source projects, the <code class="language-plaintext highlighter-rouge">Cake</code> and <code class="language-plaintext highlighter-rouge">GitVersion</code> contributors have been hard at work to take advantage of the latest features of <code class="language-plaintext highlighter-rouge">.NET Core</code>. So much things have changed that I decided to update this post to reflect the current state of affairs (inclusion of <code class="language-plaintext highlighter-rouge">Azure DevOps</code>, upgrade to <code class="language-plaintext highlighter-rouge">.NET Core 2.2</code>, utilisation of <code class="language-plaintext highlighter-rouge">.NET Core global tools</code> and removing the <code class="language-plaintext highlighter-rouge">Mono</code> requirement on <code class="language-plaintext highlighter-rouge">Unix</code> platforms).</p>
+<p><strong>5th of Jan 2019</strong>: a lot has been happening since I initially wrote this post. <code class="language-plaintext highlighter-rouge">Azure DevOps</code> released a free tier for open source projects, the <code class="language-plaintext highlighter-rouge">Cake</code> and <code class="language-plaintext highlighter-rouge">GitVersion</code> contributors have been hard at work to take advantage of the latest features of <code class="language-plaintext highlighter-rouge">.NET Core</code>. So many things have changed that I decided to update this post to reflect the current state of affairs (inclusion of <code class="language-plaintext highlighter-rouge">Azure DevOps</code>, upgrade to <code class="language-plaintext highlighter-rouge">.NET Core 2.2</code>, utilisation of <code class="language-plaintext highlighter-rouge">.NET Core global tools</code> and removing the <code class="language-plaintext highlighter-rouge">Mono</code> requirement on <code class="language-plaintext highlighter-rouge">Unix</code> platforms).</p>
 
 <p>As a developer I’m amazed by the number of free tools and services available. I wanted to create an end-to-end demo of a <code class="language-plaintext highlighter-rouge">CI/CD</code> pipeline that would include:</p>
 
@@ -831,13 +831,13 @@ Child SP       IP Call Site
   <li><a href="/2018/04/21/cake-build/#create-a-github-release">Create a GitHub release</a></li>
 </ul>
 
-<p>For my purpose I wanted anonymous users to have access to a read-only view. I initially selected <a href="https://www.appveyor.com/">AppVeyor</a> as it seems to be the most popular choice for <code class="language-plaintext highlighter-rouge">.NET</code> open-source projects. But while browsing around I discovered than projects were often using more than one platform. <a href="https://circleci.com/">CircleCI</a> seemed to be the other prevailing option. Since the initial version of this post, <a href="https://azure.microsoft.com/en-au/services/devops/">Azure DevOps</a> has released a free and unlimited plan for open source projects. I decided to leverage the three platforms so that I could highlight their pros and cons.<!--more--></p>
+<p>For my purpose I wanted anonymous users to have access to a read-only view. I initially selected <a href="https://www.appveyor.com/">AppVeyor</a> as it seems to be the most popular choice for <code class="language-plaintext highlighter-rouge">.NET</code> open-source projects. But while browsing around I discovered that projects were often using more than one platform. <a href="https://circleci.com/">CircleCI</a> seemed to be the other prevailing option. Since the initial version of this post, <a href="https://azure.microsoft.com/en-au/services/devops/">Azure DevOps</a> has released a free and unlimited plan for open source projects. I decided to leverage the three platforms so that I could highlight their pros and cons.<!--more--></p>
 
 <h2 id="configuration">Configuration</h2>
 
 <p>The code is hosted on the <code class="language-plaintext highlighter-rouge">GitHub</code> repository <a href="https://github.com/gabrielweyer/cake-build">Cake build</a>. It’s named <a href="https://cakebuild.net/">Cake</a> after my favourite build automation system and the project is using <code class="language-plaintext highlighter-rouge">Cake</code> as its build system.</p>
 
-<p><code class="language-plaintext highlighter-rouge">AppVeyor</code>, <code class="language-plaintext highlighter-rouge">Azure DevOps</code> and <code class="language-plaintext highlighter-rouge">CircleCI</code> all use <a href="http://yaml.org/">YAML</a> configuration files. This means that your build steps are living in the same space than your code and this presents several benefits:</p>
+<p><code class="language-plaintext highlighter-rouge">AppVeyor</code>, <code class="language-plaintext highlighter-rouge">Azure DevOps</code> and <code class="language-plaintext highlighter-rouge">CircleCI</code> all use <a href="https://yaml.org/">YAML</a> configuration files. This means that your build steps are living in the same space than your code and this presents several benefits:</p>
 
 <ul>
   <li>Any developer can modify the build</li>
@@ -889,7 +889,7 @@ Child SP       IP Call Site
 
 <h3 id="pinning-cake-version">Pinning <code class="language-plaintext highlighter-rouge">Cake</code> version</h3>
 
-<p>Pinning the version of <code class="language-plaintext highlighter-rouge">Cake</code> guarantees you’ll be using the same version of <code class="language-plaintext highlighter-rouge">Cake</code> on your machine and on the build servers. This is enforced via the bootstrap scripts for developers’ machines (<a href="https://github.com/gabrielweyer/cake-build/blob/main/bootstrap.ps1">bootstrap.ps1</a> on <code class="language-plaintext highlighter-rouge">Windows</code>, <a href="https://github.com/gabrielweyer/cake-build/blob/main/bootstrap.sh">bootstrap.sh</a> on <code class="language-plaintext highlighter-rouge">Unix</code>) and in the <code class="language-plaintext highlighter-rouge">YAML</code> files for the build servers.</p>
+<p>Pinning the version of <code class="language-plaintext highlighter-rouge">Cake</code> guarantees you’ll be using the same version of <code class="language-plaintext highlighter-rouge">Cake</code> on your machine and on the build servers. This is achieved by installing Cake as a <a href="https://docs.microsoft.com/en-us/dotnet/core/tools/local-tools-how-to-use">.NET local tool</a>.</p>
 
 <h2 id="semantic-versioning">Semantic versioning</h2>
 
@@ -912,7 +912,7 @@ Child SP       IP Call Site
 
 <h4 id="versioning-an-assembly">Versioning an assembly</h4>
 
-<p><a href="https://stackoverflow.com/a/65062">These</a> <a href="https://stackoverflow.com/a/802038">two</a> <code class="language-plaintext highlighter-rouge">StackOverflow</code> are great at explaining how to version an assembly.</p>
+<p><a href="https://stackoverflow.com/a/65062">These</a> <a href="https://stackoverflow.com/a/802038">two</a> <code class="language-plaintext highlighter-rouge">StackOverflow</code> answers are great at explaining how to version an assembly.</p>
 
 <ul>
   <li><code class="language-plaintext highlighter-rouge">AssemblyVersion</code>: the only version the <code class="language-plaintext highlighter-rouge">CLR</code> cares about (if you use <a href="https://docs.microsoft.com/en-us/dotnet/framework/app-domains/strong-named-assemblies">strong named assemblies</a>)</li>
@@ -946,7 +946,7 @@ Child SP       IP Call Site
 
 <h3 id="gitversion"><code class="language-plaintext highlighter-rouge">GitVersion</code></h3>
 
-<p>I’ve implemented semantic versioning using <a href="https://github.com/GitTools/GitVersion">GitVersion</a>. I recommend using <a href="https://guides.github.com/introduction/flow/">GitHub Flow</a> when working on a simple package. In my experience <a href="https://trunkbaseddevelopment.com/">Trunk Based Development</a> tends to lead to lower code quality. Developers push early and often thinking they will fix it later but we all know than in software development later means never.</p>
+<p>I’ve implemented semantic versioning using <a href="https://github.com/GitTools/GitVersion">GitVersion</a>. I recommend using <a href="https://docs.github.com/en/get-started/quickstart/github-flow">GitHub Flow</a> when working on a simple package. In my experience <a href="https://trunkbaseddevelopment.com/">Trunk Based Development</a> tends to lead to lower code quality. Developers push early and often thinking they will fix it later but we all know than in software development later means never.</p>
 
 <p><code class="language-plaintext highlighter-rouge">GitVersion</code> produces an output that will allow you to handle even the trickiest situations:</p>
 
@@ -984,7 +984,7 @@ Child SP       IP Call Site
   <li><code class="language-plaintext highlighter-rouge">NuGetVersion</code> as the <code class="language-plaintext highlighter-rouge">AssemblyInformationalVersion</code>, <code class="language-plaintext highlighter-rouge">AssemblyFileVersion</code> and <code class="language-plaintext highlighter-rouge">PackageVersion</code></li>
 </ul>
 
-<p>If you want to handle rebasing and <code class="language-plaintext highlighter-rouge">Pull Request</code>s you’ll have to use a more complex versioning strategy (keep in mind that <code class="language-plaintext highlighter-rouge">GitHub</code> <a href="https://help.github.com/articles/about-pull-requests/">does not support rebasing</a> in <code class="language-plaintext highlighter-rouge">Pull Request</code>s).</p>
+<p>If you want to handle rebasing and <code class="language-plaintext highlighter-rouge">Pull Request</code>s you’ll have to use a more complex versioning strategy (keep in mind that <code class="language-plaintext highlighter-rouge">GitHub</code> advises against <a href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests">force-push</a> in <code class="language-plaintext highlighter-rouge">Pull Request</code>s).</p>
 
 <p>As an aside <code class="language-plaintext highlighter-rouge">Cake</code> allows you to <a href="https://cakebuild.net/api/Cake.AppVeyor/AppVeyorBuild/069D8D3F">set</a> the <code class="language-plaintext highlighter-rouge">AppVeyor</code> build number.</p>
 
@@ -992,7 +992,7 @@ Child SP       IP Call Site
 
 <h2 id="run-the-tests">Run the tests</h2>
 
-<p>As <code class="language-plaintext highlighter-rouge">CircleCI</code> is running on <code class="language-plaintext highlighter-rouge">Linux</code> and <code class="language-plaintext highlighter-rouge">macOS</code> it doesm’t support testing against <code class="language-plaintext highlighter-rouge">net461</code>. Luckily the framework can be enforced using an argument: <code class="language-plaintext highlighter-rouge">-framework netcoreapp2.0</code>.</p>
+<p>As <code class="language-plaintext highlighter-rouge">CircleCI</code> is running on <code class="language-plaintext highlighter-rouge">Linux</code> and <code class="language-plaintext highlighter-rouge">macOS</code> it doesn’t support testing against <code class="language-plaintext highlighter-rouge">net461</code>. Luckily the framework can be enforced using an argument: <code class="language-plaintext highlighter-rouge">--framework net6.0</code>.</p>
 
 <h2 id="publish-the-test-results">Publish the test results</h2>
 
@@ -1000,7 +1000,7 @@ Child SP       IP Call Site
 
 <p><code class="language-plaintext highlighter-rouge">CircleCI</code> has a few quirks when it comes to testing.</p>
 
-<p>First it only support the <a href="http://llg.cubic.org/docs/junit/">JUnit format</a> so I had to write a <a href="https://github.com/gabrielweyer/xunit-to-junit">transform</a> to be able to publish the test results. Then you must place your test results within a folder named after the test framework you are using if you want <code class="language-plaintext highlighter-rouge">CircleCI</code> to identify your test framework.</p>
+<p>First it only support the <a href="https://llg.cubic.org/docs/junit/">JUnit format</a> so I had to write a <a href="https://github.com/gabrielweyer/xunit-to-junit">transform</a> to be able to publish the test results. Then you must place your test results within a folder named after the test framework you are using if you want <code class="language-plaintext highlighter-rouge">CircleCI</code> to identify your test framework.</p>
 
 <p>When the tests run successfully <code class="language-plaintext highlighter-rouge">CirceCI</code> will only display the slowest test:</p>
 
@@ -1028,7 +1028,7 @@ Child SP       IP Call Site
 
 <h2 id="create-nuget-packages">Create <code class="language-plaintext highlighter-rouge">NuGet</code> packages</h2>
 
-<p><code class="language-plaintext highlighter-rouge">.NET Core</code> is leveraging the new <code class="language-plaintext highlighter-rouge">*.csproj</code> system and this means:</p>
+<p><code class="language-plaintext highlighter-rouge">.NET</code> is now leveraging the “new” <code class="language-plaintext highlighter-rouge">*.csproj</code> system and this means:</p>
 
 <ul>
   <li>No more <code class="language-plaintext highlighter-rouge">packages.config</code></li>
@@ -1080,23 +1080,21 @@ Child SP       IP Call Site
 <span class="p">[</span><span class="n">assembly</span><span class="p">:</span> <span class="nf">AssemblyInformationalVersion</span><span class="p">(</span><span class="s">"1.0.5-fix-typos0003"</span><span class="p">)]</span>
 <span class="p">[</span><span class="n">assembly</span><span class="p">:</span> <span class="nf">AssemblyVersion</span><span class="p">(</span><span class="s">"1.0.5.0"</span><span class="p">)]</span></code></pre></figure>
 
-<p><strong>Note</strong>: you can also use the new <code class="language-plaintext highlighter-rouge">*.csproj</code> system for <code class="language-plaintext highlighter-rouge">.NET Framework</code> <code class="language-plaintext highlighter-rouge">NuGet</code> packages. You don’t need to target <code class="language-plaintext highlighter-rouge">.NET Core</code> to take advantage of it.</p>
+<p><strong>Note</strong>: you can also use the “new” <code class="language-plaintext highlighter-rouge">*.csproj</code> system for <code class="language-plaintext highlighter-rouge">NuGet</code> packages targeting older <code class="language-plaintext highlighter-rouge">.NET Framework</code> versions.</p>
 
 <h2 id="publish-the-nuget-packages">Publish the <code class="language-plaintext highlighter-rouge">NuGet</code> packages</h2>
 
-<p>On any branches starting with <code class="language-plaintext highlighter-rouge">features/</code>, the <code class="language-plaintext highlighter-rouge">NuGet</code> packages will be published to a pre-release feed. If the branch is <code class="language-plaintext highlighter-rouge">main</code> it’ll be published to the production feed. This is handled by <code class="language-plaintext highlighter-rouge">AppVeyor</code> in this <a href="https://github.com/gabrielweyer/cake-build/blob/18ffcf3dfb591519353680f81653c86b8f3966d9/appveyor.yml#L52-L73">section</a> of the configuration.</p>
+<p>On any branches starting with <code class="language-plaintext highlighter-rouge">features/</code>, the <code class="language-plaintext highlighter-rouge">NuGet</code> packages will be published to a pre-release feed. If the branch is <code class="language-plaintext highlighter-rouge">main</code> it’ll be published to the production feed. This is handled by <code class="language-plaintext highlighter-rouge">AppVeyor</code> in this <a href="https://github.com/gabrielweyer/cake-build/blob/d7daca61a5add242ba2d6af655e0272251da13f2/appveyor.yml#L44-L65">section</a> of the configuration.</p>
 
 <p>As this is a demo project both feeds are hosted by <code class="language-plaintext highlighter-rouge">MyGet</code>. For my other projects I use <code class="language-plaintext highlighter-rouge">MyGet</code> to host my <a href="https://www.myget.org/feed/Packages/gabrielweyer-pre-release">pre-release feed</a> and <code class="language-plaintext highlighter-rouge">NuGet</code> for my <a href="https://www.nuget.org/profiles/gabrielweyer">production feed</a>.</p>
 
-<p>When publishing the packages, I’m also publishing the associated <a href="https://msdn.microsoft.com/en-us/library/windows/desktop/ee416588(v=vs.85).aspx">symbols</a> to allow consumers to debug through my packages.</p>
+<p>When publishing the packages, I’m also publishing the associated <a href="https://docs.microsoft.com/en-us/nuget/create-packages/symbol-packages-snupkg">symbols</a> to allow consumers to debug through my packages.</p>
 
 <h2 id="create-a-github-release">Create a GitHub release</h2>
 
-<p><code class="language-plaintext highlighter-rouge">AppVeyor</code> also creates <code class="language-plaintext highlighter-rouge">GitHub</code> <a href="https://github.com/gabrielweyer/cake-build/blob/b707a64cf8218092942accfa5b1f570487f34f4e/appveyor.yml#L24-L47">releases</a>.</p>
+<p><code class="language-plaintext highlighter-rouge">AppVeyor</code> also creates <code class="language-plaintext highlighter-rouge">GitHub</code> <a href="https://github.com/gabrielweyer/cake-build/blob/d7daca61a5add242ba2d6af655e0272251da13f2/appveyor.yml#L20-L43">releases</a>.</p>
 
 <h2 id="what-about-azure-devops">What about Azure DevOps</h2>
-
-<p><code class="language-plaintext highlighter-rouge">Azure DevOps</code> is the only product that supports <code class="language-plaintext highlighter-rouge">Windows</code>, <code class="language-plaintext highlighter-rouge">Linux</code> and <code class="language-plaintext highlighter-rouge">macOS</code>. <code class="language-plaintext highlighter-rouge">Microsoft</code> has been iterating relentlessly and the <code class="language-plaintext highlighter-rouge">GitHub</code> acquisition will likely lead to a tighter integration between the two services.</p>
 
 <p><code class="language-plaintext highlighter-rouge">Azure DevOps</code> has the most powerful tests results tab:</p>
 
@@ -1111,7 +1109,7 @@ Child SP       IP Call Site
 <p>Those are the key takeaways:</p>
 
 <ul>
-  <li>Do <strong>upfront planning on how you want to handle versioning</strong>. This is the hardest part and the one that will be the hardest to fix later on. Read the <a href="http://gitversion.readthedocs.io/en/latest/">GitVersion documentation</a> carefully before making any decision.</li>
+  <li>Do <strong>upfront planning on how you want to handle versioning</strong>. This is the hardest part and the one that will be the hardest to fix later on. Read the <a href="https://gitversion.net/docs/">GitVersion documentation</a> carefully before making any decision.</li>
   <li>Do what works for your team. If you didn’t have any issues with auto-incrementing your builds, keep doing so. There is no point bringing additional complexity to fix a problem you don’t have.</li>
   <li>Don’t assume you’ll be running on <code class="language-plaintext highlighter-rouge">Windows</code> with <code class="language-plaintext highlighter-rouge">Visual Studio Enterprise</code> installed. Adding cross-platform or other <code class="language-plaintext highlighter-rouge">IDE</code> (<code class="language-plaintext highlighter-rouge">Rider</code>, <code class="language-plaintext highlighter-rouge">Code</code>…) support from the start will make your life easier down the track.</li>
 </ul>
@@ -1122,7 +1120,7 @@ Child SP       IP Call Site
                 <guid isPermaLink="false">/2018/04/21/cake-build/</guid>
                 <description>
                     
-                    Demonstrates a basic build of a .NET Core NuGet package using https://cakebuild.net/.
+                    Demonstrates a basic build of a .NET NuGet package using https://cakebuild.net/.
                     
                 </description>
                 <pubDate>Sat, 21 Apr 2018 18:57:02 -0500</pubDate>

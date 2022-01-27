@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Gabriel Weyer - A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202109242056" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202201270434" type="text/css">
 
     <!-- Fonts -->
     
@@ -125,7 +125,7 @@
           <span class="post-summary">
             <p><strong>25th of Sep 2021</strong>: I decided to remove Travis CI from this post. Travis CI recently <a href="https://www.theregister.com/2021/09/15/travis_ci_leak/">poorly handled a security vulnerability</a> and security is of paramount importance when it comes to build systems.</p>
 
-<p><strong>5th of Jan 2019</strong>: a lot has been happening since I initially wrote this post. <code class="language-plaintext highlighter-rouge">Azure DevOps</code> released a free tier for open source projects, the <code class="language-plaintext highlighter-rouge">Cake</code> and <code class="language-plaintext highlighter-rouge">GitVersion</code> contributors have been hard at work to take advantage of the latest features of <code class="language-plaintext highlighter-rouge">.NET Core</code>. So much things have changed that I decided to update this post to reflect the current state of affairs (inclusion of <code class="language-plaintext highlighter-rouge">Azure DevOps</code>, upgrade to <code class="language-plaintext highlighter-rouge">.NET Core 2.2</code>, utilisation of <code class="language-plaintext highlighter-rouge">.NET Core global tools</code> and removing the <code class="language-plaintext highlighter-rouge">Mono</code> requirement on <code class="language-plaintext highlighter-rouge">Unix</code> platforms).</p>
+<p><strong>5th of Jan 2019</strong>: a lot has been happening since I initially wrote this post. <code class="language-plaintext highlighter-rouge">Azure DevOps</code> released a free tier for open source projects, the <code class="language-plaintext highlighter-rouge">Cake</code> and <code class="language-plaintext highlighter-rouge">GitVersion</code> contributors have been hard at work to take advantage of the latest features of <code class="language-plaintext highlighter-rouge">.NET Core</code>. So many things have changed that I decided to update this post to reflect the current state of affairs (inclusion of <code class="language-plaintext highlighter-rouge">Azure DevOps</code>, upgrade to <code class="language-plaintext highlighter-rouge">.NET Core 2.2</code>, utilisation of <code class="language-plaintext highlighter-rouge">.NET Core global tools</code> and removing the <code class="language-plaintext highlighter-rouge">Mono</code> requirement on <code class="language-plaintext highlighter-rouge">Unix</code> platforms).</p>
 
 <p>As a developer I’m amazed by the number of free tools and services available. I wanted to create an end-to-end demo of a <code class="language-plaintext highlighter-rouge">CI/CD</code> pipeline that would include:</p>
 
@@ -139,7 +139,7 @@
   <li><a href="/2018/04/21/cake-build/#create-a-github-release">Create a GitHub release</a></li>
 </ul>
 
-<p>For my purpose I wanted anonymous users to have access to a read-only view. I initially selected <a href="https://www.appveyor.com/">AppVeyor</a> as it seems to be the most popular choice for <code class="language-plaintext highlighter-rouge">.NET</code> open-source projects. But while browsing around I discovered than projects were often using more than one platform. <a href="https://circleci.com/">CircleCI</a> seemed to be the other prevailing option. Since the initial version of this post, <a href="https://azure.microsoft.com/en-au/services/devops/">Azure DevOps</a> has released a free and unlimited plan for open source projects. I decided to leverage the three platforms so that I could highlight their pros and cons.</p>
+<p>For my purpose I wanted anonymous users to have access to a read-only view. I initially selected <a href="https://www.appveyor.com/">AppVeyor</a> as it seems to be the most popular choice for <code class="language-plaintext highlighter-rouge">.NET</code> open-source projects. But while browsing around I discovered that projects were often using more than one platform. <a href="https://circleci.com/">CircleCI</a> seemed to be the other prevailing option. Since the initial version of this post, <a href="https://azure.microsoft.com/en-au/services/devops/">Azure DevOps</a> has released a free and unlimited plan for open source projects. I decided to leverage the three platforms so that I could highlight their pros and cons.</p>
 
 
              
