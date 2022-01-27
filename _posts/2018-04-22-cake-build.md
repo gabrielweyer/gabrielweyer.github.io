@@ -25,7 +25,7 @@ As a developer I'm amazed by the number of free tools and services available. I 
 - [Publish the NuGet packages][publish-nuget-packages]
 - [Create a GitHub release][create-github-release]
 
-For my purpose I wanted anonymous users to have access to a read-only view. I initially selected [AppVeyor][app-veyor] as it seems to be the most popular choice for `.NET` open-source projects. But while browsing around I discovered that projects were often using more than one platform. [CircleCI][circle-ci] seemed to be the other prevailing option. Since the initial version of this post, [Azure DevOps][azure-devops] has released a free and unlimited plan for open source projects. I decided to leverage the three platforms so that I could highlight their pros and cons.<!--more-->
+For my purpose I wanted anonymous users to have access to a read-only view. I initially selected [AppVeyor][app-veyor] as it seems to be the most popular choice for `.NET` open-source projects. But while browsing around I discovered that projects were often using more than one platform. [CircleCI][circle-ci] seemed to be the other prevailing option. Since the initial version of this post, [Azure DevOps][azure-devops] has released a ~~free and unlimited plan for open source projects~~ ([this is not the case any more][change-in-azure-pipelines-grant-for-public-projects]). I decided to leverage the three platforms so that I could highlight their pros and cons.<!--more-->
 
 ## Configuration
 
@@ -58,10 +58,6 @@ The project is useless. What is important is that it describes a real-life scena
   - This is not yet supported by the new tooling but can be [achieved](#create-nuget-packages).
 
 ## Cake
-
-### Mono
-
-`Mono` is not required any more when building on `Linux` and `macOS`. This is a massive achievement from the [Cake][cake-contributors] and [GitVersion][gitversion-contributors] contributors. The build step installing `Mono` on `CircleCI` never took less than `5` minutes! As a result the build script has been simplified and is doing less platform specific handling.
 
 ### Pinning `Cake` version
 
@@ -154,7 +150,7 @@ As an aside `Cake` allows you to [set][cake-app-veyor-build] the `AppVeyor` buil
 
 ## Run the tests
 
-As `CircleCI` is running on `Linux` and `macOS` it doesn't support testing against `net461`. Luckily the framework can be enforced using an argument: `--framework net6.0`.
+As `CircleCI` is running on `Linux` and `macOS` it doesn't support testing against `net461`. Luckily the framework can be specified using an argument: `--framework net6.0`.
 
 ## Publish the test results
 
@@ -308,11 +304,10 @@ Those are the key takeaways:
 [appveyor-create-github-release]: https://github.com/gabrielweyer/cake-build/blob/d7daca61a5add242ba2d6af655e0272251da13f2/appveyor.yml#L20-L43
 [git-version-docs]: https://gitversion.net/docs/
 [azure-devops-config]: https://github.com/gabrielweyer/cake-build/blob/main/azure-pipelines.yml
-[cake-contributors]: https://github.com/cake-build/cake/graphs/contributors
-[gitversion-contributors]: https://github.com/GitTools/GitVersion/graphs/contributors
 [rtfm]: https://en.wikipedia.org/wiki/RTFM
 [travis-ci-exposed-secrets]: https://www.theregister.com/2021/09/15/travis_ci_leak/
 [dotnet-local-tool]: https://docs.microsoft.com/en-us/dotnet/core/tools/local-tools-how-to-use
+[change-in-azure-pipelines-grant-for-public-projects]: https://devblogs.microsoft.com/devops/change-in-azure-pipelines-grant-for-public-projects/
 
 [trigger-build-commit]: {% post_url 2018-04-22-cake-build %}#configuration
 [use-semantic-versioning]: {% post_url 2018-04-22-cake-build %}#semantic-versioning
