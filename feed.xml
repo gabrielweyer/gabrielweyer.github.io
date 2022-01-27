@@ -816,9 +816,7 @@ Child SP       IP Call Site
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;cake&quot;&gt;Cake&lt;/h2&gt;
-
-&lt;h3 id=&quot;pinning-cake-version&quot;&gt;Pinning &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Cake&lt;/code&gt; version&lt;/h3&gt;
+&lt;h2 id=&quot;pinning-cake-version&quot;&gt;Pinning &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Cake&lt;/code&gt; version&lt;/h2&gt;
 
 &lt;p&gt;Pinning the version of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Cake&lt;/code&gt; guarantees you’ll be using the same version of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Cake&lt;/code&gt; on your machine and on the build servers. This is achieved by installing Cake as a &lt;a href=&quot;https://docs.microsoft.com/en-us/dotnet/core/tools/local-tools-how-to-use&quot;&gt;.NET local tool&lt;/a&gt;.&lt;/p&gt;
 
@@ -923,7 +921,7 @@ Child SP       IP Call Site
 
 &lt;h2 id=&quot;run-the-tests&quot;&gt;Run the tests&lt;/h2&gt;
 
-&lt;p&gt;As &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; is running on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Linux&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;macOS&lt;/code&gt; it doesn’t support testing against &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;net461&lt;/code&gt;. Luckily the framework can be specified using an argument: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;--framework net6.0&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;As the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; build is running on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Linux&lt;/code&gt; it doesn’t support testing against &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;net461&lt;/code&gt;. Luckily the framework can be specified using an argument: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;--framework net6.0&lt;/code&gt;.&lt;/p&gt;
 
 &lt;h2 id=&quot;publish-the-test-results&quot;&gt;Publish the test results&lt;/h2&gt;
 
@@ -931,19 +929,17 @@ Child SP       IP Call Site
 
 &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; has a few quirks when it comes to testing.&lt;/p&gt;
 
-&lt;p&gt;First it only support the &lt;a href=&quot;https://llg.cubic.org/docs/junit/&quot;&gt;JUnit format&lt;/a&gt; so I had to write a &lt;a href=&quot;https://github.com/gabrielweyer/xunit-to-junit&quot;&gt;transform&lt;/a&gt; to be able to publish the test results. Then you must place your test results within a folder named after the test framework you are using if you want &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; to identify your test framework.&lt;/p&gt;
+&lt;p&gt;First it only supports the &lt;a href=&quot;https://llg.cubic.org/docs/junit/&quot;&gt;JUnit format&lt;/a&gt; so I had to use the &lt;a href=&quot;https://www.nuget.org/packages/JUnitXml.TestLogger/&quot;&gt;JunitXml.TestLogger&lt;/a&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; package to be able to publish the test results. Then you must &lt;a href=&quot;https://circleci.com/docs/2.0/configuration-reference/#storetestresults&quot;&gt;place your test results within a folder named after the test framework&lt;/a&gt; you are using if you want &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; to identify your test framework.&lt;/p&gt;
 
-&lt;p&gt;When the tests run successfully &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CirceCI&lt;/code&gt; will only display the slowest test:&lt;/p&gt;
+&lt;p&gt;When the tests run successfully &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CirceCI&lt;/code&gt; will only display the slowest test (you need to navigate to &lt;em&gt;Test Insights&lt;/em&gt; to see it):&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/cake-build/circle-ci-slowest-test.png&quot; alt=&quot;Circle CI slowest test&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/cake-build/circle-ci-test-insights-slowest-test.png&quot; alt=&quot;Circle CI slowest test&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;I don’t understand the use case, I would prefer the list of tests and timing and the ability to sort them client-side.&lt;/p&gt;
 
-&lt;p&gt;The output for failed tests is not ideal but it might be due to the way I transform the test results:&lt;/p&gt;
+&lt;p&gt;The output for failed tests is much better when using a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;JUnit&lt;/code&gt; logger instead of trying to convert the test results:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/cake-build/circle-ci-failed-test.png&quot; alt=&quot;Circle CI failed test&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;I decided not to invest more time on this as &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; has zero documentation around publishing test results.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/cake-build/circle-ci-junit-failed-test.png&quot; alt=&quot;Circle CI failed test&quot; /&gt;&lt;/p&gt;
 
 &lt;h3 id=&quot;appveyor&quot;&gt;AppVeyor&lt;/h3&gt;
 

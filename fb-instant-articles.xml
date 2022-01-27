@@ -881,9 +881,7 @@ Child SP       IP Call Site
   </li>
 </ul>
 
-<h2 id="cake">Cake</h2>
-
-<h3 id="pinning-cake-version">Pinning <code class="language-plaintext highlighter-rouge">Cake</code> version</h3>
+<h2 id="pinning-cake-version">Pinning <code class="language-plaintext highlighter-rouge">Cake</code> version</h2>
 
 <p>Pinning the version of <code class="language-plaintext highlighter-rouge">Cake</code> guarantees you’ll be using the same version of <code class="language-plaintext highlighter-rouge">Cake</code> on your machine and on the build servers. This is achieved by installing Cake as a <a href="https://docs.microsoft.com/en-us/dotnet/core/tools/local-tools-how-to-use">.NET local tool</a>.</p>
 
@@ -988,7 +986,7 @@ Child SP       IP Call Site
 
 <h2 id="run-the-tests">Run the tests</h2>
 
-<p>As <code class="language-plaintext highlighter-rouge">CircleCI</code> is running on <code class="language-plaintext highlighter-rouge">Linux</code> and <code class="language-plaintext highlighter-rouge">macOS</code> it doesn’t support testing against <code class="language-plaintext highlighter-rouge">net461</code>. Luckily the framework can be specified using an argument: <code class="language-plaintext highlighter-rouge">--framework net6.0</code>.</p>
+<p>As the <code class="language-plaintext highlighter-rouge">CircleCI</code> build is running on <code class="language-plaintext highlighter-rouge">Linux</code> it doesn’t support testing against <code class="language-plaintext highlighter-rouge">net461</code>. Luckily the framework can be specified using an argument: <code class="language-plaintext highlighter-rouge">--framework net6.0</code>.</p>
 
 <h2 id="publish-the-test-results">Publish the test results</h2>
 
@@ -996,19 +994,17 @@ Child SP       IP Call Site
 
 <p><code class="language-plaintext highlighter-rouge">CircleCI</code> has a few quirks when it comes to testing.</p>
 
-<p>First it only support the <a href="https://llg.cubic.org/docs/junit/">JUnit format</a> so I had to write a <a href="https://github.com/gabrielweyer/xunit-to-junit">transform</a> to be able to publish the test results. Then you must place your test results within a folder named after the test framework you are using if you want <code class="language-plaintext highlighter-rouge">CircleCI</code> to identify your test framework.</p>
+<p>First it only supports the <a href="https://llg.cubic.org/docs/junit/">JUnit format</a> so I had to use the <a href="https://www.nuget.org/packages/JUnitXml.TestLogger/">JunitXml.TestLogger</a> <code class="language-plaintext highlighter-rouge">NuGet</code> package to be able to publish the test results. Then you must <a href="https://circleci.com/docs/2.0/configuration-reference/#storetestresults">place your test results within a folder named after the test framework</a> you are using if you want <code class="language-plaintext highlighter-rouge">CircleCI</code> to identify your test framework.</p>
 
-<p>When the tests run successfully <code class="language-plaintext highlighter-rouge">CirceCI</code> will only display the slowest test:</p>
+<p>When the tests run successfully <code class="language-plaintext highlighter-rouge">CirceCI</code> will only display the slowest test (you need to navigate to <em>Test Insights</em> to see it):</p>
 
-<p><img src="/assets/cake-build/circle-ci-slowest-test.png" alt="Circle CI slowest test" /></p>
+<p><img src="/assets/cake-build/circle-ci-test-insights-slowest-test.png" alt="Circle CI slowest test" /></p>
 
 <p>I don’t understand the use case, I would prefer the list of tests and timing and the ability to sort them client-side.</p>
 
-<p>The output for failed tests is not ideal but it might be due to the way I transform the test results:</p>
+<p>The output for failed tests is much better when using a <code class="language-plaintext highlighter-rouge">JUnit</code> logger instead of trying to convert the test results:</p>
 
-<p><img src="/assets/cake-build/circle-ci-failed-test.png" alt="Circle CI failed test" /></p>
-
-<p>I decided not to invest more time on this as <code class="language-plaintext highlighter-rouge">CircleCI</code> has zero documentation around publishing test results.</p>
+<p><img src="/assets/cake-build/circle-ci-junit-failed-test.png" alt="Circle CI failed test" /></p>
 
 <h3 id="appveyor">AppVeyor</h3>
 
