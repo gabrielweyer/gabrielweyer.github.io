@@ -57,9 +57,7 @@ The project is useless. What is important is that it describes a real-life scena
 - The projects reference a third project that should be embedded as a `DLL` rather than being referenced as a `NuGet` package
   - This is not yet supported by the new tooling but can be [achieved](#create-nuget-packages).
 
-## Cake
-
-### Pinning `Cake` version
+## Pinning `Cake` version
 
 Pinning the version of `Cake` guarantees you'll be using the same version of `Cake` on your machine and on the build servers. This is achieved by installing Cake as a [.NET local tool][dotnet-local-tool].
 
@@ -150,7 +148,7 @@ As an aside `Cake` allows you to [set][cake-app-veyor-build] the `AppVeyor` buil
 
 ## Run the tests
 
-As `CircleCI` is running on `Linux` and `macOS` it doesn't support testing against `net461`. Luckily the framework can be specified using an argument: `--framework net6.0`.
+As the `CircleCI` build is running on `Linux` it doesn't support testing against `net461`. Luckily the framework can be specified using an argument: `--framework net6.0`.
 
 ## Publish the test results
 
@@ -158,19 +156,17 @@ As `CircleCI` is running on `Linux` and `macOS` it doesn't support testing again
 
 `CircleCI` has a few quirks when it comes to testing.
 
-First it only support the [JUnit format][junit-format] so I had to write a [transform][xunit-to-junit] to be able to publish the test results. Then you must place your test results within a folder named after the test framework you are using if you want `CircleCI` to identify your test framework.
+First it only supports the [JUnit format][junit-format] so I had to use the [JunitXml.TestLogger][junit-xml-test-logger] `NuGet` package to be able to publish the test results. Then you must [place your test results within a folder named after the test framework][circle-ci-test-results] you are using if you want `CircleCI` to identify your test framework.
 
-When the tests run successfully `CirceCI` will only display the slowest test:
+When the tests run successfully `CirceCI` will only display the slowest test (you need to navigate to _Test Insights_ to see it):
 
-![Circle CI slowest test]({{ "/assets/cake-build/circle-ci-slowest-test.png" | prepend: site.baseurl }})
+![Circle CI slowest test]({{ "/assets/cake-build/circle-ci-test-insights-slowest-test.png" | prepend: site.baseurl }})
 
 I don't understand the use case, I would prefer the list of tests and timing and the ability to sort them client-side.
 
-The output for failed tests is not ideal but it might be due to the way I transform the test results:
+The output for failed tests is much better when using a `JUnit` logger instead of trying to convert the test results:
 
-![Circle CI failed test]({{ "/assets/cake-build/circle-ci-failed-test.png" | prepend: site.baseurl }})
-
-I decided not to invest more time on this as `CircleCI` has zero documentation around publishing test results.
+![Circle CI failed test]({{ "/assets/cake-build/circle-ci-junit-failed-test.png" | prepend: site.baseurl }})
 
 ### AppVeyor
 
@@ -293,7 +289,8 @@ Those are the key takeaways:
 [github-pr-no-force-push]: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests
 [cake-app-veyor-build]: https://cakebuild.net/api/Cake.AppVeyor/AppVeyorBuild/069D8D3F
 [junit-format]: https://llg.cubic.org/docs/junit/
-[xunit-to-junit]: https://github.com/gabrielweyer/xunit-to-junit
+[junit-xml-test-logger]: https://www.nuget.org/packages/JUnitXml.TestLogger/
+[circle-ci-test-results]: https://circleci.com/docs/2.0/configuration-reference/#storetestresults
 [pack-issues]: https://github.com/NuGet/Home/issues/6285
 [project-reference-dll-issue]: https://github.com/NuGet/Home/issues/3891
 [private-assets]: https://docs.microsoft.com/en-us/dotnet/core/tools/csproj#includeassets-excludeassets-and-privateassets
