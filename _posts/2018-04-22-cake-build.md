@@ -11,6 +11,8 @@ tags:
 - Azure DevOps
 ---
 
+**30th of Jan 2022**: Many .NET open-source have now migrated to [GitHub Actions][github-actions]. I hence decided to include it in this post.
+
 **25th of Sep 2021**: I decided to remove Travis CI from this post. Travis CI recently [poorly handled a security vulnerability][travis-ci-exposed-secrets] and security is of paramount importance when it comes to build systems.
 
 **5th of Jan 2019**: a lot has been happening since I initially wrote this post. `Azure DevOps` released a free tier for open source projects, the `Cake` and `GitVersion` contributors have been hard at work to take advantage of the latest features of `.NET Core`. So many things have changed that I decided to update this post to reflect the current state of affairs (inclusion of `Azure DevOps`, upgrade to `.NET Core 2.2`, utilisation of `.NET Core global tools` and removing the `Mono` requirement on `Unix` platforms).
@@ -25,13 +27,13 @@ As a developer I'm amazed by the number of free tools and services available. I 
 - [Publish the NuGet packages][publish-nuget-packages]
 - [Create a GitHub release][create-github-release]
 
-For my purpose I wanted anonymous users to have access to a read-only view. I initially selected [AppVeyor][app-veyor] as it seems to be the most popular choice for `.NET` open-source projects. But while browsing around I discovered that projects were often using more than one platform. [CircleCI][circle-ci] seemed to be the other prevailing option. Since the initial version of this post, [Azure DevOps][azure-devops] has released a ~~free and unlimited plan for open source projects~~ ([this is not the case any more][change-in-azure-pipelines-grant-for-public-projects]). I decided to leverage the three platforms so that I could highlight their pros and cons.<!--more-->
+For my purpose I wanted anonymous users to have access to a read-only view. [AppVeyor][app-veyor] and [GitHub Actions][github-actions] are the most popular choices for `.NET` open-source projects. [CircleCI][circle-ci] seems to have dropped in popularity. [Azure DevOps][azure-devops] released (and then [unreleased][change-in-azure-pipelines-grant-for-public-projects]) a free and unlimited plan for open source projects. As I had both CircleCI and Azure DevOps working, I decided to keep them. In this post I'll be leveraging the four platforms so that I can highlight their pros and cons.<!--more-->
 
 ## Configuration
 
-The code is hosted on the `GitHub` repository [Cake build][cake-build]. It's named [Cake][cake] after my favourite build automation system and the project is using `Cake` as its build system.
+The code is hosted on the `GitHub` repository [Cake build][cake-build] and is using [Cake][cake] as its build system.
 
-`AppVeyor`, `Azure DevOps` and `CircleCI` all use [YAML][yaml] configuration files. This means that your build steps are living in the same space than your code and this presents several benefits:
+`AppVeyor`, `Azure DevOps`, `CircleCI` and `GitHub Actions` all use [YAML][yaml] configuration files. This means that your build steps are living in the same space than your code and this presents several benefits:
 
 - Any developer can modify the build
 - The project is self-contained
@@ -39,11 +41,12 @@ The code is hosted on the `GitHub` repository [Cake build][cake-build]. It's nam
   - It doesn't matter if something terrible happens to the build server
 - Ability to run the build locally on some platforms
 
-I'm sure you'll be as surprised as I was when I realised how simple the `YAML` files are:
+The `YAML` files are:
 
 - `AppVeyor`: [appveyor.yml][app-veyor-config]
 - `Azure DevOps`: [azure-pipelines.yml][azure-devops-config]
 - `CircleCI`: [.circleci/config.yml][circle-ci-config]
+- `GitHub Actions`: [.github/workflows/build.yml][github-actions-config]
 
 ## The code
 
@@ -146,11 +149,31 @@ As an aside `Cake` allows you to [set][cake-app-veyor-build] the `AppVeyor` buil
 
 ![AppVeyor version]({{ "/assets/cake-build/app-veyor-version.png" | prepend: site.baseurl }})
 
+I do not set the `AppVeyor` build number any more as `GitHub Actions` is pushing the `NuGet` packages and creating the tags and `GitHub` releases.
+
 ## Run the tests
 
 As the `CircleCI` build is running on `Linux` it doesn't support testing against `net461`. Luckily the framework can be specified using an argument: `--framework net6.0`.
 
 ## Publish the test results
+
+### AppVeyor
+
+Again, the integration between `Cake` and `AppVeyor` shines in this area as `Cake` will automatically publish the test results for you (I wondered why I had duplicate test results until I [RTFM][rtfm]).
+
+`AppVeyor` displays all the tests but you must hover to see the framework used:
+
+![AppVeyor framework]({{ "/assets/cake-build/app-veyor-test-success.png" | prepend: site.baseurl }})
+
+Failed tests come with a nice formatting and a `StackTrace`:
+
+![AppVeyor failed test]({{ "/assets/cake-build/app-veyor-failed-test.png" | prepend: site.baseurl }})
+
+### Azure DevOps
+
+`Azure DevOps` has the most powerful tests results tab:
+
+![Azure DevOps Tests]({{ "/assets/cake-build/azure-devops-tests.png" | prepend: site.baseurl }})
 
 ### CircleCI
 
@@ -168,17 +191,19 @@ The output for failed tests is much better when using a `JUnit` logger instead o
 
 ![Circle CI failed test]({{ "/assets/cake-build/circle-ci-junit-failed-test.png" | prepend: site.baseurl }})
 
-### AppVeyor
+### GitHub Actions
 
-Again, the integration between `Cake` and `AppVeyor` shines in this area as `Cake` will automatically publish the test results for you (I wondered why I had duplicate test results until I [RTFM][rtfm]).
+GitHub Actions do not support publishing test results! This is a pretty big shortcoming for a Continuous Integration system. A couple of third-party Actions are trying to fill the gap but if you're multi-targeting or running your tests on multiple platforms expect additional complexity in you build script.
 
-`AppVeyor` displays all the tests but you must hover to see the framework used:
+Visual Studio Test Results File (known colloquially as `TRX`) gave me the best output but the [Trx Logger][trx-logger] has limited abilities in terms of naming test results files. By default the test results file names do not include the assembly or the framework version. Using multi-targeting and the `LogFileName` parameter will result in test results files being overwritten by the last target. Using the recently introduced `LogFilePrefix` parameter doesn't solve the issue, token expansion is not supported so you'll have to rename the files to include the assembly name and remove the trailing numbers.
 
-![AppVeyor framework]({{ "/assets/cake-build/app-veyor-test-success.png" | prepend: site.baseurl }})
+Ultimately I had to invoke `dotnet test` for [each test project / framework combination][github-actions-running-tests]. The end result is pretty neat:
 
-Failed tests come with a nice formatting and a `StackTrace`:
+![GitHub Actions tests report]({{ "/assets/cake-build/github-actions-report-tests.png" | prepend: site.baseurl }})
 
-![AppVeyor failed test]({{ "/assets/cake-build/app-veyor-failed-test.png" | prepend: site.baseurl }})
+Failed tests display the test runner output and the stack trace:
+
+![GitHub Actions failed test]({{ "/assets/cake-build/github-actions-failed-test.png" | prepend: site.baseurl }})
 
 ## Create `NuGet` packages
 
@@ -229,32 +254,44 @@ The result is the following `NuGet` package:
 And the assemblies have been versioned as expected:
 
 {% highlight csharp %}
-[assembly: AssemblyFileVersion("1.0.5-fix-typos0003")]
-[assembly: AssemblyInformationalVersion("1.0.5-fix-typos0003")]
-[assembly: AssemblyVersion("1.0.5.0")]
+[assembly: AssemblyFileVersion("2.0.21-embed-symbols0001")]
+[assembly: AssemblyInformationalVersion("2.0.21-embed-symbols0001+9429d3dbc27c57417c07cf7c570b5e5f2267088e")]
+[assembly: AssemblyVersion("2.0.21.0")]
 {% endhighlight %}
 
 **Note**: you can also use the "new" `*.csproj` system for `NuGet` packages targeting older `.NET Framework` versions.
 
 ## Publish the `NuGet` packages
 
-On any branches starting with `features/`, the `NuGet` packages will be published to a pre-release feed. If the branch is `main` it'll be published to the production feed. This is handled by `AppVeyor` in this [section][publish-packages] of the configuration.
+On any branches starting with `features/`, the `NuGet` packages will be published to a pre-release feed. If the branch is `main` it'll be published to the production feed. This is handled by `GitHub Actions` in this [section][publish-packages] of the configuration.
 
-As this is a demo project both feeds are hosted by `MyGet`. For my other projects I use `MyGet` to host my [pre-release feed][myget-feed] and `NuGet` for my [production feed][nuget-feed].
+As this is a demo project both pre-release and production feeds are hosted by `MyGet`. For my other projects I use `MyGet` to host my [pre-release feed][myget-feed] and `NuGet` for my [production feed][nuget-feed].
 
 When publishing the packages, I'm also publishing the associated [symbols][symbols] to allow consumers to debug through my packages.
 
 ## Create a GitHub release
 
-`AppVeyor` also creates `GitHub` [releases][appveyor-create-github-release].
+`GitHub Actions` also creates `GitHub` [releases][create-github-release]. I'm using the [GitHub CLI][github-cli] to create a release.
 
-## What about Azure DevOps
+By default the `GitHub CLI` does not use the workflow token, you have to explicitly provide it using an environment variable:
 
-`Azure DevOps` has the most powerful tests results tab:
+{% highlight yaml %}
+GITHUB_TOKEN: {{ '{{' }} secrets.GITHUB_TOKEN }}
+{% endhighlight %}
 
-![Azure DevOps Tests]({{ "/assets/cake-build/azure-devops-tests.png" | prepend: site.baseurl }})
+`GitHub CLI` relies on the shell expanding wildcards which doesn't happen on Windows. So instead of providing:
 
-One thing I've noticed is that builds seem to be slower on the `Hosted Ubuntu 1604` agents than on the `Hosted VS2017` agents.
+{% highlight bash %}
+.\artifacts\packages\*
+{% endhighlight %}
+
+You'll need to provide:
+
+{% highlight powershell %}
+(Get-Item .\artifacts\packages\*)
+{% endhighlight %}
+
+Finally the `GitHub CLI` doesn't allow to create a release without release notes in a non-interactive scenario. I worked around this by creating an empty file and providing it to the `--notes-file` parameter.
 
 ## Conclusion
 
@@ -294,17 +331,22 @@ Those are the key takeaways:
 [pack-issues]: https://github.com/NuGet/Home/issues/6285
 [project-reference-dll-issue]: https://github.com/NuGet/Home/issues/3891
 [private-assets]: https://docs.microsoft.com/en-us/dotnet/core/tools/csproj#includeassets-excludeassets-and-privateassets
-[publish-packages]: https://github.com/gabrielweyer/cake-build/blob/d7daca61a5add242ba2d6af655e0272251da13f2/appveyor.yml#L44-L65
+[publish-packages]:https://github.com/gabrielweyer/cake-build/blob/a7c591f847d66b3b40a82604e841a71f93580038/.github/workflows/build.yml#L63-L68
 [nuget-feed]: https://www.nuget.org/profiles/gabrielweyer
 [myget-feed]: https://www.myget.org/feed/Packages/gabrielweyer-pre-release
 [symbols]: https://docs.microsoft.com/en-us/nuget/create-packages/symbol-packages-snupkg
-[appveyor-create-github-release]: https://github.com/gabrielweyer/cake-build/blob/d7daca61a5add242ba2d6af655e0272251da13f2/appveyor.yml#L20-L43
+[create-github-release]: https://github.com/gabrielweyer/cake-build/blob/a7c591f847d66b3b40a82604e841a71f93580038/.github/workflows/build.yml#L49-L62
 [git-version-docs]: https://gitversion.net/docs/
 [azure-devops-config]: https://github.com/gabrielweyer/cake-build/blob/main/azure-pipelines.yml
 [rtfm]: https://en.wikipedia.org/wiki/RTFM
 [travis-ci-exposed-secrets]: https://www.theregister.com/2021/09/15/travis_ci_leak/
 [dotnet-local-tool]: https://docs.microsoft.com/en-us/dotnet/core/tools/local-tools-how-to-use
 [change-in-azure-pipelines-grant-for-public-projects]: https://devblogs.microsoft.com/devops/change-in-azure-pipelines-grant-for-public-projects/
+[github-actions]: https://docs.github.com/en/actions
+[github-actions-config]: https://github.com/gabrielweyer/cake-build/blob/main/.github/workflows/build.yml
+[trx-logger]: https://github.com/Microsoft/vstest-docs/blob/main/docs/report.md#2-trx-logger
+[github-actions-running-tests]: https://github.com/gabrielweyer/cake-build/blob/a7c591f847d66b3b40a82604e841a71f93580038/build.cake#L106-L159
+[github-cli]: https://cli.github.com/
 
 [trigger-build-commit]: {% post_url 2018-04-22-cake-build %}#configuration
 [use-semantic-versioning]: {% post_url 2018-04-22-cake-build %}#semantic-versioning
