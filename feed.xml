@@ -750,7 +750,9 @@ Child SP       IP Call Site
     
       <item>
         <title>Cake build</title>
-        <description>&lt;p&gt;&lt;strong&gt;25th of Sep 2021&lt;/strong&gt;: I decided to remove Travis CI from this post. Travis CI recently &lt;a href=&quot;https://www.theregister.com/2021/09/15/travis_ci_leak/&quot;&gt;poorly handled a security vulnerability&lt;/a&gt; and security is of paramount importance when it comes to build systems.&lt;/p&gt;
+        <description>&lt;p&gt;&lt;strong&gt;30th of Jan 2022&lt;/strong&gt;: Many .NET open-source have now migrated to &lt;a href=&quot;https://docs.github.com/en/actions&quot;&gt;GitHub Actions&lt;/a&gt;. I hence decided to include it in this post.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;25th of Sep 2021&lt;/strong&gt;: I decided to remove Travis CI from this post. Travis CI recently &lt;a href=&quot;https://www.theregister.com/2021/09/15/travis_ci_leak/&quot;&gt;poorly handled a security vulnerability&lt;/a&gt; and security is of paramount importance when it comes to build systems.&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;5th of Jan 2019&lt;/strong&gt;: a lot has been happening since I initially wrote this post. &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Azure DevOps&lt;/code&gt; released a free tier for open source projects, the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Cake&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GitVersion&lt;/code&gt; contributors have been hard at work to take advantage of the latest features of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.NET Core&lt;/code&gt;. So many things have changed that I decided to update this post to reflect the current state of affairs (inclusion of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Azure DevOps&lt;/code&gt;, upgrade to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.NET Core 2.2&lt;/code&gt;, utilisation of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.NET Core global tools&lt;/code&gt; and removing the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Mono&lt;/code&gt; requirement on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Unix&lt;/code&gt; platforms).&lt;/p&gt;
 
@@ -766,13 +768,13 @@ Child SP       IP Call Site
   &lt;li&gt;&lt;a href=&quot;/2018/04/21/cake-build/#create-a-github-release&quot;&gt;Create a GitHub release&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;For my purpose I wanted anonymous users to have access to a read-only view. I initially selected &lt;a href=&quot;https://www.appveyor.com/&quot;&gt;AppVeyor&lt;/a&gt; as it seems to be the most popular choice for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.NET&lt;/code&gt; open-source projects. But while browsing around I discovered that projects were often using more than one platform. &lt;a href=&quot;https://circleci.com/&quot;&gt;CircleCI&lt;/a&gt; seemed to be the other prevailing option. Since the initial version of this post, &lt;a href=&quot;https://azure.microsoft.com/en-au/services/devops/&quot;&gt;Azure DevOps&lt;/a&gt; has released a &lt;del&gt;free and unlimited plan for open source projects&lt;/del&gt; (&lt;a href=&quot;https://devblogs.microsoft.com/devops/change-in-azure-pipelines-grant-for-public-projects/&quot;&gt;this is not the case any more&lt;/a&gt;). I decided to leverage the three platforms so that I could highlight their pros and cons.&lt;!--more--&gt;&lt;/p&gt;
+&lt;p&gt;For my purpose I wanted anonymous users to have access to a read-only view. &lt;a href=&quot;https://www.appveyor.com/&quot;&gt;AppVeyor&lt;/a&gt; and &lt;a href=&quot;https://docs.github.com/en/actions&quot;&gt;GitHub Actions&lt;/a&gt; are the most popular choices for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.NET&lt;/code&gt; open-source projects. &lt;a href=&quot;https://circleci.com/&quot;&gt;CircleCI&lt;/a&gt; seems to have dropped in popularity. &lt;a href=&quot;https://azure.microsoft.com/en-au/services/devops/&quot;&gt;Azure DevOps&lt;/a&gt; released (and then &lt;a href=&quot;https://devblogs.microsoft.com/devops/change-in-azure-pipelines-grant-for-public-projects/&quot;&gt;unreleased&lt;/a&gt;) a free and unlimited plan for open source projects. As I had both CircleCI and Azure DevOps working, I decided to keep them. In this post I’ll be leveraging the four platforms so that I can highlight their pros and cons.&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;configuration&quot;&gt;Configuration&lt;/h2&gt;
 
-&lt;p&gt;The code is hosted on the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GitHub&lt;/code&gt; repository &lt;a href=&quot;https://github.com/gabrielweyer/cake-build&quot;&gt;Cake build&lt;/a&gt;. It’s named &lt;a href=&quot;https://cakebuild.net/&quot;&gt;Cake&lt;/a&gt; after my favourite build automation system and the project is using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Cake&lt;/code&gt; as its build system.&lt;/p&gt;
+&lt;p&gt;The code is hosted on the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GitHub&lt;/code&gt; repository &lt;a href=&quot;https://github.com/gabrielweyer/cake-build&quot;&gt;Cake build&lt;/a&gt; and is using &lt;a href=&quot;https://cakebuild.net/&quot;&gt;Cake&lt;/a&gt; as its build system.&lt;/p&gt;
 
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Azure DevOps&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; all use &lt;a href=&quot;https://yaml.org/&quot;&gt;YAML&lt;/a&gt; configuration files. This means that your build steps are living in the same space than your code and this presents several benefits:&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Azure DevOps&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GitHub Actions&lt;/code&gt; all use &lt;a href=&quot;https://yaml.org/&quot;&gt;YAML&lt;/a&gt; configuration files. This means that your build steps are living in the same space than your code and this presents several benefits:&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;Any developer can modify the build&lt;/li&gt;
@@ -785,12 +787,13 @@ Child SP       IP Call Site
   &lt;li&gt;Ability to run the build locally on some platforms&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;I’m sure you’ll be as surprised as I was when I realised how simple the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;YAML&lt;/code&gt; files are:&lt;/p&gt;
+&lt;p&gt;The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;YAML&lt;/code&gt; files are:&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt;: &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/main/appveyor.yml&quot;&gt;appveyor.yml&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Azure DevOps&lt;/code&gt;: &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/main/azure-pipelines.yml&quot;&gt;azure-pipelines.yml&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt;: &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/main/.circleci/config.yml&quot;&gt;.circleci/config.yml&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GitHub Actions&lt;/code&gt;: &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/main/.github/workflows/build.yml&quot;&gt;.github/workflows/build.yml&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h2 id=&quot;the-code&quot;&gt;The code&lt;/h2&gt;
@@ -919,11 +922,31 @@ Child SP       IP Call Site
 
 &lt;p&gt;&lt;img src=&quot;/assets/cake-build/app-veyor-version.png&quot; alt=&quot;AppVeyor version&quot; /&gt;&lt;/p&gt;
 
+&lt;p&gt;I do not set the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt; build number any more as &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GitHub Actions&lt;/code&gt; is pushing the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; packages and creating the tags and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GitHub&lt;/code&gt; releases.&lt;/p&gt;
+
 &lt;h2 id=&quot;run-the-tests&quot;&gt;Run the tests&lt;/h2&gt;
 
 &lt;p&gt;As the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CircleCI&lt;/code&gt; build is running on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Linux&lt;/code&gt; it doesn’t support testing against &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;net461&lt;/code&gt;. Luckily the framework can be specified using an argument: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;--framework net6.0&lt;/code&gt;.&lt;/p&gt;
 
 &lt;h2 id=&quot;publish-the-test-results&quot;&gt;Publish the test results&lt;/h2&gt;
+
+&lt;h3 id=&quot;appveyor&quot;&gt;AppVeyor&lt;/h3&gt;
+
+&lt;p&gt;Again, the integration between &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Cake&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt; shines in this area as &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Cake&lt;/code&gt; will automatically publish the test results for you (I wondered why I had duplicate test results until I &lt;a href=&quot;https://en.wikipedia.org/wiki/RTFM&quot;&gt;RTFM&lt;/a&gt;).&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt; displays all the tests but you must hover to see the framework used:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/cake-build/app-veyor-test-success.png&quot; alt=&quot;AppVeyor framework&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Failed tests come with a nice formatting and a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;StackTrace&lt;/code&gt;:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/cake-build/app-veyor-failed-test.png&quot; alt=&quot;AppVeyor failed test&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;azure-devops&quot;&gt;Azure DevOps&lt;/h3&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Azure DevOps&lt;/code&gt; has the most powerful tests results tab:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/cake-build/azure-devops-tests.png&quot; alt=&quot;Azure DevOps Tests&quot; /&gt;&lt;/p&gt;
 
 &lt;h3 id=&quot;circleci&quot;&gt;CircleCI&lt;/h3&gt;
 
@@ -941,17 +964,19 @@ Child SP       IP Call Site
 
 &lt;p&gt;&lt;img src=&quot;/assets/cake-build/circle-ci-junit-failed-test.png&quot; alt=&quot;Circle CI failed test&quot; /&gt;&lt;/p&gt;
 
-&lt;h3 id=&quot;appveyor&quot;&gt;AppVeyor&lt;/h3&gt;
+&lt;h3 id=&quot;github-actions&quot;&gt;GitHub Actions&lt;/h3&gt;
 
-&lt;p&gt;Again, the integration between &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Cake&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt; shines in this area as &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Cake&lt;/code&gt; will automatically publish the test results for you (I wondered why I had duplicate test results until I &lt;a href=&quot;https://en.wikipedia.org/wiki/RTFM&quot;&gt;RTFM&lt;/a&gt;).&lt;/p&gt;
+&lt;p&gt;GitHub Actions do not support publishing test results! This is a pretty big shortcoming for a Continuous Integration system. A couple of third-party Actions are trying to fill the gap but if you’re multi-targeting or running your tests on multiple platforms expect additional complexity in you build script.&lt;/p&gt;
 
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt; displays all the tests but you must hover to see the framework used:&lt;/p&gt;
+&lt;p&gt;Visual Studio Test Results File (known colloquially as &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;TRX&lt;/code&gt;) gave me the best output but the &lt;a href=&quot;https://github.com/Microsoft/vstest-docs/blob/main/docs/report.md#2-trx-logger&quot;&gt;Trx Logger&lt;/a&gt; has limited abilities in terms of naming test results files. By default the test results file names do not include the assembly or the framework version. Using multi-targeting and the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;LogFileName&lt;/code&gt; parameter will result in test results files being overwritten by the last target. Using the recently introduced &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;LogFilePrefix&lt;/code&gt; parameter doesn’t solve the issue, token expansion is not supported so you’ll have to rename the files to include the assembly name and remove the trailing numbers.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/cake-build/app-veyor-test-success.png&quot; alt=&quot;AppVeyor framework&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;Ultimately I had to invoke &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;dotnet test&lt;/code&gt; for &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/a7c591f847d66b3b40a82604e841a71f93580038/build.cake#L106-L159&quot;&gt;each test project / framework combination&lt;/a&gt;. The end result is pretty neat:&lt;/p&gt;
 
-&lt;p&gt;Failed tests come with a nice formatting and a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;StackTrace&lt;/code&gt;:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/cake-build/github-actions-report-tests.png&quot; alt=&quot;GitHub Actions tests report&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/cake-build/app-veyor-failed-test.png&quot; alt=&quot;AppVeyor failed test&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;Failed tests display the test runner output and the stack trace:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/cake-build/github-actions-failed-test.png&quot; alt=&quot;GitHub Actions failed test&quot; /&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;create-nuget-packages&quot;&gt;Create &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; packages&lt;/h2&gt;
 
@@ -1003,31 +1028,37 @@ Child SP       IP Call Site
 
 &lt;p&gt;And the assemblies have been versioned as expected:&lt;/p&gt;
 
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;assembly&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;AssemblyFileVersion&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;1.0.5-fix-typos0003&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;assembly&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;AssemblyInformationalVersion&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;1.0.5-fix-typos0003&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;assembly&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;AssemblyVersion&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;1.0.5.0&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;assembly&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;AssemblyFileVersion&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;2.0.21-embed-symbols0001&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;assembly&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;AssemblyInformationalVersion&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;2.0.21-embed-symbols0001+9429d3dbc27c57417c07cf7c570b5e5f2267088e&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;assembly&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;AssemblyVersion&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;2.0.21.0&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;&lt;strong&gt;Note&lt;/strong&gt;: you can also use the “new” &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;*.csproj&lt;/code&gt; system for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; packages targeting older &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.NET Framework&lt;/code&gt; versions.&lt;/p&gt;
 
 &lt;h2 id=&quot;publish-the-nuget-packages&quot;&gt;Publish the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; packages&lt;/h2&gt;
 
-&lt;p&gt;On any branches starting with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;features/&lt;/code&gt;, the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; packages will be published to a pre-release feed. If the branch is &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;main&lt;/code&gt; it’ll be published to the production feed. This is handled by &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt; in this &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/d7daca61a5add242ba2d6af655e0272251da13f2/appveyor.yml#L44-L65&quot;&gt;section&lt;/a&gt; of the configuration.&lt;/p&gt;
+&lt;p&gt;On any branches starting with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;features/&lt;/code&gt;, the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; packages will be published to a pre-release feed. If the branch is &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;main&lt;/code&gt; it’ll be published to the production feed. This is handled by &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GitHub Actions&lt;/code&gt; in this &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/a7c591f847d66b3b40a82604e841a71f93580038/.github/workflows/build.yml#L63-L68&quot;&gt;section&lt;/a&gt; of the configuration.&lt;/p&gt;
 
-&lt;p&gt;As this is a demo project both feeds are hosted by &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MyGet&lt;/code&gt;. For my other projects I use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MyGet&lt;/code&gt; to host my &lt;a href=&quot;https://www.myget.org/feed/Packages/gabrielweyer-pre-release&quot;&gt;pre-release feed&lt;/a&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; for my &lt;a href=&quot;https://www.nuget.org/profiles/gabrielweyer&quot;&gt;production feed&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;As this is a demo project both pre-release and production feeds are hosted by &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MyGet&lt;/code&gt;. For my other projects I use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MyGet&lt;/code&gt; to host my &lt;a href=&quot;https://www.myget.org/feed/Packages/gabrielweyer-pre-release&quot;&gt;pre-release feed&lt;/a&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; for my &lt;a href=&quot;https://www.nuget.org/profiles/gabrielweyer&quot;&gt;production feed&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;When publishing the packages, I’m also publishing the associated &lt;a href=&quot;https://docs.microsoft.com/en-us/nuget/create-packages/symbol-packages-snupkg&quot;&gt;symbols&lt;/a&gt; to allow consumers to debug through my packages.&lt;/p&gt;
 
 &lt;h2 id=&quot;create-a-github-release&quot;&gt;Create a GitHub release&lt;/h2&gt;
 
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AppVeyor&lt;/code&gt; also creates &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GitHub&lt;/code&gt; &lt;a href=&quot;https://github.com/gabrielweyer/cake-build/blob/d7daca61a5add242ba2d6af655e0272251da13f2/appveyor.yml#L20-L43&quot;&gt;releases&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GitHub Actions&lt;/code&gt; also creates &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GitHub&lt;/code&gt; &lt;a href=&quot;/2018/04/21/cake-build/#create-a-github-release&quot;&gt;releases&lt;/a&gt;. I’m using the &lt;a href=&quot;https://cli.github.com/&quot;&gt;GitHub CLI&lt;/a&gt; to create a release.&lt;/p&gt;
 
-&lt;h2 id=&quot;what-about-azure-devops&quot;&gt;What about Azure DevOps&lt;/h2&gt;
+&lt;p&gt;By default the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GitHub CLI&lt;/code&gt; does not use the workflow token, you have to explicitly provide it using an environment variable:&lt;/p&gt;
 
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Azure DevOps&lt;/code&gt; has the most powerful tests results tab:&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-yaml&quot; data-lang=&quot;yaml&quot;&gt;&lt;span class=&quot;na&quot;&gt;GITHUB_TOKEN&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;{{&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;secrets.GITHUB_TOKEN&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;}}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/cake-build/azure-devops-tests.png&quot; alt=&quot;Azure DevOps Tests&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GitHub CLI&lt;/code&gt; relies on the shell expanding wildcards which doesn’t happen on Windows. So instead of providing:&lt;/p&gt;
 
-&lt;p&gt;One thing I’ve noticed is that builds seem to be slower on the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Hosted Ubuntu 1604&lt;/code&gt; agents than on the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Hosted VS2017&lt;/code&gt; agents.&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;.&lt;span class=&quot;se&quot;&gt;\a&lt;/span&gt;rtifacts&lt;span class=&quot;se&quot;&gt;\p&lt;/span&gt;ackages&lt;span class=&quot;se&quot;&gt;\*&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;You’ll need to provide:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-powershell&quot; data-lang=&quot;powershell&quot;&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Get-Item&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;\artifacts\packages\&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Finally the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GitHub CLI&lt;/code&gt; doesn’t allow to create a release without release notes in a non-interactive scenario. I worked around this by creating an empty file and providing it to the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;--notes-file&lt;/code&gt; parameter.&lt;/p&gt;
 
 &lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
 

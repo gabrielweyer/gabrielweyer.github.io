@@ -815,7 +815,9 @@ Child SP       IP Call Site
                 <link>https://gabrielweyer.net/2018/04/21/cake-build/</link>
                 <content:encoded>
                     <![CDATA[
-                    <p><strong>25th of Sep 2021</strong>: I decided to remove Travis CI from this post. Travis CI recently <a href="https://www.theregister.com/2021/09/15/travis_ci_leak/">poorly handled a security vulnerability</a> and security is of paramount importance when it comes to build systems.</p>
+                    <p><strong>30th of Jan 2022</strong>: Many .NET open-source have now migrated to <a href="https://docs.github.com/en/actions">GitHub Actions</a>. I hence decided to include it in this post.</p>
+
+<p><strong>25th of Sep 2021</strong>: I decided to remove Travis CI from this post. Travis CI recently <a href="https://www.theregister.com/2021/09/15/travis_ci_leak/">poorly handled a security vulnerability</a> and security is of paramount importance when it comes to build systems.</p>
 
 <p><strong>5th of Jan 2019</strong>: a lot has been happening since I initially wrote this post. <code class="language-plaintext highlighter-rouge">Azure DevOps</code> released a free tier for open source projects, the <code class="language-plaintext highlighter-rouge">Cake</code> and <code class="language-plaintext highlighter-rouge">GitVersion</code> contributors have been hard at work to take advantage of the latest features of <code class="language-plaintext highlighter-rouge">.NET Core</code>. So many things have changed that I decided to update this post to reflect the current state of affairs (inclusion of <code class="language-plaintext highlighter-rouge">Azure DevOps</code>, upgrade to <code class="language-plaintext highlighter-rouge">.NET Core 2.2</code>, utilisation of <code class="language-plaintext highlighter-rouge">.NET Core global tools</code> and removing the <code class="language-plaintext highlighter-rouge">Mono</code> requirement on <code class="language-plaintext highlighter-rouge">Unix</code> platforms).</p>
 
@@ -831,13 +833,13 @@ Child SP       IP Call Site
   <li><a href="/2018/04/21/cake-build/#create-a-github-release">Create a GitHub release</a></li>
 </ul>
 
-<p>For my purpose I wanted anonymous users to have access to a read-only view. I initially selected <a href="https://www.appveyor.com/">AppVeyor</a> as it seems to be the most popular choice for <code class="language-plaintext highlighter-rouge">.NET</code> open-source projects. But while browsing around I discovered that projects were often using more than one platform. <a href="https://circleci.com/">CircleCI</a> seemed to be the other prevailing option. Since the initial version of this post, <a href="https://azure.microsoft.com/en-au/services/devops/">Azure DevOps</a> has released a <del>free and unlimited plan for open source projects</del> (<a href="https://devblogs.microsoft.com/devops/change-in-azure-pipelines-grant-for-public-projects/">this is not the case any more</a>). I decided to leverage the three platforms so that I could highlight their pros and cons.<!--more--></p>
+<p>For my purpose I wanted anonymous users to have access to a read-only view. <a href="https://www.appveyor.com/">AppVeyor</a> and <a href="https://docs.github.com/en/actions">GitHub Actions</a> are the most popular choices for <code class="language-plaintext highlighter-rouge">.NET</code> open-source projects. <a href="https://circleci.com/">CircleCI</a> seems to have dropped in popularity. <a href="https://azure.microsoft.com/en-au/services/devops/">Azure DevOps</a> released (and then <a href="https://devblogs.microsoft.com/devops/change-in-azure-pipelines-grant-for-public-projects/">unreleased</a>) a free and unlimited plan for open source projects. As I had both CircleCI and Azure DevOps working, I decided to keep them. In this post I’ll be leveraging the four platforms so that I can highlight their pros and cons.<!--more--></p>
 
 <h2 id="configuration">Configuration</h2>
 
-<p>The code is hosted on the <code class="language-plaintext highlighter-rouge">GitHub</code> repository <a href="https://github.com/gabrielweyer/cake-build">Cake build</a>. It’s named <a href="https://cakebuild.net/">Cake</a> after my favourite build automation system and the project is using <code class="language-plaintext highlighter-rouge">Cake</code> as its build system.</p>
+<p>The code is hosted on the <code class="language-plaintext highlighter-rouge">GitHub</code> repository <a href="https://github.com/gabrielweyer/cake-build">Cake build</a> and is using <a href="https://cakebuild.net/">Cake</a> as its build system.</p>
 
-<p><code class="language-plaintext highlighter-rouge">AppVeyor</code>, <code class="language-plaintext highlighter-rouge">Azure DevOps</code> and <code class="language-plaintext highlighter-rouge">CircleCI</code> all use <a href="https://yaml.org/">YAML</a> configuration files. This means that your build steps are living in the same space than your code and this presents several benefits:</p>
+<p><code class="language-plaintext highlighter-rouge">AppVeyor</code>, <code class="language-plaintext highlighter-rouge">Azure DevOps</code>, <code class="language-plaintext highlighter-rouge">CircleCI</code> and <code class="language-plaintext highlighter-rouge">GitHub Actions</code> all use <a href="https://yaml.org/">YAML</a> configuration files. This means that your build steps are living in the same space than your code and this presents several benefits:</p>
 
 <ul>
   <li>Any developer can modify the build</li>
@@ -850,12 +852,13 @@ Child SP       IP Call Site
   <li>Ability to run the build locally on some platforms</li>
 </ul>
 
-<p>I’m sure you’ll be as surprised as I was when I realised how simple the <code class="language-plaintext highlighter-rouge">YAML</code> files are:</p>
+<p>The <code class="language-plaintext highlighter-rouge">YAML</code> files are:</p>
 
 <ul>
   <li><code class="language-plaintext highlighter-rouge">AppVeyor</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/main/appveyor.yml">appveyor.yml</a></li>
   <li><code class="language-plaintext highlighter-rouge">Azure DevOps</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/main/azure-pipelines.yml">azure-pipelines.yml</a></li>
   <li><code class="language-plaintext highlighter-rouge">CircleCI</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/main/.circleci/config.yml">.circleci/config.yml</a></li>
+  <li><code class="language-plaintext highlighter-rouge">GitHub Actions</code>: <a href="https://github.com/gabrielweyer/cake-build/blob/main/.github/workflows/build.yml">.github/workflows/build.yml</a></li>
 </ul>
 
 <h2 id="the-code">The code</h2>
@@ -984,11 +987,31 @@ Child SP       IP Call Site
 
 <p><img src="/assets/cake-build/app-veyor-version.png" alt="AppVeyor version" /></p>
 
+<p>I do not set the <code class="language-plaintext highlighter-rouge">AppVeyor</code> build number any more as <code class="language-plaintext highlighter-rouge">GitHub Actions</code> is pushing the <code class="language-plaintext highlighter-rouge">NuGet</code> packages and creating the tags and <code class="language-plaintext highlighter-rouge">GitHub</code> releases.</p>
+
 <h2 id="run-the-tests">Run the tests</h2>
 
 <p>As the <code class="language-plaintext highlighter-rouge">CircleCI</code> build is running on <code class="language-plaintext highlighter-rouge">Linux</code> it doesn’t support testing against <code class="language-plaintext highlighter-rouge">net461</code>. Luckily the framework can be specified using an argument: <code class="language-plaintext highlighter-rouge">--framework net6.0</code>.</p>
 
 <h2 id="publish-the-test-results">Publish the test results</h2>
+
+<h3 id="appveyor">AppVeyor</h3>
+
+<p>Again, the integration between <code class="language-plaintext highlighter-rouge">Cake</code> and <code class="language-plaintext highlighter-rouge">AppVeyor</code> shines in this area as <code class="language-plaintext highlighter-rouge">Cake</code> will automatically publish the test results for you (I wondered why I had duplicate test results until I <a href="https://en.wikipedia.org/wiki/RTFM">RTFM</a>).</p>
+
+<p><code class="language-plaintext highlighter-rouge">AppVeyor</code> displays all the tests but you must hover to see the framework used:</p>
+
+<p><img src="/assets/cake-build/app-veyor-test-success.png" alt="AppVeyor framework" /></p>
+
+<p>Failed tests come with a nice formatting and a <code class="language-plaintext highlighter-rouge">StackTrace</code>:</p>
+
+<p><img src="/assets/cake-build/app-veyor-failed-test.png" alt="AppVeyor failed test" /></p>
+
+<h3 id="azure-devops">Azure DevOps</h3>
+
+<p><code class="language-plaintext highlighter-rouge">Azure DevOps</code> has the most powerful tests results tab:</p>
+
+<p><img src="/assets/cake-build/azure-devops-tests.png" alt="Azure DevOps Tests" /></p>
 
 <h3 id="circleci">CircleCI</h3>
 
@@ -1006,17 +1029,19 @@ Child SP       IP Call Site
 
 <p><img src="/assets/cake-build/circle-ci-junit-failed-test.png" alt="Circle CI failed test" /></p>
 
-<h3 id="appveyor">AppVeyor</h3>
+<h3 id="github-actions">GitHub Actions</h3>
 
-<p>Again, the integration between <code class="language-plaintext highlighter-rouge">Cake</code> and <code class="language-plaintext highlighter-rouge">AppVeyor</code> shines in this area as <code class="language-plaintext highlighter-rouge">Cake</code> will automatically publish the test results for you (I wondered why I had duplicate test results until I <a href="https://en.wikipedia.org/wiki/RTFM">RTFM</a>).</p>
+<p>GitHub Actions do not support publishing test results! This is a pretty big shortcoming for a Continuous Integration system. A couple of third-party Actions are trying to fill the gap but if you’re multi-targeting or running your tests on multiple platforms expect additional complexity in you build script.</p>
 
-<p><code class="language-plaintext highlighter-rouge">AppVeyor</code> displays all the tests but you must hover to see the framework used:</p>
+<p>Visual Studio Test Results File (known colloquially as <code class="language-plaintext highlighter-rouge">TRX</code>) gave me the best output but the <a href="https://github.com/Microsoft/vstest-docs/blob/main/docs/report.md#2-trx-logger">Trx Logger</a> has limited abilities in terms of naming test results files. By default the test results file names do not include the assembly or the framework version. Using multi-targeting and the <code class="language-plaintext highlighter-rouge">LogFileName</code> parameter will result in test results files being overwritten by the last target. Using the recently introduced <code class="language-plaintext highlighter-rouge">LogFilePrefix</code> parameter doesn’t solve the issue, token expansion is not supported so you’ll have to rename the files to include the assembly name and remove the trailing numbers.</p>
 
-<p><img src="/assets/cake-build/app-veyor-test-success.png" alt="AppVeyor framework" /></p>
+<p>Ultimately I had to invoke <code class="language-plaintext highlighter-rouge">dotnet test</code> for <a href="https://github.com/gabrielweyer/cake-build/blob/a7c591f847d66b3b40a82604e841a71f93580038/build.cake#L106-L159">each test project / framework combination</a>. The end result is pretty neat:</p>
 
-<p>Failed tests come with a nice formatting and a <code class="language-plaintext highlighter-rouge">StackTrace</code>:</p>
+<p><img src="/assets/cake-build/github-actions-report-tests.png" alt="GitHub Actions tests report" /></p>
 
-<p><img src="/assets/cake-build/app-veyor-failed-test.png" alt="AppVeyor failed test" /></p>
+<p>Failed tests display the test runner output and the stack trace:</p>
+
+<p><img src="/assets/cake-build/github-actions-failed-test.png" alt="GitHub Actions failed test" /></p>
 
 <h2 id="create-nuget-packages">Create <code class="language-plaintext highlighter-rouge">NuGet</code> packages</h2>
 
@@ -1068,31 +1093,37 @@ Child SP       IP Call Site
 
 <p>And the assemblies have been versioned as expected:</p>
 
-<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="p">[</span><span class="n">assembly</span><span class="p">:</span> <span class="nf">AssemblyFileVersion</span><span class="p">(</span><span class="s">"1.0.5-fix-typos0003"</span><span class="p">)]</span>
-<span class="p">[</span><span class="n">assembly</span><span class="p">:</span> <span class="nf">AssemblyInformationalVersion</span><span class="p">(</span><span class="s">"1.0.5-fix-typos0003"</span><span class="p">)]</span>
-<span class="p">[</span><span class="n">assembly</span><span class="p">:</span> <span class="nf">AssemblyVersion</span><span class="p">(</span><span class="s">"1.0.5.0"</span><span class="p">)]</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="p">[</span><span class="n">assembly</span><span class="p">:</span> <span class="nf">AssemblyFileVersion</span><span class="p">(</span><span class="s">"2.0.21-embed-symbols0001"</span><span class="p">)]</span>
+<span class="p">[</span><span class="n">assembly</span><span class="p">:</span> <span class="nf">AssemblyInformationalVersion</span><span class="p">(</span><span class="s">"2.0.21-embed-symbols0001+9429d3dbc27c57417c07cf7c570b5e5f2267088e"</span><span class="p">)]</span>
+<span class="p">[</span><span class="n">assembly</span><span class="p">:</span> <span class="nf">AssemblyVersion</span><span class="p">(</span><span class="s">"2.0.21.0"</span><span class="p">)]</span></code></pre></figure>
 
 <p><strong>Note</strong>: you can also use the “new” <code class="language-plaintext highlighter-rouge">*.csproj</code> system for <code class="language-plaintext highlighter-rouge">NuGet</code> packages targeting older <code class="language-plaintext highlighter-rouge">.NET Framework</code> versions.</p>
 
 <h2 id="publish-the-nuget-packages">Publish the <code class="language-plaintext highlighter-rouge">NuGet</code> packages</h2>
 
-<p>On any branches starting with <code class="language-plaintext highlighter-rouge">features/</code>, the <code class="language-plaintext highlighter-rouge">NuGet</code> packages will be published to a pre-release feed. If the branch is <code class="language-plaintext highlighter-rouge">main</code> it’ll be published to the production feed. This is handled by <code class="language-plaintext highlighter-rouge">AppVeyor</code> in this <a href="https://github.com/gabrielweyer/cake-build/blob/d7daca61a5add242ba2d6af655e0272251da13f2/appveyor.yml#L44-L65">section</a> of the configuration.</p>
+<p>On any branches starting with <code class="language-plaintext highlighter-rouge">features/</code>, the <code class="language-plaintext highlighter-rouge">NuGet</code> packages will be published to a pre-release feed. If the branch is <code class="language-plaintext highlighter-rouge">main</code> it’ll be published to the production feed. This is handled by <code class="language-plaintext highlighter-rouge">GitHub Actions</code> in this <a href="https://github.com/gabrielweyer/cake-build/blob/a7c591f847d66b3b40a82604e841a71f93580038/.github/workflows/build.yml#L63-L68">section</a> of the configuration.</p>
 
-<p>As this is a demo project both feeds are hosted by <code class="language-plaintext highlighter-rouge">MyGet</code>. For my other projects I use <code class="language-plaintext highlighter-rouge">MyGet</code> to host my <a href="https://www.myget.org/feed/Packages/gabrielweyer-pre-release">pre-release feed</a> and <code class="language-plaintext highlighter-rouge">NuGet</code> for my <a href="https://www.nuget.org/profiles/gabrielweyer">production feed</a>.</p>
+<p>As this is a demo project both pre-release and production feeds are hosted by <code class="language-plaintext highlighter-rouge">MyGet</code>. For my other projects I use <code class="language-plaintext highlighter-rouge">MyGet</code> to host my <a href="https://www.myget.org/feed/Packages/gabrielweyer-pre-release">pre-release feed</a> and <code class="language-plaintext highlighter-rouge">NuGet</code> for my <a href="https://www.nuget.org/profiles/gabrielweyer">production feed</a>.</p>
 
 <p>When publishing the packages, I’m also publishing the associated <a href="https://docs.microsoft.com/en-us/nuget/create-packages/symbol-packages-snupkg">symbols</a> to allow consumers to debug through my packages.</p>
 
 <h2 id="create-a-github-release">Create a GitHub release</h2>
 
-<p><code class="language-plaintext highlighter-rouge">AppVeyor</code> also creates <code class="language-plaintext highlighter-rouge">GitHub</code> <a href="https://github.com/gabrielweyer/cake-build/blob/d7daca61a5add242ba2d6af655e0272251da13f2/appveyor.yml#L20-L43">releases</a>.</p>
+<p><code class="language-plaintext highlighter-rouge">GitHub Actions</code> also creates <code class="language-plaintext highlighter-rouge">GitHub</code> <a href="/2018/04/21/cake-build/#create-a-github-release">releases</a>. I’m using the <a href="https://cli.github.com/">GitHub CLI</a> to create a release.</p>
 
-<h2 id="what-about-azure-devops">What about Azure DevOps</h2>
+<p>By default the <code class="language-plaintext highlighter-rouge">GitHub CLI</code> does not use the workflow token, you have to explicitly provide it using an environment variable:</p>
 
-<p><code class="language-plaintext highlighter-rouge">Azure DevOps</code> has the most powerful tests results tab:</p>
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="na">GITHUB_TOKEN</span><span class="pi">:</span> <span class="pi">{{</span> <span class="nv">secrets.GITHUB_TOKEN</span> <span class="pi">}}</span></code></pre></figure>
 
-<p><img src="/assets/cake-build/azure-devops-tests.png" alt="Azure DevOps Tests" /></p>
+<p><code class="language-plaintext highlighter-rouge">GitHub CLI</code> relies on the shell expanding wildcards which doesn’t happen on Windows. So instead of providing:</p>
 
-<p>One thing I’ve noticed is that builds seem to be slower on the <code class="language-plaintext highlighter-rouge">Hosted Ubuntu 1604</code> agents than on the <code class="language-plaintext highlighter-rouge">Hosted VS2017</code> agents.</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">.<span class="se">\a</span>rtifacts<span class="se">\p</span>ackages<span class="se">\*</span></code></pre></figure>
+
+<p>You’ll need to provide:</p>
+
+<figure class="highlight"><pre><code class="language-powershell" data-lang="powershell"><span class="p">(</span><span class="nf">Get-Item</span><span class="w"> </span><span class="o">.</span><span class="nx">\artifacts\packages\</span><span class="o">*</span><span class="p">)</span></code></pre></figure>
+
+<p>Finally the <code class="language-plaintext highlighter-rouge">GitHub CLI</code> doesn’t allow to create a release without release notes in a non-interactive scenario. I worked around this by creating an empty file and providing it to the <code class="language-plaintext highlighter-rouge">--notes-file</code> parameter.</p>
 
 <h2 id="conclusion">Conclusion</h2>
 
