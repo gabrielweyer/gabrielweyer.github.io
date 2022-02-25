@@ -1,0 +1,11 @@
+I"�<p>My name is Gabriel Weyer. I’m a software developer based in Melbourne, Australia. I blog about technology.</p>
+
+<p>I like building, supporting and operating products. <code class="language-plaintext highlighter-rouge">C#</code> and <code class="language-plaintext highlighter-rouge">ASP.NET Core</code> are the tools I’m the most proficient with. I’ve a keen interest in Continuous Integration and Deployment, testing, logging, cloud, distributed systems, security and troubleshooting.</p>
+
+<h2 id="open-source">Open-source</h2>
+
+<p>I’m grateful for all the amazing frameworks and libraries available. I share the <a href="https://github.com/gabrielweyer/nuggets">tips and trick</a> I’ve accumulated over the years on <a href="https://github.com/gabrielweyer">GitHub</a>.</p>
+
+<p>I <a href="https://github.com/gabrielweyer/cake-build">demonstrated</a> how to use <a href="https://cakebuild.net/">Cake</a> to build a NuGet package using AppVeyor, Azure DevOps, CircleCI and GitHub Actions. <a href="https://github.com/gabrielweyer/azure-vm-pricing">Azure VM pricing</a> was the opportunity to experiment with Puppeteer, I used it when costing a lift-and-shift migration dealing with many thousands VMs of varied sizes. My most recent project is an attempt to improve <a href="https://github.com/gabrielweyer/azure-functions-telemetry">Azure Functions integration with Application Insights</a>.</p>
+
+:ET
