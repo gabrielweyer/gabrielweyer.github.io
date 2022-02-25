@@ -7,6 +7,52 @@
     <atom:link href="https://gabrielweyer.net/feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
+        <title>Improving Azure Functions Telemetry</title>
+        <description>&lt;p&gt;A while back I wrote about &lt;a href=&quot;/2020/12/20/azure-functions-and-their-limitations/&quot;&gt;Azure Functions and their limitations&lt;/a&gt;. I highlighted the lack of telemetry processors support and the large volume of telemetry emitted by the runtime as two pain points in the Application Insights integration. I managed to add support for telemetry processors and discard the duplicated telemetry. My implementation was clunky and mostly uncovered by tests but I’ve been running it for over a year on many Azure Functions and it &lt;em&gt;seems&lt;/em&gt; to be working.&lt;/p&gt;
+
+&lt;p&gt;I didn’t publish my customisation as I was hoping Azure Functions v4 would make it obsolete. I recently played around with In-Process Functions v4 and discovered the same issues are present and the runtime is emitting more telemetry. This motivated me to remove a few rough edges in my implementation and add support for v4.&lt;!--more--&gt;&lt;/p&gt;
+
+&lt;p&gt;The code is available on &lt;a href=&quot;https://github.com/gabrielweyer/azure-functions-telemetry&quot;&gt;GitHub&lt;/a&gt;, it has a few sample Azure Functions demonstrating how the customisation behaves. My main goal was to offer an integration aligning closely with the way Applications Insights is configured in ASP.NET Core.&lt;/p&gt;
+
+&lt;p&gt;Telemetry processors are added using &lt;a href=&quot;https://docs.microsoft.com/en-us/azure/azure-monitor/app/api-filtering-sampling#create-a-telemetry-processor-c&quot;&gt;AddApplicationInsightsTelemetryProcessor&lt;/a&gt;. You can add as many processors as you want, they will be called in the expected order and will be executed for all telemetry items.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;n&quot;&gt;builder&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Services&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;AddApplicationInsightsTelemetryProcessor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;YourFirstProcessor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;()&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;AddApplicationInsightsTelemetryProcessor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;YourSecondProcessor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;();&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Telemetry initializers are supported out-of-the-box in Azure Functions. &lt;a href=&quot;https://docs.microsoft.com/en-us/azure/azure-monitor/app/api-filtering-sampling#addmodify-properties-itelemetryinitializer&quot;&gt;Telemetry initializers are added directly to the Dependency Injection container&lt;/a&gt;. You can either provide the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Type&lt;/code&gt; or provide an instance of your initializer depending on your requirements.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;n&quot;&gt;builder&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Services&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;AddSingleton&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ITelemetryInitializer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;YourInitializer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;()&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;AddSingleton&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ITelemetryInitializer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;YourOtherInitializer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;NiceValue&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The custom integration will get rid of all the duplicate exceptions recorded by Application Insights. It will also discard the “&lt;em&gt;Executing …&lt;/em&gt;” and “&lt;em&gt;Executed …&lt;/em&gt;” traces emitted by each Function execution.&lt;/p&gt;
+
+&lt;p&gt;The integration offers a few additional bells and whistles which are documented in the repository:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Ability to discard health requests&lt;/li&gt;
+  &lt;li&gt;Ability to discard Service Bus trigger traces&lt;/li&gt;
+  &lt;li&gt;Setting status code and request name on Service Bus requests (these are blank in the built-in integration)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;I’ve only focused on the HTTP and Service Bus bindings but hopefully it shouldn’t be too hard to improve the integration on other bindings as well.&lt;/p&gt;
+
+&lt;p&gt;The library also replaces the custom Functions Console logger by the .NET Console logger. I was frustrated by the lack of exception stack traces on the HTTP binding.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;n&quot;&gt;builder&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Services&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;AddCustomConsoleLogging&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The implementation is still moslty uncovered by tests. I haven’t (yet) thought of a way to write meaningful tests for the &lt;a href=&quot;https://github.com/gabrielweyer/azure-functions-telemetry/blob/e69451c2bb179529a218bbcf7d5a8e13eddd00c9/src/Custom.FunctionsTelemetry/ApplicationInsights/ApplicationInsightsServiceCollectionExtensions.cs#L24-L207&quot;&gt;method&lt;/a&gt; that configures Application Insights. I noticed the Functions team writes end-to-end tests so that might be something to explore.&lt;/p&gt;
+
+&lt;p&gt;I’ve not packaged the customisation into a NuGet package yet, if you’re interested please raise an issue on the GitHub repository.&lt;/p&gt;
+
+</description>
+        <pubDate>Fri, 25 Feb 2022 02:33:02 -0600</pubDate>
+        <link>https://gabrielweyer.net/2022/02/25/azure-functions-telemetry/</link>
+        <guid isPermaLink="true">https://gabrielweyer.net/2022/02/25/azure-functions-telemetry/</guid>
+      </item>
+    
+      <item>
         <title>Azure Functions and their limitations</title>
         <description>&lt;p&gt;I’ve recently started using Azure Functions. What interested me most was to understand why users are picking Functions over “plain” Azure Web Apps to host HTTP APIs. I found the HTTP binding to be limited, the development experience to be clunky and the Application Insights integration to behave differently that on ASP.NET Core.&lt;/p&gt;
 
@@ -1752,90 +1798,6 @@ NumStaticFields:     1
         <pubDate>Fri, 09 Mar 2018 15:51:53 -0600</pubDate>
         <link>https://gabrielweyer.net/2018/03/09/windbg-1-static-root/</link>
         <guid isPermaLink="true">https://gabrielweyer.net/2018/03/09/windbg-1-static-root/</guid>
-      </item>
-    
-      <item>
-        <title>Beanstalk Seeder</title>
-        <description>&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Elastic Beanstalk&lt;/code&gt; is a great platform, it offers both a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Web&lt;/code&gt; tier and a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Worker&lt;/code&gt; tier. I recently wrote about &lt;a href=&quot;/2018/01/28/simple-routing-elastic-beanstalk-worker/&quot;&gt;Simple Routing&lt;/a&gt; one of my library that allows you to route a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SQS&lt;/code&gt; message to a specific endpoint on the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Worker&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;While &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Beanstalk&lt;/code&gt; works great once it’s deployed to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AWS&lt;/code&gt; there is no easy way to run it locally. As soon as you want to execute an end-to-end flow involving both the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Web&lt;/code&gt; and the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Worker&lt;/code&gt; you need to manually &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;POST&lt;/code&gt; requests to the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Worker&lt;/code&gt; using &lt;a href=&quot;https://www.getpostman.com/&quot;&gt;Postman&lt;/a&gt; which is cumbersome and error-prone.&lt;/p&gt;
-
-&lt;p&gt;As it core all the &lt;a href=&quot;https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html&quot;&gt;SQS daemon&lt;/a&gt; does is dequeue messages from a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SQS&lt;/code&gt; queue and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;POST&lt;/code&gt; it to a specified endpoint. With this goal in mind I wrote &lt;a href=&quot;https://github.com/gabrielweyer/beanstalk-seeder&quot;&gt;Beanstalk Seeder&lt;/a&gt;.&lt;!--more--&gt;&lt;/p&gt;
-
-&lt;p&gt;I had the following objectives:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Users should be able to get up and running quickly&lt;/li&gt;
-  &lt;li&gt;Meaningful logging&lt;/li&gt;
-  &lt;li&gt;Transform the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SQS&lt;/code&gt; &lt;a href=&quot;https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-message-attributes.html&quot;&gt;message attributes&lt;/a&gt; into HTTP headers (in order to support &lt;a href=&quot;https://github.com/gabrielweyer/simple-routing&quot;&gt;Simple Routing&lt;/a&gt;)&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;get-up-and-running-quickly&quot;&gt;Get up and running quickly&lt;/h2&gt;
-
-&lt;p&gt;You can get &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Beanstalk Seeder&lt;/code&gt; from &lt;a href=&quot;https://github.com/gabrielweyer/beanstalk-seeder/releases&quot;&gt;GitHub releases&lt;/a&gt;. Download the archive and extract it somewhere.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Beanstalk Seeder&lt;/code&gt;’s &lt;a href=&quot;https://github.com/gabrielweyer/beanstalk-seeder#configuration&quot;&gt;configuration&lt;/a&gt; is detailed in the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;README&lt;/code&gt;. All you need is a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;iAM&lt;/code&gt; user, the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Worker&lt;/code&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;URI&lt;/code&gt; and the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SQS&lt;/code&gt; queue &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;URI.&lt;/code&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;meaningful-logging&quot;&gt;Meaningful logging&lt;/h2&gt;
-
-&lt;p&gt;When running a third-party tool, it’s critical to get meaningful logging as the binary is a black-box for the end user. I use &lt;a href=&quot;https://nblumhardt.com/2016/06/structured-logging-concepts-in-net-series-1/#what-is-structured-logging&quot;&gt;structured logging&lt;/a&gt; in order to make querying the log events a breeze. My logging framework of choice is &lt;a href=&quot;https://blog.getseq.net/serilog-tutorial/&quot;&gt;Serilog&lt;/a&gt;.&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-csharp&quot; data-lang=&quot;csharp&quot;&gt;&lt;span class=&quot;kt&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;loggerConfiguration&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;LoggerConfiguration&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Destructure&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ByTransforming&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;MessageAttributeValue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Destructure&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Destructure&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ByTransforming&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Destructure&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;MinimumLevel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Is&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;serilogLevel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Enrich&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;WithDemystifiedStackTraces&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Enrich&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;FromLogContext&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;WriteTo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;serilogLevel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;The previous snippet highlights only a few of the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Serilog&lt;/code&gt; features.&lt;/p&gt;
-
-&lt;h3 id=&quot;the-structure-capturing-operator&quot;&gt;The structure-capturing operator&lt;/h3&gt;
-
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MessageAttributeValue&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Message&lt;/code&gt; are both defined in the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;awssdk.sqs&lt;/code&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;NuGet&lt;/code&gt; package. I’m interested in logging only some of their properties, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Serilog&lt;/code&gt; has the ability to capture object via the &lt;a href=&quot;https://nblumhardt.com/2016/08/serialized-data-structured-logging-concepts-in-net-6/#capturing-objects&quot;&gt;structure-capturing operator&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h3 id=&quot;enrichment&quot;&gt;Enrichment&lt;/h3&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Enrichment is the act of adding additional properties to events, other than the ones originating from the message template.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Serilog&lt;/code&gt; supports &lt;a href=&quot;https://blog.getseq.net/serilog-tutorial/#enrichingwithambientcontext&quot;&gt;ambient context&lt;/a&gt;. I’m also using the excellent &lt;a href=&quot;https://github.com/benaadams/Ben.Demystifier&quot;&gt;Ben.Demystifier&lt;/a&gt; for getting nicer stack traces.&lt;/p&gt;
-
-&lt;h3 id=&quot;sinks&quot;&gt;Sinks&lt;/h3&gt;
-
-&lt;p&gt;By default, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Serilog&lt;/code&gt; does not log anywhere. In order to record events you’ll need to configure one or more &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Sink&lt;/code&gt;s. In this case I’m writing to the console but they are &lt;a href=&quot;https://github.com/serilog/serilog/wiki/Provided-Sinks&quot;&gt;many other&lt;/a&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Sink&lt;/code&gt;s available.&lt;/p&gt;
-
-&lt;h3 id=&quot;result&quot;&gt;Result&lt;/h3&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/beanstalk-seeder/events.png&quot; alt=&quot;HTTP Path&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;I hope the recorded events are descriptive enough so that an end user know what’s happening:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;First I display the settings used, this is important as they could come from the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;appsettings.json&lt;/code&gt;, environment variables or even the &lt;a href=&quot;https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?tabs=visual-studio#secret-manager&quot;&gt;user secrets&lt;/a&gt; if the environment is &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Development&lt;/code&gt;.&lt;/li&gt;
-  &lt;li&gt;Then using the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;structure-capturing operator&lt;/code&gt; I log the relevant &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SQS&lt;/code&gt; message properties.&lt;/li&gt;
-  &lt;li&gt;Instead of logging the complete HTTP request I log the content of the body and the relevant headers.&lt;/li&gt;
-  &lt;li&gt;When deleting the message, I log the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ReceiptHandle&lt;/code&gt;, this is the value used to delete a message and the user can correlate it to what was displayed above.&lt;/li&gt;
-  &lt;li&gt;Finally, rather than not displaying anything when there are no messages in the queue I inform the user that’s the case and how long I’ll wait before retrying.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;interestings-bits&quot;&gt;Interestings bits&lt;/h2&gt;
-
-&lt;p&gt;I’m using a &lt;a href=&quot;https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtokensource?view=netcore-2.0&quot;&gt;CancellationTokenSource&lt;/a&gt; so that the user can stop the message pump at any time (relying on &lt;a href=&quot;https://docs.microsoft.com/en-us/dotnet/api/system.console.cancelkeypress?view=netcore-2.0&quot;&gt;Console.CancelKeyPress&lt;/a&gt;).&lt;/p&gt;
-
-&lt;p&gt;The &lt;a href=&quot;https://github.com/gabrielweyer/beanstalk-seeder/blob/ca47d6f84fe748915a22de63b23a34ef735a88ae/src/BeanstalkSeeder/Services/MessagePump.cs&quot;&gt;MessagePump&lt;/a&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;class&lt;/code&gt; is the only &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;class&lt;/code&gt; with some logic. I wrote some &lt;a href=&quot;https://github.com/gabrielweyer/beanstalk-seeder/blob/ca47d6f84fe748915a22de63b23a34ef735a88ae/tests/BeanstalkSeederTests/MessagePumpTests.cs&quot;&gt;tests&lt;/a&gt; around the cancellation token, the transformation of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SQS&lt;/code&gt; message attributes into HTTP headers and the back-off when no messages are available in the queue.&lt;/p&gt;
-
-&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
-
-&lt;p&gt;I hope you’ll find &lt;a href=&quot;https://github.com/gabrielweyer/beanstalk-seeder&quot;&gt;Beanstalk Seeder&lt;/a&gt; as useful as I did, combined with &lt;a href=&quot;https://github.com/gabrielweyer/simple-routing&quot;&gt;Simple Routing&lt;/a&gt; it simplified and streamlined my &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Elastic Beanstalk&lt;/code&gt; development.&lt;/p&gt;
-
-&lt;p&gt;I also wanted to point out that &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Beanstalk Seeder&lt;/code&gt; is platform agnostic. It doesn’t matter if you’re developing using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Node.js&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Go&lt;/code&gt; or any other of the &lt;a href=&quot;https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/concepts.platforms.html&quot;&gt;Elastic Beanstalk supported platforms&lt;/a&gt;, all you need to do is install the latest &lt;a href=&quot;https://www.microsoft.com/net/download/windows&quot;&gt;.NET Core runtime&lt;/a&gt; (available on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Windows&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;macOS&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Linux&lt;/code&gt;).&lt;/p&gt;
-
-</description>
-        <pubDate>Fri, 23 Feb 2018 17:40:46 -0600</pubDate>
-        <link>https://gabrielweyer.net/2018/02/23/beanstalk-seeder/</link>
-        <guid isPermaLink="true">https://gabrielweyer.net/2018/02/23/beanstalk-seeder/</guid>
       </item>
     
   </channel>

@@ -1,0 +1,5 @@
+I"�<p>A while back I wrote about <a href="/2020/12/20/azure-functions-and-their-limitations/">Azure Functions and their limitations</a>. I highlighted the lack of telemetry processors support and the large volume of telemetry emitted by the runtime as two pain points in the Application Insights integration. I managed to add support for telemetry processors and discard the duplicated telemetry. My implementation was clunky and mostly uncovered by tests but I’ve been running it for over a year on many Azure Functions and it <em>seems</em> to be working.</p>
+
+<p>I didn’t publish my customisation as I was hoping Azure Functions v4 would make it obsolete. I recently played around with In-Process Functions v4 and discovered the same issues are present and the runtime is emitting more telemetry. This motivated me to remove a few rough edges in my implementation and add support for v4.</p>
+
+:ET

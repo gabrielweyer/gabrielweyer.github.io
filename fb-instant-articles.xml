@@ -9,6 +9,64 @@
     
         
             <item>
+                <title>Improving Azure Functions Telemetry</title>
+                <link>https://gabrielweyer.net/2022/02/25/azure-functions-telemetry/</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>A while back I wrote about <a href="/2020/12/20/azure-functions-and-their-limitations/">Azure Functions and their limitations</a>. I highlighted the lack of telemetry processors support and the large volume of telemetry emitted by the runtime as two pain points in the Application Insights integration. I managed to add support for telemetry processors and discard the duplicated telemetry. My implementation was clunky and mostly uncovered by tests but I’ve been running it for over a year on many Azure Functions and it <em>seems</em> to be working.</p>
+
+<p>I didn’t publish my customisation as I was hoping Azure Functions v4 would make it obsolete. I recently played around with In-Process Functions v4 and discovered the same issues are present and the runtime is emitting more telemetry. This motivated me to remove a few rough edges in my implementation and add support for v4.<!--more--></p>
+
+<p>The code is available on <a href="https://github.com/gabrielweyer/azure-functions-telemetry">GitHub</a>, it has a few sample Azure Functions demonstrating how the customisation behaves. My main goal was to offer an integration aligning closely with the way Applications Insights is configured in ASP.NET Core.</p>
+
+<p>Telemetry processors are added using <a href="https://docs.microsoft.com/en-us/azure/azure-monitor/app/api-filtering-sampling#create-a-telemetry-processor-c">AddApplicationInsightsTelemetryProcessor</a>. You can add as many processors as you want, they will be called in the expected order and will be executed for all telemetry items.</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span>
+    <span class="p">.</span><span class="n">AddApplicationInsightsTelemetryProcessor</span><span class="p">&lt;</span><span class="n">YourFirstProcessor</span><span class="p">&gt;()</span>
+    <span class="p">.</span><span class="n">AddApplicationInsightsTelemetryProcessor</span><span class="p">&lt;</span><span class="n">YourSecondProcessor</span><span class="p">&gt;();</span></code></pre></figure>
+
+<p>Telemetry initializers are supported out-of-the-box in Azure Functions. <a href="https://docs.microsoft.com/en-us/azure/azure-monitor/app/api-filtering-sampling#addmodify-properties-itelemetryinitializer">Telemetry initializers are added directly to the Dependency Injection container</a>. You can either provide the <code class="language-plaintext highlighter-rouge">Type</code> or provide an instance of your initializer depending on your requirements.</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span>
+    <span class="p">.</span><span class="n">AddSingleton</span><span class="p">&lt;</span><span class="n">ITelemetryInitializer</span><span class="p">,</span> <span class="n">YourInitializer</span><span class="p">&gt;()</span>
+    <span class="p">.</span><span class="n">AddSingleton</span><span class="p">&lt;</span><span class="n">ITelemetryInitializer</span><span class="p">&gt;(</span><span class="k">new</span> <span class="nf">YourOtherInitializer</span><span class="p">(</span><span class="s">"NiceValue"</span><span class="p">));</span></code></pre></figure>
+
+<p>The custom integration will get rid of all the duplicate exceptions recorded by Application Insights. It will also discard the “<em>Executing …</em>” and “<em>Executed …</em>” traces emitted by each Function execution.</p>
+
+<p>The integration offers a few additional bells and whistles which are documented in the repository:</p>
+
+<ul>
+  <li>Ability to discard health requests</li>
+  <li>Ability to discard Service Bus trigger traces</li>
+  <li>Setting status code and request name on Service Bus requests (these are blank in the built-in integration)</li>
+</ul>
+
+<p>I’ve only focused on the HTTP and Service Bus bindings but hopefully it shouldn’t be too hard to improve the integration on other bindings as well.</p>
+
+<p>The library also replaces the custom Functions Console logger by the .NET Console logger. I was frustrated by the lack of exception stack traces on the HTTP binding.</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="nf">AddCustomConsoleLogging</span><span class="p">();</span></code></pre></figure>
+
+<p>The implementation is still moslty uncovered by tests. I haven’t (yet) thought of a way to write meaningful tests for the <a href="https://github.com/gabrielweyer/azure-functions-telemetry/blob/e69451c2bb179529a218bbcf7d5a8e13eddd00c9/src/Custom.FunctionsTelemetry/ApplicationInsights/ApplicationInsightsServiceCollectionExtensions.cs#L24-L207">method</a> that configures Application Insights. I noticed the Functions team writes end-to-end tests so that might be something to explore.</p>
+
+<p>I’ve not packaged the customisation into a NuGet package yet, if you’re interested please raise an issue on the GitHub repository.</p>
+
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2022/02/25/azure-functions-telemetry/</guid>
+                <description>
+                    
+                    Improving Application Insights integration with Azure Functions.
+                    
+                </description>
+                <pubDate>Fri, 25 Feb 2022 02:33:02 -0600</pubDate>
+                <author>Gabriel Weyer</author>
+            </item>
+        
+    
+        
+            <item>
                 <title>Azure Functions and their limitations</title>
                 <link>https://gabrielweyer.net/2020/12/20/azure-functions-and-their-limitations/</link>
                 <content:encoded>

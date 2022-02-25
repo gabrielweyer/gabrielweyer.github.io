@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Gabriel Weyer - A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202201292056" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202202250237" type="text/css">
 
     <!-- Fonts -->
     
@@ -104,6 +104,23 @@
     <div class="posts">
       
         <div class="post py3">
+          <p class="post-meta">Feb 25, 2022</p>
+          <a href="/2022/02/25/azure-functions-telemetry/" class="post-link"><h3 class="h1 post-title">Improving Azure Functions Telemetry</h3></a>
+          <span class="post-summary">
+            <p>A while back I wrote about <a href="/2020/12/20/azure-functions-and-their-limitations/">Azure Functions and their limitations</a>. I highlighted the lack of telemetry processors support and the large volume of telemetry emitted by the runtime as two pain points in the Application Insights integration. I managed to add support for telemetry processors and discard the duplicated telemetry. My implementation was clunky and mostly uncovered by tests but I’ve been running it for over a year on many Azure Functions and it <em>seems</em> to be working.</p>
+
+<p>I didn’t publish my customisation as I was hoping Azure Functions v4 would make it obsolete. I recently played around with In-Process Functions v4 and discovered the same issues are present and the runtime is emitting more telemetry. This motivated me to remove a few rough edges in my implementation and add support for v4.</p>
+
+
+             
+            
+            
+              <a href="/2022/02/25/azure-functions-telemetry/">Continue reading</a>
+            
+          </span>
+        </div>
+      
+        <div class="post py3">
           <p class="post-meta">Dec 20, 2020</p>
           <a href="/2020/12/20/azure-functions-and-their-limitations/" class="post-link"><h3 class="h1 post-title">Azure Functions and their limitations</h3></a>
           <span class="post-summary">
@@ -153,31 +170,6 @@
             
             
               <a href="/2019/02/06/azure-vm-pricing/">Continue reading</a>
-            
-          </span>
-        </div>
-      
-        <div class="post py3">
-          <p class="post-meta">May 18, 2018</p>
-          <a href="/2018/05/18/advanced-dotnet-debugging-2/" class="post-link"><h3 class="h1 post-title">Advanced .NET Debugging #2</h3></a>
-          <span class="post-summary">
-            <p>I’m continuing to read the excellent <a href="https://www.goodreads.com/book/show/7306509-advanced-net-debugging">Advanced .NET Debugging</a> by Mario Hewardt. Last time I looked at <a href="/2018/04/06/advanced-dotnet-debugging-1/">finding the entry point of a native image</a>. This time around I’ll be investigating the launch of a <strong>managed</strong> image by <code class="language-plaintext highlighter-rouge">Windows</code>.</p>
-
-<h2 id="prerequisites">Prerequisites</h2>
-
-<ul>
-  <li>A hex viewer
-    <ul>
-      <li>I used the <a href="https://peclrviewer.azurewebsites.net/">PE CLR Viewer</a> (<strong>disclaimer</strong>: I created this truly ugly looking website)</li>
-    </ul>
-  </li>
-</ul>
-
-
-             
-            
-            
-              <a href="/2018/05/18/advanced-dotnet-debugging-2/">Continue reading</a>
             
           </span>
         </div>

@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Gabriel Weyer - A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202201292056" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202202250237" type="text/css">
 
     <!-- Fonts -->
     
@@ -104,6 +104,28 @@
     <div class="posts">
       
         <div class="post py3">
+          <p class="post-meta">Mar 24, 2018</p>
+          <a href="/2018/03/24/testing-anti-patterns-1/" class="post-link"><h3 class="h1 post-title">Testing anti-patterns #1</h3></a>
+          <span class="post-summary">
+            <p>I often ask candidates to define a good unit test. This is the starting point of a conversation around testing strategies and delivering value. Over the years I’ve heard opinions ranging from <code class="language-plaintext highlighter-rouge">the 100% coverage</code>, passing by <code class="language-plaintext highlighter-rouge">testing is for testers</code>, all the way to <code class="language-plaintext highlighter-rouge">we don't do automated testing</code>. If the notion of a <em>good test</em> can be subjective, it is easier to identify a <strong>bad</strong> test. Bloggers have written about this topic at length but I thought I would try paraphrasing the same content hoping nobody would notice.</p>
+
+<p>I must admit I have written - quite - a few bad tests myself and that’s fine. We all make mistakes, how we handle those mistakes is what help us grow:</p>
+
+<ul>
+  <li>It’s important to understand why the mistake happened and put in place measures to prevent the same mistake from happening again</li>
+  <li>Equally we should challenge existing practices, they might be there for a good reason but they might instead be there for a <strong>bad</strong> reason</li>
+</ul>
+
+
+             
+            
+            
+              <a href="/2018/03/24/testing-anti-patterns-1/">Continue reading</a>
+            
+          </span>
+        </div>
+      
+        <div class="post py3">
           <p class="post-meta">Mar 9, 2018</p>
           <a href="/2018/03/09/windbg-1-static-root/" class="post-link"><h3 class="h1 post-title">WinDbg #1 - The static root</h3></a>
           <span class="post-summary">
@@ -158,24 +180,6 @@
             
             
               <a href="/2018/02/08/singleton-http-client/">Continue reading</a>
-            
-          </span>
-        </div>
-      
-        <div class="post py3">
-          <p class="post-meta">Jan 28, 2018</p>
-          <a href="/2018/01/28/simple-routing-elastic-beanstalk-worker/" class="post-link"><h3 class="h1 post-title">Simple Routing for Elastic Beanstalk Worker tier</h3></a>
-          <span class="post-summary">
-            <p><code class="language-plaintext highlighter-rouge">Elastic Beanstalk</code> offers both a <code class="language-plaintext highlighter-rouge">Web</code> tier and a <code class="language-plaintext highlighter-rouge">Worker</code> tier. This allows developers to build reasonably complex applications without having to maintain moving pieces. Offloading heavy-duty workloads to the worker in order to keep the web tier responsive is as easy as putting a message on a queue.</p>
-
-<p><img src="/assets/simple-routing-elastic-beanstalk-worker/http-path.png" alt="HTTP Path" /></p>
-
-<p>One annoyance that I have with <code class="language-plaintext highlighter-rouge">Beanstalk</code> is that there is no way to direct a message to a specific endpoint, hence leaving a single endpoint the responsibility of distributing the messages to all their handlers and potentially leading to brittle code. But it doesn’t have to be that way.</p>
-
-             
-            
-            
-              <a href="/2018/01/28/simple-routing-elastic-beanstalk-worker/">Continue reading</a>
             
           </span>
         </div>

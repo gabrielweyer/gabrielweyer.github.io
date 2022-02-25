@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Gabriel Weyer - A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202201292056" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202202250237" type="text/css">
 
     <!-- Fonts -->
     
@@ -104,6 +104,24 @@
     <div class="posts">
       
         <div class="post py3">
+          <p class="post-meta">Jan 28, 2018</p>
+          <a href="/2018/01/28/simple-routing-elastic-beanstalk-worker/" class="post-link"><h3 class="h1 post-title">Simple Routing for Elastic Beanstalk Worker tier</h3></a>
+          <span class="post-summary">
+            <p><code class="language-plaintext highlighter-rouge">Elastic Beanstalk</code> offers both a <code class="language-plaintext highlighter-rouge">Web</code> tier and a <code class="language-plaintext highlighter-rouge">Worker</code> tier. This allows developers to build reasonably complex applications without having to maintain moving pieces. Offloading heavy-duty workloads to the worker in order to keep the web tier responsive is as easy as putting a message on a queue.</p>
+
+<p><img src="/assets/simple-routing-elastic-beanstalk-worker/http-path.png" alt="HTTP Path" /></p>
+
+<p>One annoyance that I have with <code class="language-plaintext highlighter-rouge">Beanstalk</code> is that there is no way to direct a message to a specific endpoint, hence leaving a single endpoint the responsibility of distributing the messages to all their handlers and potentially leading to brittle code. But it doesn’t have to be that way.</p>
+
+             
+            
+            
+              <a href="/2018/01/28/simple-routing-elastic-beanstalk-worker/">Continue reading</a>
+            
+          </span>
+        </div>
+      
+        <div class="post py3">
           <p class="post-meta">Jan 26, 2018</p>
           <a href="/2018/01/26/links-insights-1/" class="post-link"><h3 class="h1 post-title">Links Insights #1</h3></a>
           <span class="post-summary">
@@ -162,27 +180,6 @@
             
             
               <a href="/2016/06/13/bein-sports-connect/">Continue reading</a>
-            
-          </span>
-        </div>
-      
-        <div class="post py3">
-          <p class="post-meta">Jun 3, 2016</p>
-          <a href="/2016/06/03/codecleanser/" class="post-link"><h3 class="h1 post-title">CodeCleanser</h3></a>
-          <span class="post-summary">
-            <p>Recently I came up with an interesting issue at a customer. A governmental agency contacted us and informed us that due to a Windows update we could experience intermittent issue when trying to communicate with them. All I knew at this stage was that the issue would manifest itself when trying to upload a document and that the integration is done via DLLs that are wrapping a few web services.</p>
-
-<p>After <a href="https://www.jetbrains.com/help/decompiler/2016.1/Generating_PDB_Files.html">generating PDBs</a> via <a href="https://www.jetbrains.com/decompiler/">dotPeek</a> and adding them to the Visual Studio symbol cache directory I was able to debug through those third party DLLs and confirm that the issue was indeed located in one of them.</p>
-
-<p>Knowing the DLL is redistributed with the product, is in multiple production versions and that the source control’s history is pretty patchy, the question then become: <strong>if we were to get a new DLL could we use it for all the versions?</strong></p>
-
-<p>To answer this question we will have to assess the differences between the DLL in each version.</p>
-
-
-             
-            
-            
-              <a href="/2016/06/03/codecleanser/">Continue reading</a>
             
           </span>
         </div>
