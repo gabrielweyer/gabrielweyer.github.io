@@ -2508,6 +2508,8 @@ git config <span class="nt">--global</span> <span class="nt">--unset</span> form
 
 <h2 id="microsoft-message-analyzer">Microsoft Message Analyzer</h2>
 
+<p><strong>Note</strong>: Microsoft Message Analyzer has been <a href="https://docs.microsoft.com/en-us/openspecs/blog/ms-winintbloglp/dd98b93c-0a75-4eb0-b92e-e760c502394f">retired</a> since I wrote this post.</p>
+
 <p>We now need to analyze this trace and this is done with the <a href="https://technet.microsoft.com/en-us/library/jj649776.aspx">Microsoft Message</a> <a href="https://blogs.technet.microsoft.com/messageanalyzer/">Analyzer</a> (can be downloaded <a href="https://www.microsoft.com/en-au/download/details.aspx?id=44226">here</a>). The Analyzer takes a long time to open the smallest trace but once the trace is loaded you can search quickly.</p>
 
 <p>We’ll first look for an HTTP CONNECT, use this filter:</p>
