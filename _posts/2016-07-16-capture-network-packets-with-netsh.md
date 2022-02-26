@@ -69,6 +69,8 @@ netsh stop
 
 ## Microsoft Message Analyzer
 
+**Note**: Microsoft Message Analyzer has been [retired][microsoft-message-analyzer-retirement-notice] since I wrote this post.
+
 We now need to analyze this trace and this is done with the [Microsoft Message][microsoft-message-analyzer-one] [Analyzer][microsoft-message-analyzer-two] (can be downloaded [here][download-message-analyzer]). The Analyzer takes a long time to open the smallest trace but once the trace is loaded you can search quickly.
 
 We'll first look for an HTTP CONNECT, use this filter:
@@ -113,3 +115,4 @@ As it turned out someone had messed up with the certificate store and removed th
 [microsoft-message-analyzer-two]: https://blogs.technet.microsoft.com/messageanalyzer/
 [download-message-analyzer]: https://www.microsoft.com/en-au/download/details.aspx?id=44226
 [rfc-5246]: https://tools.ietf.org/html/rfc5246#page-36
+[microsoft-message-analyzer-retirement-notice]: https://docs.microsoft.com/en-us/openspecs/blog/ms-winintbloglp/dd98b93c-0a75-4eb0-b92e-e760c502394f
