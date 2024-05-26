@@ -5,7 +5,7 @@ jobs:
       only:
         - develop
     docker:
-      - image: jekyll/builder:4.1.0
+      - image: jekyll/builder:4.2.2
         user: jekyll
     steps:
       - add_ssh_keys:
