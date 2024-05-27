@@ -4,7 +4,7 @@ Source for my [blog][blog].
 
 | CI | Status |
 | --- | --- |
-| [CircleCI][circle-ci] | [![Build Status][circle-ci-shield]][circle-ci] |
+| [GitHub Actions][github-actions] | [![Build Status][github-actions-shield]][github-actions] |
 
 ## Development
 
@@ -24,13 +24,13 @@ docker run --rm --volume="$($PWD):/srv/jekyll" -p 4000:4000 -it jekyll/builder:$
 
 ## Updating
 
-1. Update `Gemfile`, `README.md`, and `.circleci\config.yml` with the new version
+1. Update `Gemfile`, `README.md`, and `.github/workflows/build.yml` with the new version
 1. Set `$Env:JEKYLL_VERSION` with the new version
 1. `docker run --rm --volume="$($PWD):/srv/jekyll" -it jekyll/builder:$Env:JEKYLL_VERSION bundle update`
 1. Start Jekyll and confirm everything is working as expected
 1. Commit, push
 
 [blog]: https://gabrielweyer.net/
-[circle-ci]: https://circleci.com/gh/gabrielweyer/gabrielweyer.github.io
-[circle-ci-shield]: https://circleci.com/gh/gabrielweyer/gabrielweyer.github.io/tree/develop.svg?style=shield
+[github-actions]: https://github.com/gabrielweyer/gabrielweyer.github.io/actions/workflows/build.yml
+[github-actions-shield]: https://github.com/gabrielweyer/gabrielweyer.github.io/actions/workflows/build.yml/badge.svg
 [working-with-drafts]: https://jekyllrb.com/docs/drafts/

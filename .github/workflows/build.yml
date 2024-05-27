@@ -1,0 +1,33 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-22.04
+    env:
+      JEKYLL_VERSION: 4.2.2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Create artifact directory
+        run: mkdir ${{ runner.temp }}/blog
+      - name: Build static site
+        run: |
+          docker run --rm -e JEKYLL_UID=1001 -e JEKYLL_GID=127 --volume="${{ github.workspace }}:/srv/jekyll" --volume="${{ runner.temp }}/blog:/tmp/blog" jekyll/builder:$JEKYLL_VERSION /bin/bash -c "git config --global --add safe.directory /srv/jekyll && bundle config set --local path 'vendor/bundle' && bundle install && bundle exec jekyll build --destination /tmp/blog && git clean -ffdx && git reset --hard HEAD"
+      - name: Deploy to GitHub pages
+        run: |
+          git checkout master
+          git pull --rebase origin master
+          cp -r ${{ runner.temp }}/blog/* ${{ github.workspace }}
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add .
+          git commit -m "Release"
+          git push origin master
