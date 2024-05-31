@@ -176,12 +176,12 @@
 # A directory containing your collection of random numbers
 data/more-data/
 
-# A single file where you've let a GUID generator roam free
+# A single file where you&apos;ve let a GUID generator roam free
 data/super-random.lol&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;truffleHog&lt;/code&gt; is written in &lt;a href=&quot;https://en.wikipedia.org/wiki/Monty_Python&quot;&gt;Python&lt;/a&gt; and distributed using &lt;a href=&quot;https://pypi.org/project/pip/&quot;&gt;pip&lt;/a&gt;. If you’re like me and have no idea what those words mean, the quickest way to get started is to use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Docker&lt;/code&gt;. Browse to the directory where the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Git&lt;/code&gt; repository is located and run the following container:&lt;/p&gt;
 
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-powershell&quot; data-lang=&quot;powershell&quot;&gt;&lt;span class=&quot;nf&quot;&gt;docker&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;-it&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;--rm&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;`
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-powershell&quot; data-lang=&quot;powershell&quot;&gt;&lt;span class=&quot;n&quot;&gt;docker&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;-it&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;--rm&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;`
 &lt;/span&gt;&lt;span class=&quot;w&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;-v&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;$(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$pwd&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;:/opt/scan-me&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;`
 &lt;/span&gt;&lt;span class=&quot;w&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;-v&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&amp;lt;output-and-settings-directory&amp;gt;:/opt/truffle-hog&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;`
 &lt;/span&gt;&lt;span class=&quot;w&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;python:3.7-stretch&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;/bin/bash&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
@@ -302,7 +302,7 @@ trufflehog &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
 
 &lt;p&gt;You can then run &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;BFG Repo-Cleaner&lt;/code&gt; with the following command:&lt;/p&gt;
 
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-powershell&quot; data-lang=&quot;powershell&quot;&gt;&lt;span class=&quot;nf&quot;&gt;java&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;-jar&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;C:\tools\bfg\bfg.jar&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;`
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-powershell&quot; data-lang=&quot;powershell&quot;&gt;&lt;span class=&quot;n&quot;&gt;java&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;-jar&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;C:\tools\bfg\bfg.jar&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;`
 &lt;/span&gt;&lt;span class=&quot;w&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;--delete-folders&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;{ancient-directory,useless-directory}&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;`
 &lt;/span&gt;&lt;span class=&quot;w&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;--delete-files&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;{pfx-password.txt,my-super-private-key.key,private-key-for-iis.pfx,production-database-backup.sql,*.psd,all.min-626ed116.js.map}&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;`
 &lt;/span&gt;&lt;span class=&quot;w&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;--replace-text&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;C:\tools\bfg\project-secrets.txt&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;`
@@ -324,7 +324,7 @@ my-top-secret-secret&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 These are your protected commits, and so their contents will NOT be altered:
 
- * commit e31fec6c (protected by 'HEAD') - contains 4 dirty files :
+ * commit e31fec6c (protected by &apos;HEAD&apos;) - contains 4 dirty files :
         - some-directory/production-database-backup.sql (98.9 KB)
         - other-directory/pfx-password.txt (99.5 KB)
         - ...
@@ -349,7 +349,7 @@ Cleaning
 
 These are your protected commits, and so their contents will NOT be altered:
 
- * commit e31fec6c (protected by 'HEAD')
+ * commit e31fec6c (protected by &apos;HEAD&apos;)
 
 Cleaning
 --------&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
@@ -1102,7 +1102,7 @@ Child SP       IP Call Site
 
 &lt;p&gt;You’ll need to provide:&lt;/p&gt;
 
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-powershell&quot; data-lang=&quot;powershell&quot;&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Get-Item&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;\artifacts\packages\&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-powershell&quot; data-lang=&quot;powershell&quot;&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Get-Item&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;\artifacts\packages\&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;Finally the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GitHub CLI&lt;/code&gt; doesn’t allow to create a release without release notes in a non-interactive scenario. I worked around this by creating an empty file and providing it to the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;--notes-file&lt;/code&gt; parameter.&lt;/p&gt;
 
@@ -1190,7 +1190,7 @@ Child SP       IP Call Site
 
 &lt;p&gt;But we’re now faced with another issue, the address entry point (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;0x193E0&lt;/code&gt;) resolves to some kind of wasteland:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/advanced-dotnet-debugging-1/wasteland.png&quot; alt=&quot;That can't be the entry point!&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/advanced-dotnet-debugging-1/wasteland.png&quot; alt=&quot;That can&apos;t be the entry point!&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;The Portable Executable format has the concept of &lt;strong&gt;Relative Virtual Address&lt;/strong&gt; (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;RVA&lt;/code&gt;) which it defines like this:&lt;/p&gt;
 
@@ -1243,7 +1243,7 @@ notepad!__mainCRTStartup:
     
       <item>
         <title>Testing anti-patterns #1</title>
-        <description>&lt;p&gt;I often ask candidates to define a good unit test. This is the starting point of a conversation around testing strategies and delivering value. Over the years I’ve heard opinions ranging from &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;the 100% coverage&lt;/code&gt;, passing by &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;testing is for testers&lt;/code&gt;, all the way to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;we don't do automated testing&lt;/code&gt;. If the notion of a &lt;em&gt;good test&lt;/em&gt; can be subjective, it is easier to identify a &lt;strong&gt;bad&lt;/strong&gt; test. Bloggers have written about this topic at length but I thought I would try paraphrasing the same content hoping nobody would notice.&lt;/p&gt;
+        <description>&lt;p&gt;I often ask candidates to define a good unit test. This is the starting point of a conversation around testing strategies and delivering value. Over the years I’ve heard opinions ranging from &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;the 100% coverage&lt;/code&gt;, passing by &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;testing is for testers&lt;/code&gt;, all the way to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;we don&apos;t do automated testing&lt;/code&gt;. If the notion of a &lt;em&gt;good test&lt;/em&gt; can be subjective, it is easier to identify a &lt;strong&gt;bad&lt;/strong&gt; test. Bloggers have written about this topic at length but I thought I would try paraphrasing the same content hoping nobody would notice.&lt;/p&gt;
 
 &lt;p&gt;I must admit I have written - quite - a few bad tests myself and that’s fine. We all make mistakes, how we handle those mistakes is what help us grow:&lt;/p&gt;
 
@@ -1496,7 +1496,7 @@ HandleTable:
     -&amp;gt; 0000019019412bf0 System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib]]
     -&amp;gt; 000001941c364e28 System.Int32[]
 
-Found 1 unique roots (run '!GCRoot -all' to see all roots).&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+Found 1 unique roots (run &apos;!GCRoot -all&apos; to see all roots).&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;This reads bottom to top, our &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Int32[]&lt;/code&gt; is referenced by a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;List&amp;lt;Int32&amp;gt;&lt;/code&gt;. This makes sense as &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;List&amp;lt;T&amp;gt;&lt;/code&gt; is &lt;a href=&quot;https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1?view=netframework-4.7.1#Remarks&quot;&gt;using an array&lt;/a&gt; internally:&lt;/p&gt;
 

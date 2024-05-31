@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Gabriel Weyer - A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202301132103" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202405311814" type="text/css">
 
     <!-- Fonts -->
     
@@ -161,7 +161,7 @@ data/super-random.lol</code></pre></figure>
 
 <p><code class="language-plaintext highlighter-rouge">truffleHog</code> is written in <a href="https://en.wikipedia.org/wiki/Monty_Python">Python</a> and distributed using <a href="https://pypi.org/project/pip/">pip</a>. If you’re like me and have no idea what those words mean, the quickest way to get started is to use <code class="language-plaintext highlighter-rouge">Docker</code>. Browse to the directory where the <code class="language-plaintext highlighter-rouge">Git</code> repository is located and run the following container:</p>
 
-<figure class="highlight"><pre><code class="language-powershell" data-lang="powershell"><span class="nf">docker</span><span class="w"> </span><span class="nx">run</span><span class="w"> </span><span class="nt">-it</span><span class="w"> </span><span class="nt">--rm</span><span class="w"> </span><span class="se">`
+<figure class="highlight"><pre><code class="language-powershell" data-lang="powershell"><span class="n">docker</span><span class="w"> </span><span class="nx">run</span><span class="w"> </span><span class="nt">-it</span><span class="w"> </span><span class="nt">--rm</span><span class="w"> </span><span class="se">`
 </span><span class="w">    </span><span class="nt">-v</span><span class="w"> </span><span class="s2">"</span><span class="si">$(</span><span class="nv">$pwd</span><span class="si">)</span><span class="s2">:/opt/scan-me"</span><span class="w"> </span><span class="se">`
 </span><span class="w">    </span><span class="nt">-v</span><span class="w"> </span><span class="s2">"&lt;output-and-settings-directory&gt;:/opt/truffle-hog"</span><span class="w"> </span><span class="se">`
 </span><span class="w">    </span><span class="nx">python:3.7-stretch</span><span class="w"> </span><span class="nx">/bin/bash</span></code></pre></figure>
@@ -282,7 +282,7 @@ trufflehog <span class="se">\</span>
 
 <p>You can then run <code class="language-plaintext highlighter-rouge">BFG Repo-Cleaner</code> with the following command:</p>
 
-<figure class="highlight"><pre><code class="language-powershell" data-lang="powershell"><span class="nf">java</span><span class="w"> </span><span class="nt">-jar</span><span class="w"> </span><span class="s2">"C:\tools\bfg\bfg.jar"</span><span class="w"> </span><span class="se">`
+<figure class="highlight"><pre><code class="language-powershell" data-lang="powershell"><span class="n">java</span><span class="w"> </span><span class="nt">-jar</span><span class="w"> </span><span class="s2">"C:\tools\bfg\bfg.jar"</span><span class="w"> </span><span class="se">`
 </span><span class="w">    </span><span class="nt">--delete-folders</span><span class="w"> </span><span class="s2">"{ancient-directory,useless-directory}"</span><span class="w"> </span><span class="se">`
 </span><span class="w">    </span><span class="nt">--delete-files</span><span class="w"> </span><span class="s2">"{pfx-password.txt,my-super-private-key.key,private-key-for-iis.pfx,production-database-backup.sql,*.psd,all.min-626ed116.js.map}"</span><span class="w"> </span><span class="se">`
 </span><span class="w">    </span><span class="nt">--replace-text</span><span class="w"> </span><span class="s2">"C:\tools\bfg\project-secrets.txt"</span><span class="w"> </span><span class="se">`

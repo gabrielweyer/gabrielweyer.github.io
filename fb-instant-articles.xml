@@ -210,7 +210,7 @@ data/super-random.lol</code></pre></figure>
 
 <p><code class="language-plaintext highlighter-rouge">truffleHog</code> is written in <a href="https://en.wikipedia.org/wiki/Monty_Python">Python</a> and distributed using <a href="https://pypi.org/project/pip/">pip</a>. If you’re like me and have no idea what those words mean, the quickest way to get started is to use <code class="language-plaintext highlighter-rouge">Docker</code>. Browse to the directory where the <code class="language-plaintext highlighter-rouge">Git</code> repository is located and run the following container:</p>
 
-<figure class="highlight"><pre><code class="language-powershell" data-lang="powershell"><span class="nf">docker</span><span class="w"> </span><span class="nx">run</span><span class="w"> </span><span class="nt">-it</span><span class="w"> </span><span class="nt">--rm</span><span class="w"> </span><span class="se">`
+<figure class="highlight"><pre><code class="language-powershell" data-lang="powershell"><span class="n">docker</span><span class="w"> </span><span class="nx">run</span><span class="w"> </span><span class="nt">-it</span><span class="w"> </span><span class="nt">--rm</span><span class="w"> </span><span class="se">`
 </span><span class="w">    </span><span class="nt">-v</span><span class="w"> </span><span class="s2">"</span><span class="si">$(</span><span class="nv">$pwd</span><span class="si">)</span><span class="s2">:/opt/scan-me"</span><span class="w"> </span><span class="se">`
 </span><span class="w">    </span><span class="nt">-v</span><span class="w"> </span><span class="s2">"&lt;output-and-settings-directory&gt;:/opt/truffle-hog"</span><span class="w"> </span><span class="se">`
 </span><span class="w">    </span><span class="nx">python:3.7-stretch</span><span class="w"> </span><span class="nx">/bin/bash</span></code></pre></figure>
@@ -331,7 +331,7 @@ trufflehog <span class="se">\</span>
 
 <p>You can then run <code class="language-plaintext highlighter-rouge">BFG Repo-Cleaner</code> with the following command:</p>
 
-<figure class="highlight"><pre><code class="language-powershell" data-lang="powershell"><span class="nf">java</span><span class="w"> </span><span class="nt">-jar</span><span class="w"> </span><span class="s2">"C:\tools\bfg\bfg.jar"</span><span class="w"> </span><span class="se">`
+<figure class="highlight"><pre><code class="language-powershell" data-lang="powershell"><span class="n">java</span><span class="w"> </span><span class="nt">-jar</span><span class="w"> </span><span class="s2">"C:\tools\bfg\bfg.jar"</span><span class="w"> </span><span class="se">`
 </span><span class="w">    </span><span class="nt">--delete-folders</span><span class="w"> </span><span class="s2">"{ancient-directory,useless-directory}"</span><span class="w"> </span><span class="se">`
 </span><span class="w">    </span><span class="nt">--delete-files</span><span class="w"> </span><span class="s2">"{pfx-password.txt,my-super-private-key.key,private-key-for-iis.pfx,production-database-backup.sql,*.psd,all.min-626ed116.js.map}"</span><span class="w"> </span><span class="se">`
 </span><span class="w">    </span><span class="nt">--replace-text</span><span class="w"> </span><span class="s2">"C:\tools\bfg\project-secrets.txt"</span><span class="w"> </span><span class="se">`
@@ -1179,7 +1179,7 @@ Child SP       IP Call Site
 
 <p>You’ll need to provide:</p>
 
-<figure class="highlight"><pre><code class="language-powershell" data-lang="powershell"><span class="p">(</span><span class="nf">Get-Item</span><span class="w"> </span><span class="o">.</span><span class="nx">\artifacts\packages\</span><span class="o">*</span><span class="p">)</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-powershell" data-lang="powershell"><span class="p">(</span><span class="n">Get-Item</span><span class="w"> </span><span class="o">.</span><span class="nx">\artifacts\packages\</span><span class="o">*</span><span class="p">)</span></code></pre></figure>
 
 <p>Finally the <code class="language-plaintext highlighter-rouge">GitHub CLI</code> doesn’t allow to create a release without release notes in a non-interactive scenario. I worked around this by creating an empty file and providing it to the <code class="language-plaintext highlighter-rouge">--notes-file</code> parameter.</p>
 
@@ -2490,13 +2490,13 @@ git config <span class="nt">--global</span> <span class="nt">--unset</span> form
 
 <p>When people think “packet capture” they always assume they need to install <a href="https://www.wireshark.org/">Wireshark</a> (or another similar tool) whereas Windows Server is shipping with the ability to capture network packets with <a href="https://technet.microsoft.com/en-us/library/dd878517(v=ws.10).aspx">netsh</a> since Windows Server 2008 R2. The advantage of this solution is that you don’t need to install anything on the machine. To see if it’s available, all you need to do is open a command prompt and type:</p>
 
-<figure class="highlight"><pre><code class="language-posh" data-lang="posh"><span class="nf">netsh</span><span class="w"> </span><span class="nx">trace</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-posh" data-lang="posh"><span class="n">netsh</span><span class="w"> </span><span class="nx">trace</span></code></pre></figure>
 
 <p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/netsh-trace.gif" alt="netsh-trace" /></p>
 
 <p>Now that we know that <strong>trace</strong> is available we need to start capturing the packets and reproduce the problem. Launch an <strong>elevated</strong> command prompt and type:</p>
 
-<figure class="highlight"><pre><code class="language-posh" data-lang="posh"><span class="nf">netsh</span><span class="w"> </span><span class="nx">trace</span><span class="w"> </span><span class="nx">start</span><span class="w"> </span><span class="nx">tracefile</span><span class="o">=</span><span class="s2">"C:\tmp\traces\classic.etl"</span><span class="w"> </span><span class="nf">scenario</span><span class="o">=</span><span class="nf">internetclient</span><span class="w"> </span><span class="nx">capture</span><span class="o">=</span><span class="nf">yes</span><span class="w"> </span><span class="nx">maxsize</span><span class="o">=</span><span class="mi">200</span><span class="w"> </span><span class="nf">filemode</span><span class="o">=</span><span class="nf">circular</span><span class="w"> </span><span class="nx">overwrite</span><span class="o">=</span><span class="nf">yes</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-posh" data-lang="posh"><span class="n">netsh</span><span class="w"> </span><span class="nx">trace</span><span class="w"> </span><span class="nx">start</span><span class="w"> </span><span class="nx">tracefile</span><span class="o">=</span><span class="s2">"C:\tmp\traces\classic.etl"</span><span class="w"> </span><span class="n">scenario</span><span class="o">=</span><span class="n">internetclient</span><span class="w"> </span><span class="nx">capture</span><span class="o">=</span><span class="n">yes</span><span class="w"> </span><span class="nx">maxsize</span><span class="o">=</span><span class="mi">200</span><span class="w"> </span><span class="n">filemode</span><span class="o">=</span><span class="n">circular</span><span class="w"> </span><span class="nx">overwrite</span><span class="o">=</span><span class="n">yes</span></code></pre></figure>
 
 <p><strong>Note</strong>: the path needs to exist beforehand.</p>
 
@@ -2504,7 +2504,7 @@ git config <span class="nt">--global</span> <span class="nt">--unset</span> form
 
 <p>Starting and stopping the trace is actually slower that what is demonstrated above but I didn’t want lo lose your attention! And of course you would need to reproduce the issue before issuing:</p>
 
-<figure class="highlight"><pre><code class="language-posh" data-lang="posh"><span class="nf">netsh</span><span class="w"> </span><span class="nx">stop</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-posh" data-lang="posh"><span class="n">netsh</span><span class="w"> </span><span class="nx">stop</span></code></pre></figure>
 
 <h2 id="microsoft-message-analyzer">Microsoft Message Analyzer</h2>
 
@@ -2647,7 +2647,7 @@ git config <span class="nt">--global</span> <span class="nt">--unset</span> form
 
 <p>Windows ships with a few ways to compute a checksum, <a href="http://superuser.com/a/898377/128002">CertUtil</a> is one of them, PowerShell has a <a href="https://technet.microsoft.com/en-us/library/dn520872.aspx">Get-FileHash</a> cmdlet and this is what I’ll use:</p>
 
-<figure class="highlight"><pre><code class="language-posh" data-lang="posh"><span class="nf">Get-FileHash</span><span class="w"> </span><span class="err">&lt;</span><span class="nx">filepath</span><span class="err">&gt;</span><span class="w"> </span><span class="nt">-Algorithm</span><span class="w"> </span><span class="nx">MD5</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-posh" data-lang="posh"><span class="n">Get-FileHash</span><span class="w"> </span><span class="err">&lt;</span><span class="nx">filepath</span><span class="err">&gt;</span><span class="w"> </span><span class="nt">-Algorithm</span><span class="w"> </span><span class="nx">MD5</span></code></pre></figure>
 
 <p>For our purpose MD5 is good enough, if you want to ensure that a file hasn’t been tampered with you should be using SHA256 at least.</p>
 
@@ -2655,7 +2655,7 @@ git config <span class="nt">--global</span> <span class="nt">--unset</span> form
 
 <p>At this stage I could have used <a href="https://msdn.microsoft.com/en-us/library/f7dy01k1(v=vs.110).aspx">Ildasm</a> to try to diff the full source code in one file but according to my previous tries the output end up being different. For sake of completeness I tried again before writing this blog post.</p>
 
-<figure class="highlight"><pre><code class="language-posh" data-lang="posh"><span class="nf">ildasm</span><span class="w"> </span><span class="err">&lt;</span><span class="nx">dll-filepath</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">/text</span><span class="w"> </span><span class="nx">/out</span><span class="o">=</span><span class="err">&lt;</span><span class="nf">output-filepath</span><span class="err">&gt;</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-posh" data-lang="posh"><span class="n">ildasm</span><span class="w"> </span><span class="err">&lt;</span><span class="nx">dll-filepath</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">/text</span><span class="w"> </span><span class="nx">/out</span><span class="o">=</span><span class="err">&lt;</span><span class="n">output-filepath</span><span class="err">&gt;</span></code></pre></figure>
 
 <p>This time is no exception, WinMerge indicates 348 differences! Some of them can be explained away:</p>
 

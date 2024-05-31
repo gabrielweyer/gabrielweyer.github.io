@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Gabriel Weyer - A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202301132103" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202405311814" type="text/css">
 
     <!-- Fonts -->
     
@@ -124,7 +124,7 @@
 
 <p>Windows ships with a few ways to compute a checksum, <a href="http://superuser.com/a/898377/128002">CertUtil</a> is one of them, PowerShell has a <a href="https://technet.microsoft.com/en-us/library/dn520872.aspx">Get-FileHash</a> cmdlet and this is what I’ll use:</p>
 
-<figure class="highlight"><pre><code class="language-posh" data-lang="posh"><span class="nf">Get-FileHash</span><span class="w"> </span><span class="err">&lt;</span><span class="nx">filepath</span><span class="err">&gt;</span><span class="w"> </span><span class="nt">-Algorithm</span><span class="w"> </span><span class="nx">MD5</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-posh" data-lang="posh"><span class="n">Get-FileHash</span><span class="w"> </span><span class="err">&lt;</span><span class="nx">filepath</span><span class="err">&gt;</span><span class="w"> </span><span class="nt">-Algorithm</span><span class="w"> </span><span class="nx">MD5</span></code></pre></figure>
 
 <p>For our purpose MD5 is good enough, if you want to ensure that a file hasn’t been tampered with you should be using SHA256 at least.</p>
 
@@ -132,7 +132,7 @@
 
 <p>At this stage I could have used <a href="https://msdn.microsoft.com/en-us/library/f7dy01k1(v=vs.110).aspx">Ildasm</a> to try to diff the full source code in one file but according to my previous tries the output end up being different. For sake of completeness I tried again before writing this blog post.</p>
 
-<figure class="highlight"><pre><code class="language-posh" data-lang="posh"><span class="nf">ildasm</span><span class="w"> </span><span class="err">&lt;</span><span class="nx">dll-filepath</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">/text</span><span class="w"> </span><span class="nx">/out</span><span class="o">=</span><span class="err">&lt;</span><span class="nf">output-filepath</span><span class="err">&gt;</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-posh" data-lang="posh"><span class="n">ildasm</span><span class="w"> </span><span class="err">&lt;</span><span class="nx">dll-filepath</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">/text</span><span class="w"> </span><span class="nx">/out</span><span class="o">=</span><span class="err">&lt;</span><span class="n">output-filepath</span><span class="err">&gt;</span></code></pre></figure>
 
 <p>This time is no exception, WinMerge indicates 348 differences! Some of them can be explained away:</p>
 

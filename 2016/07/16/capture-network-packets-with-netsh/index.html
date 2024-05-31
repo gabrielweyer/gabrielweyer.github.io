@@ -17,7 +17,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Gabriel Weyer - A somewhat technical blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202301132103" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202405311814" type="text/css">
 
     <!-- Fonts -->
     
@@ -151,13 +151,13 @@
 
 <p>When people think “packet capture” they always assume they need to install <a href="https://www.wireshark.org/">Wireshark</a> (or another similar tool) whereas Windows Server is shipping with the ability to capture network packets with <a href="https://technet.microsoft.com/en-us/library/dd878517(v=ws.10).aspx">netsh</a> since Windows Server 2008 R2. The advantage of this solution is that you don’t need to install anything on the machine. To see if it’s available, all you need to do is open a command prompt and type:</p>
 
-<figure class="highlight"><pre><code class="language-posh" data-lang="posh"><span class="nf">netsh</span><span class="w"> </span><span class="nx">trace</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-posh" data-lang="posh"><span class="n">netsh</span><span class="w"> </span><span class="nx">trace</span></code></pre></figure>
 
 <p><img src="/assets/2016-07-16-capture-network-packets-with-netsh/netsh-trace.gif" alt="netsh-trace" /></p>
 
 <p>Now that we know that <strong>trace</strong> is available we need to start capturing the packets and reproduce the problem. Launch an <strong>elevated</strong> command prompt and type:</p>
 
-<figure class="highlight"><pre><code class="language-posh" data-lang="posh"><span class="nf">netsh</span><span class="w"> </span><span class="nx">trace</span><span class="w"> </span><span class="nx">start</span><span class="w"> </span><span class="nx">tracefile</span><span class="o">=</span><span class="s2">"C:\tmp\traces\classic.etl"</span><span class="w"> </span><span class="nf">scenario</span><span class="o">=</span><span class="nf">internetclient</span><span class="w"> </span><span class="nx">capture</span><span class="o">=</span><span class="nf">yes</span><span class="w"> </span><span class="nx">maxsize</span><span class="o">=</span><span class="mi">200</span><span class="w"> </span><span class="nf">filemode</span><span class="o">=</span><span class="nf">circular</span><span class="w"> </span><span class="nx">overwrite</span><span class="o">=</span><span class="nf">yes</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-posh" data-lang="posh"><span class="n">netsh</span><span class="w"> </span><span class="nx">trace</span><span class="w"> </span><span class="nx">start</span><span class="w"> </span><span class="nx">tracefile</span><span class="o">=</span><span class="s2">"C:\tmp\traces\classic.etl"</span><span class="w"> </span><span class="n">scenario</span><span class="o">=</span><span class="n">internetclient</span><span class="w"> </span><span class="nx">capture</span><span class="o">=</span><span class="n">yes</span><span class="w"> </span><span class="nx">maxsize</span><span class="o">=</span><span class="mi">200</span><span class="w"> </span><span class="n">filemode</span><span class="o">=</span><span class="n">circular</span><span class="w"> </span><span class="nx">overwrite</span><span class="o">=</span><span class="n">yes</span></code></pre></figure>
 
 <p><strong>Note</strong>: the path needs to exist beforehand.</p>
 
@@ -165,7 +165,7 @@
 
 <p>Starting and stopping the trace is actually slower that what is demonstrated above but I didn’t want lo lose your attention! And of course you would need to reproduce the issue before issuing:</p>
 
-<figure class="highlight"><pre><code class="language-posh" data-lang="posh"><span class="nf">netsh</span><span class="w"> </span><span class="nx">stop</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-posh" data-lang="posh"><span class="n">netsh</span><span class="w"> </span><span class="nx">stop</span></code></pre></figure>
 
 <h2 id="microsoft-message-analyzer">Microsoft Message Analyzer</h2>
 
